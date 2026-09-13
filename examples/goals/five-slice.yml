@@ -1,0 +1,55 @@
+title: Five-Slice bounded execution example
+changeId: example-change
+adapter: codex
+maxAttempts: 2
+slices:
+  - id: S1
+    objective: Add the domain operation
+    acceptance:
+      - The operation has focused behavior coverage
+    dependsOn: []
+    verify:
+      - label: focused domain test
+        command: pnpm
+        args: [exec, vitest, run, tests/domain.test.ts]
+        timeoutMs: 300000
+  - id: S2
+    objective: Expose the operation through the existing service interface
+    acceptance:
+      - The service preserves the existing response contract
+    dependsOn: [S1]
+    verify:
+      - label: service test
+        command: pnpm
+        args: [exec, vitest, run, tests/service.test.ts]
+        timeoutMs: 300000
+  - id: S3
+    objective: Add the user-facing workflow
+    acceptance:
+      - A user can complete the approved happy path
+    dependsOn: [S2]
+    verify:
+      - label: workflow test
+        command: pnpm
+        args: [exec, vitest, run, tests/workflow.test.ts]
+        timeoutMs: 300000
+  - id: S4
+    objective: Add observable failure handling
+    acceptance:
+      - The approved failure state is visible and recoverable
+    dependsOn: [S3]
+    verify:
+      - label: failure-path test
+        command: pnpm
+        args: [exec, vitest, run, tests/failure.test.ts]
+        timeoutMs: 300000
+  - id: S5
+    objective: Reconcile operator and user documentation
+    acceptance:
+      - Current documentation matches verified behavior
+    dependsOn: [S4]
+    verify:
+      - label: documentation check
+        command: pnpm
+        args: [run, check:docs]
+        timeoutMs: 300000

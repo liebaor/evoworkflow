@@ -1,0 +1,38 @@
+schemaVersion: 1
+id: goal-id
+title: Goal title
+changeId: change-id
+repository: /absolute/path/to/repository
+adapter: codex
+maxAttempts: 3
+status: DRAFT
+stopConditions:
+  - REQUIREMENT_AMBIGUITY
+  - ACCEPTANCE_CHANGE
+  - ARCHITECTURE_DEVIATION
+  - BREAKING_API
+  - SECURITY_DECISION
+  - DESTRUCTIVE_DATA_OPERATION
+  - UNEXPECTED_DEPENDENCY
+  - SCOPE_EXPANSION
+  - REPEATED_FAILURE
+slices:
+  - id: S1
+    objective: One bounded user-visible behavior
+    acceptance:
+      - Observable acceptance criterion
+    dependsOn: []
+    verify:
+      - label: Focused test
+        command: pnpm
+        args: [test]
+        timeoutMs: 300000
+    status: PENDING
+    attempts: []
+    blockReason: null
+    stopCondition: null
+approval: null
+runEpoch: 0
+resumes: []
+createdAt: "1970-01-01T00:00:00.000Z"
+updatedAt: "1970-01-01T00:00:00.000Z"

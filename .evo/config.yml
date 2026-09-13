@@ -1,0 +1,45 @@
+schemaVersion: 1
+project:
+  name: "EvoFlow"
+workflow:
+  defaultWeight: STANDARD
+  requireHumanApproval: true
+  autoCommit: false
+  autoFinish: false
+knowledge:
+  staleWorkDays: 30
+  agentsMaxLines: 200
+goal:
+  defaultAdapter: codex
+  maxAttempts: 3
+agents:
+  adapters:
+    codex:
+      kind: codex
+      command: codex
+      timeoutMs: 3600000
+      args:
+        - exec
+        - --sandbox
+        - workspace-write
+        - --cd
+        - "{repository}"
+        - "-"
+    claude:
+      kind: claude
+      command: claude
+      timeoutMs: 3600000
+      args:
+        - --print
+        - --permission-mode
+        - acceptEdits
+        - --output-format
+        - json
+    opencode:
+      kind: opencode
+      command: opencode
+      timeoutMs: 3600000
+      args:
+        - run
+        - --dir
+        - "{repository}"

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evoworkflow.dev/schema/linked-artifact-metadata-v1.json",
+  "title": "EVOworkflow Linked Artifact Metadata v1",
+  "type": "object",
+  "properties": {
+    "change": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "NEEDS_INFO",
+        "AWAITING_APPROVAL",
+        "APPROVED",
+        "BLOCKED",
+        "COMPLETED"
+      ]
+    },
+    "approval": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "approvedAt": {
+              "type": "string",
+              "minLength": 1
+            },
+            "approvedBy": {
+              "type": "string",
+              "const": "human"
+            },
+            "fingerprint": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "approvedAt",
+            "approvedBy",
+            "fingerprint"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "change",
+    "status",
+    "approval"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,10 @@
+schemaVersion: 1
+projectMode: {{PROJECT_MODE}}
+phase: IDLE
+status: COMPLETED
+activeChange: null
+activeGoal: null
+currentSlice: null
+slices: []
+initializedAt: "{{NOW}}"
+updatedAt: "{{NOW}}"
