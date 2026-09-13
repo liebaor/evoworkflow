@@ -25,7 +25,11 @@ pnpm evo --help
 evo check --root /path/to/project
 evo status --root /path/to/project
 evo doctor --root /path/to/project
+evo context --root /path/to/project
+evo recover --root /path/to/project
 ```
+
+`evo context` 默认输出当前 Change 的路径化 Working Context，并说明每个引用的优先级和理由。只有明确添加 `--write` 才会写入活动 Change 的 `context.md`；它不会复制源码正文，也不会改变批准状态。`evo recover` 始终只读，汇总当前阶段、Slice、证据、阻塞、Git 变化和未知项，不会自动恢复 Goal 或进入下一阶段。
 
 当 Change、Specification 或 Plan 到达 `AWAITING_APPROVAL` 时，先检查精确内容，再记录批准：
 
@@ -49,8 +53,8 @@ Adapter 命令或参数变化属于执行策略变化；已有 Goal 批准会失
 
 ## 故障恢复
 
-状态写入是原子的。进程中断可能留下 `RUNNING` Goal 和 `.evo/goals/.locks/` 下的执行锁。把锁视为陈旧前，检查 PID 和当前进程状态。确认安全删除锁后，使用 `evo goal resume <id> --reason <reason>` 记录新的有边界尝试 epoch 并继续。
+状态写入是原子的。进程中断可能留下 `RUNNING` Goal 和 `.evo/goals/.locks/` 下的执行锁。把锁视为陈旧前，检查 PID 和当前进程状态。确认安全删除锁后，使用 `evo goal resume <id> --reason <reason>` 记录新的有边界尝试 epoch 并继续。需要变更需求或调查 Bug 时，先保存结构化 Delta/Bug 记录并回到人工批准边界。
 
 证据中的外部或运行环境 `UNVERIFIED` 会阻止 Finish，除非 `review.md` 明确记录 `status: APPROVED`、`humanAcceptance: true` 和 `acceptedLimitations: true`。这种人工接受只保留为已知限制；本地结果不能替代真实模型、跨平台、CI 或生产入口验证，归档证据仍保留 `UNVERIFIED`。
 
-EVOworkflow v0.1 不提供自动 release、deploy 或生产回滚。
+EVOworkflow v0.2 不提供自动 release、deploy 或生产回滚；只读恢复报告也不代表外部运行已验证。

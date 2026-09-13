@@ -317,6 +317,30 @@ async function validateDecisionLinks(paths: ReturnType<typeof repositoryPaths>):
           issues.push(issue('BROKEN_DECISION_LINK', 'error', `Decision ${metadata.id} ${field} missing Decision ${linked}.`, relative(paths, target)))
         }
       }
+      if (metadata.supersedes) {
+        const predecessor = records.find((record) => record.metadata.id === metadata.supersedes)
+        if (predecessor && predecessor.metadata.supersededBy !== metadata.id) {
+          issues.push(issue('INCONSISTENT_DECISION_LINK', 'error', `Decision ${metadata.id} supersedes ${metadata.supersedes}, but the predecessor does not point back with supersededBy.`, relative(paths, target)))
+        }
+      }
+      if (metadata.supersededBy) {
+        const successor = records.find((record) => record.metadata.id === metadata.supersededBy)
+        if (successor && successor.metadata.supersedes !== metadata.id) {
+          issues.push(issue('INCONSISTENT_DECISION_LINK', 'error', `Decision ${metadata.id} is superseded by ${metadata.supersededBy}, but the successor does not point back with supersedes.`, relative(paths, target)))
+        }
+      }
+  }
+  for (const {metadata, target} of records) {
+    const visited = new Set<string>()
+    let current: DecisionMetadata | undefined = metadata
+    while (current?.supersedes) {
+      if (visited.has(current.id) || current.supersedes === metadata.id) {
+        issues.push(issue('DECISION_SUPERSESSION_CYCLE', 'error', `Decision supersession chain starting at ${metadata.id} contains a cycle.`, relative(paths, target)))
+        break
+      }
+      visited.add(current.id)
+      current = records.find((record) => record.metadata.id === current?.supersedes)?.metadata
+    }
   }
   return issues
 }

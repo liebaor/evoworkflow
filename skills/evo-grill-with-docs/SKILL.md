@@ -15,13 +15,14 @@ Read the project map, current product/domain authorities, relevant Decisions, so
 
 ## Required outcomes
 
-Create or update `.evo/work/active/<change-id>/change.md` with the problem, user outcome, Change weight, scope, non-goals, rules, acceptance criteria, existing mechanisms, primary/affected/unaffected modules, and open Decisions. Promote durable domain terms to `CONTEXT.md` only when needed. Set reviewable content to `AWAITING_APPROVAL`; only the human runs `evo approve <change-id> change`.
+Create or update `.evo/work/active/<change-id>/change.md` with the problem, user outcome, Change weight, scope, non-goals, rules, acceptance criteria, existing mechanisms, primary/affected/unaffected modules, expected blast radius, and open Decisions. Use repository evidence to suggest Small/Standard/Large, but leave the final weight to the human. Promote durable domain terms to `CONTEXT.md` only when needed. Set reviewable content to `AWAITING_APPROVAL`; only the human runs `evo approve <change-id> change`.
 
 ## Constraints and decision rules
 
 - Ask only questions whose answers materially change behavior or engineering direction.
 - Ask one consequential human Decision at a time when practical and include a recommendation with trade-offs.
 - A proposed answer is not approval.
+- Do not decide response, permission, framework, or architecture consistency from a generic profile when the checkout provides evidence.
 - Standard and Large Changes remain `NEEDS_INFO` while any required Decision is unresolved.
 
 ## Stop conditions

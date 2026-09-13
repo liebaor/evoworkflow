@@ -9,6 +9,23 @@ export interface DiscoveryEvidence {
   readonly evidence: readonly string[]
 }
 
+export type TechnologyConfidence = 'CONFIRMED' | 'INFERRED' | 'UNKNOWN'
+
+export interface TechnologyObservation {
+  readonly name: string
+  readonly version: string | null
+  readonly confidence: TechnologyConfidence
+  readonly evidence: readonly string[]
+}
+
+export type RepositoryAreaKind = 'backend' | 'frontend' | 'shared' | 'database' | 'docs' | 'tests' | 'module' | 'config' | 'other'
+
+export interface RepositoryArea {
+  readonly path: string
+  readonly kind: RepositoryAreaKind
+  readonly evidence: readonly string[]
+}
+
 export interface DiscoveredCommand {
   readonly purpose: 'build' | 'run' | 'test' | 'typecheck' | 'lint' | 'check' | 'observe'
   readonly command: string
@@ -30,6 +47,8 @@ export interface DiscoveryReport {
   readonly truncated: boolean
   readonly languages: readonly DiscoveryEvidence[]
   readonly frameworks: readonly DiscoveryEvidence[]
+  readonly technologies: readonly TechnologyObservation[]
+  readonly areas: readonly RepositoryArea[]
   readonly commands: readonly DiscoveredCommand[]
   readonly authorities: readonly AuthorityCandidate[]
   readonly capabilities: readonly DiscoveryEvidence[]
@@ -100,11 +119,13 @@ export async function scanRepository(root: string, maximumFiles = 6000): Promise
   const packageEvidence = await readPackageEvidence(resolvedRoot, relativeFiles)
   const textEvidence = await readSelectedText(resolvedRoot, relativeFiles)
   const frameworks = discoverFrameworks(relativeFiles, packageEvidence, textEvidence)
+  const technologies = discoverTechnologies(relativeFiles, languages, frameworks, packageEvidence, textEvidence)
+  const areas = discoverRepositoryAreas(relativeFiles)
   const commands = discoverCommands(relativeFiles, packageEvidence, frameworks)
   const authorities = discoverAuthorities(relativeFiles)
   const capabilities = discoverCapabilities(relativeFiles, textEvidence)
   const references = discoverReferences(relativeFiles, textEvidence)
-  const unknowns = discoverUnknowns(mode, commands, authorities, frameworks, relativeFiles, inventory.truncated)
+  const unknowns = discoverUnknowns(mode, commands, authorities, frameworks, technologies, relativeFiles, inventory.truncated)
   const confidence = discoveryConfidence(frameworks, commands, authorities, inventory.truncated)
 
   return {
@@ -117,6 +138,8 @@ export async function scanRepository(root: string, maximumFiles = 6000): Promise
     truncated: inventory.truncated,
     languages,
     frameworks,
+    technologies,
+    areas,
     commands,
     authorities,
     capabilities,
@@ -176,6 +199,8 @@ interface PackageEvidence {
 interface PackageManifestEvidence {
   readonly path: string
   readonly dependencies: ReadonlySet<string>
+  readonly versions: Readonly<Record<string, string>>
+  readonly engines: Readonly<Record<string, string>>
   readonly scripts: Readonly<Record<string, string>>
 }
 
@@ -186,11 +211,21 @@ async function readPackageEvidence(root: string, files: readonly string[]): Prom
     try {
       const value = JSON.parse(await readFile(path.join(root, packagePath), 'utf8')) as Record<string, unknown>
       const dependencies = new Set<string>()
+      const versions: Record<string, string> = {}
+      const engines: Record<string, string> = {}
       const scripts: Record<string, string> = {}
       for (const field of ['dependencies', 'devDependencies', 'peerDependencies']) {
         const entries = value[field]
         if (entries && typeof entries === 'object') {
-          for (const dependency of Object.keys(entries)) dependencies.add(dependency)
+          for (const [dependency, version] of Object.entries(entries)) {
+            dependencies.add(dependency)
+            if (typeof version === 'string') versions[dependency] = version
+          }
+        }
+      }
+      if (value.engines && typeof value.engines === 'object') {
+        for (const [name, version] of Object.entries(value.engines)) {
+          if (typeof version === 'string') engines[name] = version
         }
       }
       if (value.scripts && typeof value.scripts === 'object') {
@@ -198,7 +233,7 @@ async function readPackageEvidence(root: string, files: readonly string[]): Prom
           if (typeof command === 'string') scripts[name] = command
         }
       }
-      manifests.push({path: packagePath, dependencies, scripts})
+      manifests.push({path: packagePath, dependencies, versions, engines, scripts})
     } catch {
       // Malformed package metadata is reported later as an unknown instead of aborting archaeology.
     }
@@ -210,7 +245,7 @@ async function readSelectedText(root: string, files: readonly string[]): Promise
   const interesting = files.filter((file) => {
     const extension = path.extname(file).toLowerCase()
     return (
-      ['.gradle', '.java', '.json', '.kts', '.md', '.py', '.toml', '.ts', '.tsx', '.txt', '.vue', '.xml', '.yml', '.yaml'].includes(extension) ||
+      ['.gradle', '.java', '.json', '.kts', '.md', '.properties', '.py', '.sh', '.sql', '.toml', '.ts', '.tsx', '.txt', '.vue', '.xml', '.yml', '.yaml'].includes(extension) ||
       ['Dockerfile', 'Makefile', 'requirements.txt'].includes(path.basename(file))
     )
   }).slice(0, 800)
@@ -269,6 +304,195 @@ function discoverFrameworks(
     .map(([name, evidence]) => ({name, evidence: [...evidence].slice(0, 5)}))
 }
 
+function discoverTechnologies(
+  files: readonly string[],
+  languages: readonly DiscoveryEvidence[],
+  frameworks: readonly DiscoveryEvidence[],
+  packages: PackageEvidence,
+  contents: ReadonlyMap<string, string>,
+): TechnologyObservation[] {
+  const found = new Map<string, TechnologyObservation>()
+  const add = (
+    name: string,
+    version: string | null,
+    confidence: TechnologyConfidence,
+    evidence: readonly string[],
+  ): void => {
+    if (evidence.length === 0) return
+    const existing = found.get(name)
+    if (!existing) {
+      found.set(name, {name, version, confidence, evidence: [...evidence].sort().slice(0, 5)})
+      return
+    }
+    const versions = new Set([existing.version, version].filter((item): item is string => item !== null))
+    const mergedVersion = versions.size === 1 ? [...versions][0] ?? null : versions.size === 0 ? null : null
+    const mergedConfidence = versions.size > 1 ? 'UNKNOWN' : strongerConfidence(existing.confidence, confidence)
+    found.set(name, {
+      name,
+      version: mergedVersion,
+      confidence: mergedConfidence,
+      evidence: [...new Set([...existing.evidence, ...evidence])].sort().slice(0, 5),
+    })
+  }
+
+  for (const language of languages) {
+    const name = language.name.replace(/\s+\(\d+ files\)$/u, '')
+    add(name, name === 'Java' ? findXmlPropertyVersion(contents, 'java.version') : null, 'CONFIRMED', language.evidence)
+  }
+
+  const pomFiles = files.filter(isMavenDescriptor)
+  if (pomFiles.length > 0) add('Maven', null, 'CONFIRMED', pomFiles)
+  if (packages.manifests.length > 0) {
+    const manifestPaths = packages.manifests.map((item) => item.path)
+    const nodeVersion = findEngineVersion(packages, 'node')
+    add('Node.js', nodeVersion, nodeVersion ? 'CONFIRMED' : 'INFERRED', manifestPaths)
+    if (files.includes('pnpm-lock.yaml')) add('pnpm', null, 'CONFIRMED', ['pnpm-lock.yaml'])
+    if (files.includes('yarn.lock')) add('Yarn', null, 'CONFIRMED', ['yarn.lock'])
+    if (files.includes('package-lock.json')) add('npm', null, 'CONFIRMED', ['package-lock.json'])
+  }
+
+  for (const framework of frameworks) {
+    add(framework.name, frameworkVersion(framework.name, packages, contents), 'CONFIRMED', framework.evidence)
+  }
+
+  const signals: ReadonlyArray<{
+    readonly name: string
+    readonly direct: RegExp
+    readonly inferred: RegExp
+    readonly versionProperty: string
+  }> = [
+    {name: 'MySQL', direct: /(?:mysql-connector|com\.mysql|jdbc:mysql:)/iu, inferred: /(?:helperDialect\s*[:=]\s*mysql|driver-class-name\s*[:=]\s*com\.mysql)/iu, versionProperty: 'mysql.version'},
+    {name: 'Redis', direct: /(?:spring-boot-starter-data-redis|spring\.redis|spring\.data\.redis)/iu, inferred: /(?:RedisTemplate|redisTemplate)/u, versionProperty: 'redis.version'},
+    {name: 'MyBatis', direct: /(?:mybatis-spring-boot|org\.mybatis|mybatis:)/iu, inferred: /(?:@Mapper|SqlSessionFactory|MapperScan)/u, versionProperty: 'mybatis-spring-boot.version'},
+    {name: 'Spring Security', direct: /(?:spring-boot-starter-security|org\.springframework\.security)/iu, inferred: /(?:@PreAuthorize|SecurityConfig)/u, versionProperty: 'spring-security.version'},
+  ]
+  for (const signal of signals) {
+    const directEvidence = matchingContentFiles(contents, signal.direct)
+    const inferredEvidence = matchingContentFiles(contents, signal.inferred)
+    const evidence = [...new Set([...directEvidence, ...inferredEvidence])]
+    if (evidence.length === 0) continue
+    const version = findXmlPropertyVersion(contents, signal.versionProperty)
+    add(signal.name, version, directEvidence.length > 0 || version !== null ? 'CONFIRMED' : 'INFERRED', evidence)
+  }
+
+  return [...found.values()].sort((left, right) => left.name.localeCompare(right.name))
+}
+
+function discoverRepositoryAreas(files: readonly string[]): RepositoryArea[] {
+  const grouped = new Map<string, string[]>()
+  for (const file of files) {
+    const separator = file.indexOf('/')
+    const area = separator === -1 ? '.' : file.slice(0, separator)
+    const entries = grouped.get(area) ?? []
+    entries.push(file)
+    grouped.set(area, entries)
+  }
+  return [...grouped.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([area, evidence]) => ({
+      path: area,
+      kind: repositoryAreaKind(area, evidence),
+      evidence: [...evidence].sort().slice(0, 5),
+    }))
+}
+
+function repositoryAreaKind(area: string, files: readonly string[]): RepositoryAreaKind {
+  const lower = area.toLowerCase()
+  if (area === '.') return 'config'
+  if (lower.endsWith('-admin') || ['admin', 'backend', 'server', 'api'].includes(lower)) return 'backend'
+  if (lower.endsWith('-common') || lower.endsWith('-framework') || ['shared', 'common'].includes(lower)) return 'shared'
+  if (lower === 'sql' || lower === 'database' || lower === 'db') return 'database'
+  if (['doc', 'docs', 'documentation'].includes(lower)) return 'docs'
+  if (['test', 'tests', '__tests__'].includes(lower)) return 'tests'
+  if (lower === 'frontend' || lower === 'web' || lower === 'ui' || lower.includes('frontend')) return 'frontend'
+  if (lower === 'src' && files.some((file) => /\.(?:vue|jsx|tsx)$/u.test(file))) return 'frontend'
+  if (lower === 'src' && files.some((file) => /src\/main\/.*\.java$/u.test(file))) return 'backend'
+  if (files.some((file) => path.basename(file).toLowerCase() === 'pom.xml')) return 'module'
+  if (['.github', '.gitlab', 'config', 'configs', 'scripts'].includes(lower)) return 'config'
+  return 'other'
+}
+
+function frameworkVersion(name: string, packages: PackageEvidence, contents: ReadonlyMap<string, string>): string | null {
+  const packageNames: Readonly<Record<string, string>> = {
+    React: 'react',
+    Vue: 'vue',
+    'Umi Max': '@umijs/max',
+    'Ant Design': 'antd',
+    'Ant Design Pro': '@ant-design/pro-components',
+    'Next.js': 'next',
+    Vite: 'vite',
+    oclif: '@oclif/core',
+  }
+  const packageName = packageNames[name]
+  if (packageName) return findPackageVersion(packages, packageName)
+  if (name === 'Spring Boot') return findXmlPropertyVersion(contents, 'spring-boot.version')
+  if (name === 'RuoYi') return findXmlPropertyVersion(contents, 'ruoyi.version')
+  if (['FastAPI', 'Django', 'Flask'].includes(name)) return findPythonDependencyVersion(contents, name.toLowerCase())
+  return null
+}
+
+function findPackageVersion(packages: PackageEvidence, name: string): string | null {
+  const versions = packages.manifests
+    .filter((manifest) => manifest.dependencies.has(name))
+    .map((manifest) => manifest.versions[name])
+    .filter((version): version is string => typeof version === 'string')
+  return versions[0] ?? null
+}
+
+function findEngineVersion(packages: PackageEvidence, name: string): string | null {
+  const versions = packages.manifests
+    .map((manifest) => manifest.engines[name])
+    .filter((version): version is string => typeof version === 'string')
+  return versions[0] ?? null
+}
+
+function findXmlPropertyVersion(contents: ReadonlyMap<string, string>, property: string): string | null {
+  const escaped = escapeRegExp(property)
+  const pattern = new RegExp(`<${escaped}>\\s*([^<\\s]+)\\s*</${escaped}>`, 'iu')
+  for (const [, source] of [...contents.entries()].sort(([left], [right]) => left.localeCompare(right))) {
+    const match = pattern.exec(source)
+    if (match?.[1] && !match[1].includes('${')) return match[1]
+  }
+  return null
+}
+
+function findPythonDependencyVersion(contents: ReadonlyMap<string, string>, dependency: string): string | null {
+  const pattern = new RegExp(`^\\s*${escapeRegExp(dependency)}\\s*(?:==|~=|>=)\\s*([0-9][^\\s;,#]*)`, 'imu')
+  for (const [, source] of [...contents.entries()].sort(([left], [right]) => left.localeCompare(right))) {
+    const match = pattern.exec(source)
+    if (match?.[1]) return match[1]
+  }
+  return null
+}
+
+function matchingContentFiles(
+  contents: ReadonlyMap<string, string>,
+  pattern: RegExp,
+  sourcePredicate: (file: string) => boolean = isTechnologySource,
+): string[] {
+  return [...contents.entries()]
+    .filter(([file]) => sourcePredicate(file))
+    .filter(([, source]) => pattern.test(source))
+    .map(([file]) => file)
+    .sort()
+    .slice(0, 5)
+}
+
+function strongerConfidence(left: TechnologyConfidence, right: TechnologyConfidence): TechnologyConfidence {
+  const rank: Readonly<Record<TechnologyConfidence, number>> = {UNKNOWN: 0, INFERRED: 1, CONFIRMED: 2}
+  return rank[left] >= rank[right] ? left : right
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')
+}
+
+function isTechnologySource(file: string): boolean {
+  const normalized = file.toLowerCase()
+  if (['doc', 'docs', 'example', 'examples', 'fixture', 'fixtures', 'test', 'tests'].some((segment) => normalized.split('/').includes(segment))) return false
+  return ['.gradle', '.java', '.kts', '.properties', '.xml', '.yml', '.yaml'].includes(path.extname(normalized))
+}
+
 function discoverCommands(
   files: readonly string[],
   packages: PackageEvidence,
@@ -288,11 +512,13 @@ function discoverCommands(
     }
   }
   if (files.includes('mvnw')) {
+    commands.push({purpose: 'build', command: './mvnw package', evidence: 'mvnw'})
     commands.push({purpose: 'test', command: './mvnw test', evidence: 'mvnw'})
     if (frameworks.some((item) => item.name === 'Spring Boot')) {
       commands.push({purpose: 'run', command: './mvnw spring-boot:run', evidence: 'mvnw + Spring Boot metadata'})
     }
   } else if (files.some((file) => file.endsWith('pom.xml'))) {
+    commands.push({purpose: 'build', command: 'mvn package', evidence: 'pom.xml'})
     commands.push({purpose: 'test', command: 'mvn test', evidence: 'pom.xml'})
   }
   if (files.includes('gradlew')) commands.push({purpose: 'test', command: './gradlew test', evidence: 'gradlew'})
@@ -300,6 +526,10 @@ function discoverCommands(
   if (files.includes('scripts/check')) commands.push({purpose: 'check', command: 'bash scripts/check', evidence: 'scripts/check'})
   for (const candidate of ['bin/run.sh', 'scripts/run.sh', 'scripts/dev.sh', 'run.sh']) {
     if (files.includes(candidate)) commands.push({purpose: 'run', command: `bash ${candidate}`, evidence: candidate})
+  }
+  if (files.includes('ry.sh')) {
+    commands.push({purpose: 'run', command: 'bash ry.sh start', evidence: 'ry.sh'})
+    commands.push({purpose: 'observe', command: 'bash ry.sh status', evidence: 'ry.sh'})
   }
   if (files.some((file) => file.endsWith('pyproject.toml')) || files.includes('requirements.txt')) {
     commands.push({purpose: 'test', command: 'python -m pytest', evidence: 'Python project metadata; confirm configured test runner'})
@@ -380,6 +610,7 @@ function discoverUnknowns(
   commands: readonly DiscoveredCommand[],
   authorities: readonly AuthorityCandidate[],
   frameworks: readonly DiscoveryEvidence[],
+  technologies: readonly TechnologyObservation[],
   files: readonly string[],
   truncated: boolean,
 ): string[] {
@@ -392,8 +623,18 @@ function discoverUnknowns(
   if (!files.some((file) => file.startsWith('.github/workflows/') || file.startsWith('.gitlab-ci'))) {
     unknowns.push('No supported CI configuration was confirmed.')
   }
+  const versionBearing = new Set(['Java', 'Node.js', 'Spring Boot', 'RuoYi', 'MySQL', 'Redis', 'MyBatis', 'Spring Security', 'Vue', 'Vite', 'React', 'FastAPI', 'Django', 'Flask'])
+  for (const technology of technologies) {
+    if (versionBearing.has(technology.name) && technology.version === null) {
+      unknowns.push(`Version for ${technology.name} was not confirmed from repository metadata.`)
+    }
+  }
   if (truncated) unknowns.push('Repository scan reached its file limit; findings are incomplete.')
   return unknowns
+}
+
+function isMavenDescriptor(file: string): boolean {
+  return file === 'pom.xml' || file.endsWith('/pom.xml')
 }
 
 function discoveryConfidence(
@@ -432,7 +673,7 @@ function isCapabilitySource(file: string): boolean {
   if (segments.some((segment) => ['__tests__', 'fixtures', 'test', 'tests'].includes(segment))) return false
   if (/(?:\.test|\.spec)\.[^.]+$/u.test(normalized)) return false
   if (/(?:scanner|detector|analy[sz]er)\.[^.]+$/u.test(normalized)) return false
-  return ['.cs', '.go', '.java', '.js', '.kt', '.php', '.py', '.rb', '.rs', '.ts', '.tsx', '.vue'].includes(path.extname(normalized))
+  return ['.cs', '.go', '.java', '.js', '.kt', '.php', '.py', '.rb', '.rs', '.ts', '.tsx'].includes(path.extname(normalized))
 }
 
 function isRuntimeSource(file: string): boolean {

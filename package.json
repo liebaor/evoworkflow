@@ -1,6 +1,6 @@
 {
   "name": "@evoworkflow/cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Human-controlled, repository-centered AI software engineering workflow",
   "type": "module",
@@ -24,6 +24,8 @@
     "check:schemas": "tsx scripts/check-schemas.ts",
     "dev": "tsx src/index.ts",
     "evo": "tsx src/index.ts",
+    "eval:ruoyi": "tsx scripts/phase2-ruoyi-smoke.ts",
+    "eval:phase2": "tsx scripts/phase2-evals.ts",
     "generate:schemas": "tsx scripts/generate-schemas.ts",
     "smoke:cli": "tsx scripts/smoke-cli.ts",
     "test": "vitest run",

@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it} from 'vitest'
 
 import {ConfigSchema, StateSchema} from '../src/core/schemas.js'
-import {applyInitialization, planInitialization} from '../src/repository/init.js'
+import {applyInitialization, formatInitializationPlan, planInitialization} from '../src/repository/init.js'
 import {readYaml} from '../src/repository/io.js'
 import {repositoryPaths} from '../src/repository/paths.js'
 import {validateProject} from '../src/validation/project.js'
@@ -32,6 +32,10 @@ describe('non-destructive initialization', () => {
     expect((await readYaml(paths.config, ConfigSchema)).workflow.autoFinish).toBe(false)
     expect((await readYaml(paths.state, StateSchema)).projectMode).toBe('BROWNFIELD')
     expect(await fileContents(paths.project)).toContain('docs/architecture.md')
+    expect(await fileContents(paths.project)).toContain('## Repository areas')
+    expect(await fileContents(paths.project)).toContain('React')
+    expect(formatInitializationPlan(before)).toContain('Repository areas / 仓库区域:')
+    expect(formatInitializationPlan(before)).toContain('- React: 1.0.0 [CONFIRMED]')
     expect((await validateProject(root)).valid).toBe(true)
 
     const configBefore = await fileContents(paths.config)

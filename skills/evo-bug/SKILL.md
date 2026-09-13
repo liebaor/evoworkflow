@@ -15,7 +15,7 @@ Read the bug report, project map, current behavior and Decisions, relevant logs,
 
 ## Required outcomes
 
-Record observed and expected behavior, deterministic reproduction, failing evidence, root cause, existing rule or capability, bounded fix, regression test, real-entry-path result, and any warranted knowledge promotion.
+Record observed and expected behavior, deterministic reproduction, failing evidence, root cause, existing rule or capability, bounded fix, regression test, real-entry-path result, environment unknowns, and any warranted knowledge promotion in the active `bug.md` (or use the repository recorder).
 
 ## Constraints and decision rules
 
@@ -24,6 +24,7 @@ Record observed and expected behavior, deterministic reproduction, failing evide
 - Reuse the repository's established security, permission, error, data, and transaction mechanisms.
 - Do not infer that a clean current run proves intermittent or operational failures resolved.
 - Promote a rule only when the failure reveals durable future decision value.
+- Keep unavailable real entry paths as `UNVERIFIED`; do not replace them with a static fixture result.
 
 ## Stop conditions
 

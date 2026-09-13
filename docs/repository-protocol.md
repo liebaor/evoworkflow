@@ -13,6 +13,8 @@
 
 一个事实只能有一个主权威。`.evo/project.md` 应链接已有架构或领域文档，而不是复制一份竞争性内容。当前文档描述当前行为；Git、被取代的 Decision、completed Change 和 Postmortem 保存历史。
 
+Working Context 是当前任务的导航投影：它只保存可复查的仓库路径、引用优先级、选择理由和 Git 快照，不复制源代码或文档正文。默认生成不写文件；显式写入时只能落在活动 Change 的 `context.md`。它不能取代项目地图、Decision 或批准的 Change。
+
 ## 受管理目录
 
 ```text
@@ -60,6 +62,8 @@ Markdown 保存叙事知识，YAML 保存机器状态。空的可选目录不创
 
 初始化必须把推断与已验证观察分开标注，不能声称已经完全理解。
 
+Consistency 结果是候选 Review 信号。响应机制、权限机制、命名规则和实际仓库区域与 Plan 不一致时，可以报告 `CONSISTENCY_DRIFT`、`PARALLEL_MECHANISM`、`NAMING_DRIFT` 或 `BLAST_RADIUS_EXPANDED`；只有人工接受或修订批准意图后，才能决定是否改变实现。
+
 ## Decision 生命周期
 
 Decision 从 `working` 移到 `current` 或 `declined`。当结论变化时，不能静默改写 current Decision；新 Decision 通过 `supersedes` 记录继承关系，旧 Decision 通过 `supersededBy` 指向新 Decision。
@@ -77,3 +81,5 @@ Decision 从 `working` 移到 `current` 或 `declined`。当结论变化时，�
 证据门禁同时检查验收表和 `Unverified external or operational paths` 章节。本地测试不能静默替代真实模型、跨平台、CI、外部服务或生产结果。
 
 只有当 `review.md` 同时记录 `status: APPROVED`、`humanAcceptance: true` 和 `acceptedLimitations: true` 时，人工才能把这些外部或运行环境项目作为已知限制接受。Finish 会保留原始 `UNVERIFIED` 记录；它们不会被改写成 `PASS`，也不等价于真实环境已经验证。
+
+Requirement Delta 和 Bug 记录属于活动工作证据。它们应分别保存旧/新意图或复现/根因/回归/真实入口状态；写入后使受影响工作回到 `NEEDS_INFO`，不覆盖原批准内容。`evo recover` 只读读取这些资料，恢复到人工可判断的阶段边界。

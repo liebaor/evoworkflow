@@ -42,8 +42,12 @@ try {
   await stat(path.join(repository, '.evo', 'work', 'active', 'smoke-change'))
   await expectMissing(path.join(repository, '.evo', 'work', 'completed', 'smoke-change'))
 
+  const recovery = await run(['recover', '--root', repository, '--json'])
+  assertIncludes(recovery, '"workingContext"')
+  assertIncludes(recovery, '"recommendedNextAction"')
+
   const help = await run(['--help'])
-  for (const command of ['approve', 'check', 'doctor', 'finish', 'init', 'status']) assertIncludes(help, command)
+  for (const command of ['approve', 'check', 'context', 'doctor', 'finish', 'init', 'recover', 'status']) assertIncludes(help, command)
   const goalHelp = await run(['goal', '--help'])
   for (const command of ['approve', 'cancel', 'create', 'inspect', 'resume', 'run']) assertIncludes(goalHelp, command)
 } finally {

@@ -11,7 +11,7 @@ Deliver one bounded, reviewable Slice whose code and tests satisfy its approved 
 
 ## Inputs and authorities
 
-Read `AGENTS.md`, project map, state, approved Change/Specification/Plan fingerprint, current Decisions, the persisted current Slice and its Plan acceptance, reference implementation, affected source, tests, and relevant engineering guidance. If no current Slice is recorded, stop for human selection instead of guessing from Plan order.
+Read `AGENTS.md`, project map, state, approved Change/Specification/Plan fingerprint, current Decisions, the persisted current Slice and its Plan acceptance, Working Context, consistency observations, reference implementation, affected source, tests, and relevant engineering guidance. If no current Slice is recorded, stop for human selection instead of guessing from Plan order.
 
 ## Required outcomes
 
@@ -21,6 +21,7 @@ Implement the complete vertical behavior, update its focused tests and necessary
 
 - Existing pattern and capability reuse precede new abstractions.
 - Stay inside expected modules and contracts.
+- Treat consistency and blast-radius findings as stop-and-review signals; do not silently add a parallel mechanism or expand the scope.
 - Do not silently repair unrelated findings.
 - One invocation implements one Slice unless an approved Goal explicitly delegates several.
 - Local passing tests do not prove external, production, browser, or operational behavior.

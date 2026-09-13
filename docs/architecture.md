@@ -2,7 +2,7 @@
 
 ## 系统上下文
 
-EVOworkflow v0.1 没有服务器和数据库。它把 Markdown Skill、一个本地确定性 CLI 和每个受管理 Git 仓库中的工作流状态组合起来。
+EVOworkflow v0.2 没有服务器和数据库。它把 Markdown Skill、一个本地确定性 CLI 和每个受管理 Git 仓库中的工作流状态组合起来。
 
 ```text
 人工
@@ -48,8 +48,16 @@ Change、Specification 和 Plan 的批准分别绑定规范化 frontmatter 与�
 
 同一个 Goal 不能并发执行，因为它有排他锁。Goal 可以结束为 `BLOCKED`、`CANCELLED` 或 `READY_FOR_REVIEW`；没有任何 Goal 状态代表 Change 已被接受完成。
 
+## Working Context 与一致性
+
+`buildWorkingContext` 根据当前 Change、项目地图、活动工作、Decision、能力、参考实现、测试和 Git 快照返回路径、优先级与选择理由。它默认只读，不复制源代码或文档正文；明确使用 `evo context --write` 时，才把同一份路径化结果写入活动 Change 的 `context.md`。
+
+`analyzeRepositoryConsistency` 将当前实现与项目已有的响应、权限、命名和实际区域进行比较，输出候选漂移、重复机制和实际影响范围扩大的警告。它是 Review 的证据输入，不拥有架构 Decision，也不会自动重写实现。
+
+`classifyChange` 依据请求中的影响信号建议 Small、Standard 或 Large；分类结果只用于选择流程强度，人工仍可在 Change 中确认或调整。Requirement Delta、Bug 调查和 `evo recover` 都通过仓库文件与确定性解析保留可恢复信息。
+
 ## 信任边界
 
-仓库 YAML、Markdown frontmatter、Adapter 输出、子进程退出结果和文件路径都跨越运行时边界，因此必须验证。批准的验证命令使用可执行文件加参数数组，绝不使用 shell 命令字符串。捕获输出有大小上限，常见的密钥赋值会在保存前脱敏。
+仓库 YAML、Markdown frontmatter、Adapter 输出、子进程退出结果、文件路径和外部固定归档都跨越运行时边界，因此必须验证。批准的验证命令使用可执行文件加参数数组，绝不使用 shell 命令字符串。捕获输出有大小上限，常见的密钥赋值会在保存前脱敏。RuoYi 与跨框架评估只读取临时副本，不把静态扫描结果写成真实运行时结论。
 
 人工仍负责批准可执行命令和 Adapter 权限。默认 Adapter 配置不使用绕过权限的参数。

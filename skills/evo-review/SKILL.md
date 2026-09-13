@@ -11,11 +11,11 @@ Identify actionable defects and residual risks before human acceptance, grounded
 
 ## Inputs and authorities
 
-Read the approved Change/Specification/Plan, current Decisions, diff, affected source/tests/docs, reference implementations, Evidence, and expected blast radius. Inspect current Git state.
+Read the approved Change/Specification/Plan, current Decisions, diff, affected source/tests/docs, Working Context, consistency observations, reference implementations, Evidence, and expected blast radius. Inspect current Git state.
 
 ## Required outcomes
 
-Report findings ordered by severity with exact paths and behavior impact. Compare expected versus actual modules, identify out-of-scope edits, missing reuse, leaked internals, unnecessary complexity, unproven claims, and required follow-up verification. State explicitly when no actionable findings remain.
+Report findings ordered by severity with exact paths and behavior impact. Compare expected versus actual modules, identify out-of-scope edits, missing reuse, response/permission/naming drift, leaked internals, unnecessary complexity, actual blast-radius expansion, unproven claims, and required follow-up verification. State explicitly when no actionable findings remain.
 
 ## Constraints and decision rules
 

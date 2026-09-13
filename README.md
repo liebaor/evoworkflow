@@ -18,14 +18,20 @@ EVOworkflow 是一套由人工驱动、AI 辅助执行、仓库持久化知识�
 
 - `evo init`：先报告仓库发现结果，再以不破坏现有文件的方式初始化。
 - `evo status`、`evo check`、`evo doctor`：恢复状态、检查协议、报告陈旧知识和锁。
+- `evo context`、`evo recover`：分别生成当前任务的路径化 Working Context，以及只读恢复报告。
 - `evo approve`：把人工批准绑定到 Change、Specification 或 Plan 的精确内容指纹。
 - `evo goal create/approve/run/resume/inspect/cancel`：执行有边界、可恢复、顺序运行的 Goal。
 - `evo finish`：生成收敛报告；只有所有门禁通过并且人工接受后，`--apply` 才会归档 Change。
 - 19 个面向结果的 Skill：调查、决策、规划、实现、验证、评审和维护。
 - Brownfield 发现：依据真实 checkout，而不是根据常见框架名称猜测项目结构。
+- 二期 Grounding：记录技术声明版本、确认/推断状态、仓库区域和可观察运行入口；未确认事实保留为未知。
+- 二期 Working Context：按当前 Change、项目地图、参考实现、能力、测试和 Git 状态路由路径与理由，不复制源代码或文档正文。
+- 二期 Consistency：报告响应、权限、命名和实际影响范围的候选漂移；它提供评审信号，不替人工做架构决定。
+- 二期 Resilience：记录 Requirement Delta、Bug 调查和中断恢复信息，保留批准失效与 `UNVERIFIED` 证据。
+- 二期评估：提供 E001-E012 确定性评估，以及只读 RuoYi Feature A/B 和 FastAPI + Ant Design Pro 跨框架检验。
 - Greenfield 指导：先比较成熟方案，再决定是否需要自建基础设施。
 
-EVOworkflow v0.1 不包含多 Agent 并行执行、云控制面板、中央数据库、自动产品或架构决策，也不会自动提交、合并、发布、部署或完成 Change。
+EVOworkflow v0.2 仍不包含多 Agent 并行执行、云控制面板、中央数据库、自动产品或架构决策，也不会自动提交、合并、发布、部署或完成 Change。
 
 ## 开发要求
 
@@ -46,6 +52,8 @@ pnpm evo init --root /path/to/project --apply
 pnpm evo status --root /path/to/project
 pnpm evo check --root /path/to/project
 pnpm evo doctor --root /path/to/project
+pnpm evo context --root /path/to/project
+pnpm evo recover --root /path/to/project
 pnpm evo approve --root /path/to/project <change-id> change
 pnpm evo approve --root /path/to/project <change-id> spec
 pnpm evo approve --root /path/to/project <change-id> plan
@@ -58,6 +66,16 @@ pnpm evo finish --root /path/to/project --apply
 ```
 
 `evo init` 会报告发现了什么以及准备创建什么。`--apply` 只写入缺失的 EVO 文件，不覆盖项目已有的指令和文档。
+
+`evo context` 默认只读输出当前 Change 的路径化上下文；只有明确使用 `--write` 才会在活动 Change 下写入 `.evo/work/active/<change-id>/context.md`。`evo recover` 始终只读，不会自动恢复 Goal、改变阶段或继续实现。
+
+二期验证命令：
+
+```sh
+pnpm run eval:phase2
+pnpm run eval:ruoyi -- --backend-root /path/to/backend-archive --backend-revision <40-char-commit> \
+  --frontend-root /path/to/frontend-archive --frontend-revision <40-char-commit>
+```
 
 规划 Skill 会把文档留在 `AWAITING_APPROVAL`。人工检查精确内容后，再执行 `evo approve <change-id> <change|spec|plan>` 记录批准。之后任何实质编辑都会使旧指纹失效，必须重新审阅和批准。
 

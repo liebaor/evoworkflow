@@ -11,11 +11,11 @@ Produce an implementation Plan that follows actual repository patterns and bound
 
 ## Inputs and authorities
 
-Read the approved Change or Specification, current Decisions, project map, relevant source/tests, dependency metadata, capability map, and at least one applicable reference implementation when available.
+Read the approved Change or Specification, current Decisions, project map, Working Context, relevant source/tests, dependency metadata, capability map, consistency observations, and at least one applicable reference implementation when available.
 
 ## Required outcomes
 
-Record existing mechanisms to reuse, the primary and affected modules, unaffected behavior, existing and new contracts, expected blast radius, migration and rollback concerns, and ordered vertical Slices. Each Slice defines a stable id, objective, acceptance, expected paths, dependencies, verification, and stop conditions. Initialize the same Slice ids as `PENDING` checkpoints in `.evo/state.yml`; Plan owns their meaning and State owns only execution status.
+Record existing mechanisms to reuse, the primary and affected modules, unaffected behavior, existing and new contracts, Working Context references, expected blast radius, migration and rollback concerns, and ordered vertical Slices. Each Slice defines a stable id, objective, acceptance, expected paths, dependencies, verification, and stop conditions. Initialize the same Slice ids as `PENDING` checkpoints in `.evo/state.yml`; Plan owns their meaning and State owns only execution status.
 
 ## Constraints and decision rules
 

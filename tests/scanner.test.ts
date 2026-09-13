@@ -50,6 +50,15 @@ describe('repository discovery', () => {
     expect(report.confidence).toBe('HIGH')
     expect(report.frameworks.map((item) => item.name)).toEqual(expect.arrayContaining(['RuoYi', 'Spring Boot']))
     expect(report.commands.map((item) => item.command)).toEqual(expect.arrayContaining(['./mvnw test', './mvnw spring-boot:run']))
+    expect(report.technologies).toEqual(expect.arrayContaining([
+      expect.objectContaining({name: 'Java', confidence: 'CONFIRMED'}),
+      expect.objectContaining({name: 'Maven', confidence: 'CONFIRMED'}),
+      expect.objectContaining({name: 'RuoYi', confidence: 'CONFIRMED'}),
+      expect.objectContaining({name: 'Spring Boot', confidence: 'CONFIRMED'}),
+    ]))
+    expect(report.areas).toEqual(expect.arrayContaining([
+      expect.objectContaining({path: 'src', kind: 'backend'}),
+    ]))
     expect(report.capabilities.map((item) => item.name)).toEqual(expect.arrayContaining(['authorization', 'data permission', 'pagination', 'standard response']))
     expect(report.authorities).toEqual(expect.arrayContaining([{topic: 'architecture', path: 'docs/architecture.md'}]))
     expect(report.references[0]).toBe('src/main/java/com/example/SysUserController.java')
@@ -100,6 +109,63 @@ describe('repository discovery', () => {
     expect(report.references).not.toContain('app/services/__init__.py')
     expect(report.references.some((item) => item.includes('.umi-production'))).toBe(false)
     expect(report.commands.some((item) => item.command.includes('test:watch'))).toBe(false)
+  })
+
+  it('records versions only from metadata and keeps indirect stack signals inferred', async () => {
+    const root = await temporaryRepository('grounding')
+    await writeRepositoryFiles(root, {
+      'pom.xml': '<properties><java.version>17</java.version><spring-boot.version>3.2.1</spring-boot.version><ruoyi.version>3.9.2</ruoyi.version></properties><dependency><groupId>com.mysql</groupId><artifactId>mysql-connector-j</artifactId></dependency><artifactId>spring-boot-starter-security</artifactId>',
+      'ry.sh': '#!/bin/sh\n',
+      'ruoyi-admin/src/main/java/App.java': 'class App {}\n',
+      'ruoyi-common/src/main/java/Common.java': 'class Common {}\n',
+      'sql/schema.sql': 'CREATE TABLE example (id BIGINT);\n',
+      'docs/architecture.md': '# Architecture\n',
+      'frontend/package.json': JSON.stringify({
+        engines: {node: '>=20'},
+        dependencies: {vue: '3.5.0'},
+        devDependencies: {vite: '6.0.0'},
+      }),
+      'frontend/pnpm-lock.yaml': 'lockfileVersion: 9\n',
+      'frontend/src/App.vue': '<template />\n',
+      'frontend/src/views/permissions.vue': '<el-tooltip content="@PreAuthorize(@ss.hasRole)" />\n',
+      'config/application.yml': 'spring:\n  datasource:\n    url: jdbc:mysql://localhost/demo\n',
+    })
+
+    const report = await scanRepository(root)
+    const technology = (name: string) => report.technologies.find((item) => item.name === name)
+
+    expect(technology('Java')).toEqual(expect.objectContaining({version: '17', confidence: 'CONFIRMED'}))
+    expect(technology('Spring Boot')).toEqual(expect.objectContaining({version: '3.2.1', confidence: 'CONFIRMED'}))
+    expect(technology('RuoYi')).toEqual(expect.objectContaining({version: '3.9.2', confidence: 'CONFIRMED'}))
+    expect(technology('MySQL')).toEqual(expect.objectContaining({version: null, confidence: 'CONFIRMED'}))
+    expect(technology('Vue')).toEqual(expect.objectContaining({version: '3.5.0', confidence: 'CONFIRMED'}))
+    expect(technology('Vite')).toEqual(expect.objectContaining({version: '6.0.0', confidence: 'CONFIRMED'}))
+    expect(technology('Node.js')).toEqual(expect.objectContaining({version: '>=20', confidence: 'CONFIRMED'}))
+    expect(technology('Spring Security')?.evidence.some((item) => item.startsWith('frontend/'))).toBe(false)
+    expect(report.capabilities.map((item) => item.name)).not.toContain('authorization')
+    expect(report.commands.map((item) => item.command)).toEqual(expect.arrayContaining(['mvn package', 'mvn test', 'bash ry.sh start', 'bash ry.sh status']))
+    expect(report.areas).toEqual(expect.arrayContaining([
+      expect.objectContaining({path: 'ruoyi-admin', kind: 'backend'}),
+      expect.objectContaining({path: 'ruoyi-common', kind: 'shared'}),
+      expect.objectContaining({path: 'frontend', kind: 'frontend'}),
+      expect.objectContaining({path: 'sql', kind: 'database'}),
+      expect.objectContaining({path: 'docs', kind: 'docs'}),
+    ]))
+    expect(report.unknowns).toContain('Version for MySQL was not confirmed from repository metadata.')
+  })
+
+  it('does not promote an indirect configuration hint to confirmed technology evidence', async () => {
+    const root = await temporaryRepository('inferred-technology')
+    await writeRepositoryFiles(root, {
+      'src/main/java/App.java': 'class App {}\n',
+      'config/application.yml': 'pagehelper:\n  helperDialect: mysql\n',
+    })
+
+    const report = await scanRepository(root)
+    const mysql = report.technologies.find((item) => item.name === 'MySQL')
+
+    expect(mysql).toEqual(expect.objectContaining({version: null, confidence: 'INFERRED'}))
+    expect(mysql?.evidence).toEqual(['config/application.yml'])
   })
 
   it('returns stable ordered evidence across repeated scans', async () => {

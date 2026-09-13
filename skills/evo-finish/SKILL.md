@@ -11,7 +11,7 @@ Restore agreement between approved intent, current Decisions, implementation, te
 
 ## Inputs and authorities
 
-Read the accepted Change/Specification/Plan, review disposition, all acceptance Evidence, working Decisions, current docs, code/tests, Goal state, and Git diff. Confirm explicit human acceptance of the current content.
+Read the accepted Change/Specification/Plan, Working Context and consistency observations, review disposition, all acceptance Evidence, working Decisions, current docs, code/tests, Goal state, and Git diff. Confirm explicit human acceptance of the current content.
 
 Run `evo finish --root <repository>` for a read-only convergence report. After every gate passes and the human confirms the report, use `evo finish --root <repository> --apply` for deterministic archival.
 
@@ -24,6 +24,7 @@ Classify convergence as `APPLY`, `PENDING`, `DRIFT`, `CONFLICT`, or `UNAFFECTED`
 - `FAIL`, unresolved blockers, stale approval, open review findings, or unaccepted scope prevent Finish.
 - `UNVERIFIED` may remain only when `review.md` records `status: APPROVED`, `humanAcceptance: true`, and `acceptedLimitations: true`; retain the original marker and never convert it to PASS.
 - Current docs describe the resulting system, not the development narrative.
+- Preserve the distinction between candidate consistency warnings and human Decisions; do not mark an unresolved warning as resolved without evidence.
 - Finish does not imply commit, merge, release, deployment, migration, or production validation.
 
 ## Stop conditions

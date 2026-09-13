@@ -29,4 +29,6 @@
 - 先读根目录 `AGENTS.md`、`.evo/project.md`、`.evo/state.yml` 和活动 Change。
 - Skill 不能自己批准文档、解决人工 Decision、进入下一阶段或 Finish。
 - 事实必须有仓库证据；没有观察结果就写 `UNVERIFIED`。
+- 需要任务导航时使用 `evo context`；它默认只读，`--write` 只写活动 Change 的路径化 Context。
+- 一致性分析、Change 分类和跨项目评估都是辅助证据，不会替人工决定架构、批准或真实运行状态。
 - 详细的英文 `SKILL.md` 保留为 Agent 兼容接口；命令、路径、Skill 名称和状态值保持原样。

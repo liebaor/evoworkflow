@@ -15,7 +15,7 @@ Read the old approved Change/Specification, the user's proposed new intent, curr
 
 ## Required outcomes
 
-Record `OLD`, `NEW`, `RETAIN`, `MODIFY`, `REMOVE`, and `ADD`. Analyze effects on acceptance, Decisions, Plan and Slices, code, tests, docs, data, API, compatibility, migration, and Goal delegation. Recommend the smallest replan.
+Record `OLD`, `NEW`, `RETAIN`, `MODIFY`, `REMOVE`, and `ADD` in the active `delta.md` (or use the repository recorder). Analyze effects on acceptance, Decisions, Plan and Slices, code, tests, docs, data, API, compatibility, migration, and Goal delegation. Recommend the smallest replan.
 
 ## Constraints and decision rules
 
@@ -23,6 +23,7 @@ Record `OLD`, `NEW`, `RETAIN`, `MODIFY`, `REMOVE`, and `ADD`. Analyze effects on
 - Material changes invalidate Specification, Plan, and Goal approvals bound to previous content.
 - A changed durable Decision supersedes its predecessor; it is not silently edited.
 - Preserve already valid work and evidence where the Delta does not affect them.
+- A recorded Delta is a pause signal: affected work returns to `NEEDS_INFO` until the human approves the revised intent.
 
 ## Stop conditions
 

@@ -24,6 +24,12 @@ Each topic must have one primary authority. Additional documents should link to 
 
 {{TECHNOLOGIES}}
 
+## Repository areas
+
+> 中文：仓库区域。这里只记录导航路径和证据文件，不复制源代码。
+
+{{AREAS}}
+
 ## Operating paths
 
 > 中文：运行入口。
@@ -41,6 +47,12 @@ Each topic must have one primary authority. Additional documents should link to 
 > 中文：参考实现。
 
 {{REFERENCES}}
+
+## Working Context and consistency
+
+- Working Context stores task-relevant repository paths, priorities, reasons, and Git observations; it does not copy source or documentation bodies.
+- `evo context` is read-only by default. Explicit `--write` may write only the active Change's `context.md`.
+- Consistency findings are review signals for response, permission, naming, and blast-radius drift. They do not decide architecture or acceptance.
 
 ## Unknowns
 

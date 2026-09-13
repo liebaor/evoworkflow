@@ -15,7 +15,7 @@ Use the repository root, existing instructions, README and docs, dependency and 
 
 ## Required outcomes
 
-Classify the checkout as `GREENFIELD`, `BROWNFIELD`, or `EVO_MANAGED`; report technology and framework evidence, authority candidates, build/run/test/observe paths, reusable capabilities, reference implementations, confidence, unknowns, and exact proposed writes.
+Classify the checkout as `GREENFIELD`, `BROWNFIELD`, or `EVO_MANAGED`; report technology and framework evidence, confirmed/inferred version confidence, repository areas, authority candidates, build/run/test/observe paths, reusable capabilities, reference implementations, confidence, unknowns, and exact proposed writes.
 
 For Brownfield work, perform repository archaeology against the actual checkout. For Greenfield work, stop before framework bootstrap and route to `evo-solution-discovery` after requirements are understood.
 
@@ -24,6 +24,7 @@ For Brownfield work, perform repository archaeology against the actual checkout.
 - Facts come from repository or runtime evidence; label inference and unknowns.
 - Existing `AGENTS.md`, documentation, source, tests, and configuration are preserved.
 - One fact has one primary authority; `.evo/project.md` links instead of copying.
+- Record navigation paths and evidence references; do not turn initialization into a copied project encyclopedia.
 - Apply with `evo init --root <repository> --apply` only after the human reviews the report.
 
 ## Stop conditions

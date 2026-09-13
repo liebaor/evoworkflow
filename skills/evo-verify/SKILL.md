@@ -11,7 +11,7 @@ Determine what is proven, contradicted, or still unknown using current observabl
 
 ## Inputs and authorities
 
-Read approved acceptance, Decisions, Plan/Slices, changed code and tests, project test/run/observe paths, previous Evidence, and relevant environment boundaries.
+Read approved acceptance, Decisions, Plan/Slices, changed code and tests, Working Context and consistency observations, project test/run/observe paths, previous Evidence, and relevant environment boundaries.
 
 ## Required outcomes
 
@@ -22,6 +22,7 @@ For every acceptance criterion, record exactly `PASS`, `FAIL`, or `UNVERIFIED`; 
 - Verify the world, not agent self-report.
 - Match evidence scope to the claim; focused checks cannot prove repository-wide or production behavior.
 - Distinguish local/test, browser, external-system, deployment, migration, and operational verification.
+- Preserve `UNVERIFIED` for unavailable real paths; a static cross-project evaluator does not prove runtime compatibility.
 - Do not change implementation while acting as verifier; return failures to Implement.
 
 ## Stop conditions

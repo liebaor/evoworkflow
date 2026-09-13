@@ -11,11 +11,11 @@ Give a new agent enough verified context to hand control back to the human at th
 
 ## Inputs and authorities
 
-Read `AGENTS.md`, project map, state, active Change/Specification/Plan, working Decisions, active Goal checkpoints, Evidence, review state, and current Git status/diff. Use `evo check` and `evo status` first.
+Read `AGENTS.md`, project map, state, active Change/Specification/Plan, Working Context, working Decisions, active Goal checkpoints, Evidence, review state, and current Git status/diff. Use `evo check`, `evo status`, and `evo recover` first.
 
 ## Required outcomes
 
-Report current objective, phase, approved content, completed Slices, pending Slices, blockers, modified paths, latest evidence, unknowns, protocol drift, and one recommended next human-controlled action. Link repository paths instead of copying durable knowledge.
+Report current objective, phase, approved content, completed Slices, pending Slices, blockers, modified paths, latest evidence, unknowns, protocol drift, Working Context references, and one recommended next human-controlled action. Link repository paths instead of copying durable knowledge.
 
 ## Constraints and decision rules
 

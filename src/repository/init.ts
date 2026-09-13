@@ -58,6 +58,7 @@ export async function applyInitialization(plan: InitializationPlan): Promise<Ini
     FILES_SCANNED: String(report.filesScanned),
     AUTHORITIES: formatAuthorities(report),
     TECHNOLOGIES: formatTechnologies(report),
+    AREAS: formatAreas(report),
     COMMANDS: formatCommands(report),
     CAPABILITIES: formatEvidenceList(report.capabilities, 'No reusable capability was confirmed.'),
     REFERENCES: formatSimpleList(report.references, 'No reference implementation was confirmed.'),
@@ -88,7 +89,12 @@ export function formatInitializationPlan(plan: InitializationPlan): string {
     `Files inspected: ${report.filesScanned}${report.truncated ? ' (scan limit reached / 已达到扫描上限)' : ''} / 已检查文件：${report.filesScanned}`,
     '',
     'Technology evidence / 技术证据:',
-    ...plainEvidence(report.languages, report.frameworks),
+    ...plainTechnologies(report),
+    '',
+    'Repository areas / 仓库区域:',
+    ...(report.areas.length > 0
+      ? report.areas.map((item) => `- ${item.path} [${item.kind}]: ${item.evidence.join(', ')}`)
+      : ['- none confirmed']),
     '',
     'Operating paths / 运行入口:',
     ...(report.commands.length > 0
@@ -119,7 +125,21 @@ function formatAuthorities(report: DiscoveryReport): string {
 }
 
 function formatTechnologies(report: DiscoveryReport): string {
-  return formatEvidenceList([...report.languages, ...report.frameworks], 'No technology was confirmed.')
+  if (report.technologies.length === 0) return 'No technology was confirmed. / 没有确认任何技术。'
+  return report.technologies.map((item) => {
+    const version = item.version ?? 'unknown / 未知'
+    const evidence = item.evidence.map((value) => `\`${value}\``).join(', ')
+    return `- **${item.name}** [${item.confidence}; version: ${version}]: ${evidence}`
+  }).join('\n')
+}
+
+function formatAreas(report: DiscoveryReport): string {
+  if (report.areas.length === 0) return 'No repository area was confirmed. / 没有确认仓库区域。'
+  return [
+    '| Path | Kind | Evidence |',
+    '|---|---|---|',
+    ...report.areas.map((item) => `| \`${escapeTable(item.path)}\` | ${item.kind} | ${item.evidence.map((value) => `\`${escapeTable(value)}\``).join(', ')} |`),
+  ].join('\n')
 }
 
 function formatCommands(report: DiscoveryReport): string {
@@ -150,12 +170,14 @@ function formatUnknown(value: string): string {
     'No supported CI configuration was confirmed.': '没有确认受支持的 CI 配置。',
     'Repository scan reached its file limit; findings are incomplete.': '仓库扫描达到文件上限，发现结果不完整。',
   }
-  return `${value}${translations[value] ? ` / ${translations[value]}` : ''}`
+  const versionUnknown = /^Version for (.+) was not confirmed from repository metadata\.$/u.exec(value)?.[1]
+  const translation = translations[value] ?? (versionUnknown ? `没有从仓库元数据确认 ${versionUnknown} 的版本。` : undefined)
+  return `${value}${translation ? ` / ${translation}` : ''}`
 }
 
-function plainEvidence(...groups: ReadonlyArray<readonly {readonly name: string; readonly evidence: readonly string[]}[]>): string[] {
-  const items = groups.flat()
-  return items.length > 0 ? items.map((item) => `- ${item.name}: ${item.evidence.join(', ')}`) : ['- none confirmed']
+function plainTechnologies(report: DiscoveryReport): string[] {
+  if (report.technologies.length === 0) return ['- none confirmed']
+  return report.technologies.map((item) => `- ${item.name}: ${item.version ?? 'version unknown'} [${item.confidence}] (${item.evidence.join(', ')})`)
 }
 
 function escapeTable(value: string): string {
