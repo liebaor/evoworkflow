@@ -11,6 +11,7 @@ import {listDirectory, openManagedRepository, readOptionalText} from './managed.
 import {parseMarkdownDocument} from './markdown.js'
 import {repositoryPaths} from './paths.js'
 import {scanRepository} from './scanner.js'
+import {captureGitSnapshot} from './git-snapshot.js'
 
 const execFile = promisify(execFileCallback)
 
@@ -35,6 +36,9 @@ export interface WorkingContextChange {
 export interface WorkingContextGit {
   readonly available: boolean
   readonly branch: string | null
+  readonly head: string | null
+  readonly treeFingerprint: string | null
+  readonly changedPathsFingerprint: string | null
   readonly changedPaths: readonly string[]
   readonly recentCommits: readonly string[]
 }
@@ -219,6 +223,8 @@ export function formatWorkingContext(context: WorkingContext): string {
     '',
     `- Available / 可用：${context.git.available ? 'yes / 是' : 'no / 否'}`,
     `- Branch / 分支：${context.git.branch ?? 'unknown / 未知'}`,
+    `- HEAD / 提交：${context.git.head ?? 'unknown / 未知'}`,
+    `- Tree fingerprint / 工作树指纹：${context.git.treeFingerprint ?? 'unknown / 未知'}`,
     `- Changed paths / 修改路径：${context.git.changedPaths.length > 0 ? context.git.changedPaths.map((item) => `\`${item}\``).join(', ') : 'none / 无'}`,
     `- Recent commits / 最近提交：${context.git.recentCommits.length > 0 ? context.git.recentCommits.join('；') : 'none / 无'}`,
     '',
@@ -348,30 +354,21 @@ function parseAuthorityRows(source: string): AuthorityRow[] {
 
 async function readGitSnapshot(root: string, relevantPaths: readonly string[]): Promise<WorkingContextGit> {
   try {
-    const statusResult = await execFile('git', ['status', '--short', '--branch'], {cwd: root, timeout: 5000, maxBuffer: 100_000})
-    const statusLines = String(statusResult.stdout).split(/\r?\n/u).filter((line) => line.length > 0)
-    const branch = statusLines.find((line) => line.startsWith('## '))?.slice(3) ?? null
-    const changedPaths = statusLines.filter((line) => !line.startsWith('## ')).map(parseGitPath).filter((item): item is string => item !== null).sort()
+    const snapshot = await captureGitSnapshot(root)
+    if (snapshot.head === null && snapshot.branch === null && snapshot.changedPaths.length === 0) return unavailableGit()
     const historyArgs = relevantPaths.length > 0
       ? ['log', '-n', '5', '--format=%h %s', '--', ...relevantPaths.slice(0, 12)]
       : ['log', '-n', '5', '--format=%h %s']
     const logResult = await execFile('git', historyArgs, {cwd: root, timeout: 5000, maxBuffer: 100_000})
     const recentCommits = String(logResult.stdout).split(/\r?\n/u).map((line) => line.trim()).filter(Boolean)
-    return {available: true, branch, changedPaths, recentCommits}
+    return {available: true, branch: snapshot.branch, head: snapshot.head, treeFingerprint: snapshot.treeFingerprint, changedPathsFingerprint: snapshot.changedPathsFingerprint, changedPaths: snapshot.changedPaths, recentCommits}
   } catch {
     return unavailableGit()
   }
 }
 
-function parseGitPath(line: string): string | null {
-  const value = line.slice(3).trim()
-  if (!value) return null
-  const rename = value.lastIndexOf(' -> ')
-  return (rename >= 0 ? value.slice(rename + 4) : value).replace(/^"|"$/gu, '')
-}
-
 function unavailableGit(): WorkingContextGit {
-  return {available: false, branch: null, changedPaths: [], recentCommits: []}
+  return {available: false, branch: null, head: null, treeFingerprint: null, changedPathsFingerprint: null, changedPaths: [], recentCommits: []}
 }
 
 function compareReferences(left: WorkingContextReference, right: WorkingContextReference): number {

@@ -63,7 +63,7 @@ Agent 可以建议权重，但由人工确认。
 
 ### VERIFY
 
-把每个验收标准映射到实际证据，并准确记录 `PASS`、`FAIL` 或 `UNVERIFIED`。区分静态、单元、集成、真实入口、端到端和运行环境证据。
+把每个验收标准映射到实际证据。新协议使用 `evidence.yml` 作为机器权威、`evidence/records/*.yml` 保存追加式执行记录、`evidence.md` 保存人类可读摘要；状态为 `PASS`、`FAIL`、`BLOCKED` 或 `NOT_RUN`。每条记录绑定命令、退出码、输出哈希、Git 快照和可选产物哈希。旧版 `evidence.md` 的 `UNVERIFIED` 在迁移期间只读兼容，不得当作新的证据格式继续扩展。
 
 ### REVIEW
 
@@ -71,7 +71,11 @@ Agent 可以建议权重，但由人工确认。
 
 ### FINISH
 
-人工接受后，协调已批准意图、当前 Decision、实现、测试、证据和当前文档，把活动工作移到 completed 并更新机器状态。Finish 不 commit、merge、release 或 deploy。
+人工接受后，协调已批准意图、当前 Decision、实现、测试、证据和当前文档，把活动工作移到 completed 并更新机器状态。Finish 同时写入 `completion.yml`，记录完成时间、Git 基线、工作树指纹、当前事实目标和 `READY_TO_COMMIT` / `COMMITTED` 状态。Finish 不自动 commit、merge、release 或 deploy；已有提交只能由人工或外部 Git 流程产生，再通过 `evo completion bind-commit` 绑定。
+
+### Migration and Change Set / 迁移与 Change Set
+
+旧仓库先运行 `evo migrate` 预览，再由人工决定是否 `evo migrate --apply`。迁移只创建 v2 机器证据和导入记录，不覆盖原有 `evidence.md`。需要同时协调前后端或多个 checkout 时，在根仓库 `.evo/change-sets/<id>.yml` 声明成员和契约哈希，用 `evo change-set check <id>` 聚合检查；它不会替子仓库提交或发布。
 
 ## 返回路径
 

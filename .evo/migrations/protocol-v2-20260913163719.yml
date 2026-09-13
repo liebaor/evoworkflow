@@ -1,0 +1,25 @@
+schemaVersion: 1
+kind: protocol-v2
+appliedAt: 2026-09-13T16:37:19.705Z
+actions:
+  - kind: CONFIG
+    path: .evo/config.yml
+    detail: Upgrade config.yml schemaVersion from 1 to 2.
+  - kind: STATE
+    path: .evo/state.yml
+    detail: Upgrade state.yml schemaVersion from 1 to 2.
+  - kind: EVIDENCE
+    path: .evo/work/completed/evo-0001-v0-1/evidence.yml
+    detail: Convert legacy evidence.md table to evidence.yml and create imported evidence records.
+  - kind: EVIDENCE
+    path: .evo/work/completed/evo-0002-v0-2-grounding/evidence.yml
+    detail: Convert legacy evidence.md table to evidence.yml and create imported evidence records.
+  - kind: EVIDENCE
+    path: .evo/work/completed/evo-0003-v0-2-context-consistency/evidence.yml
+    detail: Convert legacy evidence.md table to evidence.yml and create imported evidence records.
+  - kind: EVIDENCE
+    path: .evo/work/completed/evo-0004-v0-2-resilience/evidence.yml
+    detail: Convert legacy evidence.md table to evidence.yml and create imported evidence records.
+  - kind: EVIDENCE
+    path: .evo/work/completed/evo-0005-v0-2-cross-project/evidence.yml
+    detail: Convert legacy evidence.md table to evidence.yml and create imported evidence records.

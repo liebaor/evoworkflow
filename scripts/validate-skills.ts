@@ -69,5 +69,5 @@ if (errors.length > 0) {
   process.stderr.write(`${errors.join('\n')}\n`)
   process.exitCode = 1
 } else {
-  process.stdout.write(`Validated ${directories.length} EVOworkflow Skills.\n`)
+  process.stdout.write(`Validated ${directories.length} evoworkflow Skills.\n`)
 }

@@ -10,6 +10,7 @@ import {openManagedRepository, readOptionalText} from './managed.js'
 import {parseMarkdownDocument} from './markdown.js'
 import {repositoryPaths} from './paths.js'
 import {validateProject, type ValidationIssue} from '../validation/project.js'
+import {readEvidence as readEvidenceDocument} from './evidence.js'
 
 export interface RecoveryEvidence {
   readonly path: string
@@ -49,9 +50,13 @@ export async function buildRecoveryReport(root: string): Promise<RecoveryReport>
   if (managed.state.status === 'BLOCKED' || managed.state.status === 'NEEDS_INFO') blocked.push(`State status is ${managed.state.status}.`)
   for (const issue of validation.issues.filter((item) => item.severity === 'error')) blocked.push(`${issue.code}: ${issue.message}`)
   if (latestEvidence.some((item) => item.statuses.includes('FAIL'))) blocked.push('Evidence contains FAIL acceptance results.')
+  if (latestEvidence.some((item) => item.statuses.some((status) => status.includes('BLOCKED')))) blocked.push('Evidence contains BLOCKED acceptance results.')
   const summary = await safeStatusSummary(root)
   const objective = await currentObjective(paths, managed.state, workingContext)
-  const unknowns = [...new Set([...workingContext.unknowns, ...latestEvidence.flatMap((item) => item.statuses.includes('UNVERIFIED') ? [`${item.path} contains UNVERIFIED evidence.`] : [])])]
+  const unknowns = [...new Set([...workingContext.unknowns, ...latestEvidence.flatMap((item) => {
+    if (item.statuses.includes('UNVERIFIED')) return [`${item.path} contains UNVERIFIED evidence.`]
+    return item.statuses.some((status) => status.includes('NOT_RUN') || status.includes('BLOCKED')) ? [`${item.path} contains incomplete evidence.`] : []
+  })])]
 
   return {
     root: paths.root,
@@ -133,6 +138,10 @@ async function readApprovedArtifacts(paths: ReturnType<typeof repositoryPaths>, 
 
 async function readEvidence(paths: ReturnType<typeof repositoryPaths>, state: State): Promise<RecoveryEvidence[]> {
   if (!state.activeChange) return []
+  const modern = await readEvidenceDocument(paths.root, state.activeChange)
+  if (modern.document && !modern.legacy) {
+    return [{path: modern.path ?? relative(paths.root, path.join(paths.activeWork, state.activeChange, 'evidence.yml')), statuses: modern.document.acceptance.map((item) => `${item.id}=${item.status}`)}]
+  }
   const target = path.join(paths.activeWork, state.activeChange, 'evidence.md')
   const source = await readOptionalText(target)
   if (!source) return []

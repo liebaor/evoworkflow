@@ -2,8 +2,12 @@ import {toJSONSchema} from 'zod'
 
 import {
   ChangeMetadataSchema,
+  ChangeSetSchema,
+  CompletionSchema,
   ConfigSchema,
   DecisionMetadataSchema,
+  EvidenceDocumentSchema,
+  EvidenceRecordSchema,
   GoalSchema,
   LinkedArtifactMetadataSchema,
   ReviewMetadataSchema,
@@ -11,13 +15,17 @@ import {
 } from '../src/core/schemas.js'
 
 const definitions = [
-  ['config.schema.json', 'https://evoworkflow.dev/schema/config-v1.json', 'EVOworkflow Config v1', ConfigSchema],
-  ['state.schema.json', 'https://evoworkflow.dev/schema/state-v1.json', 'EVOworkflow State v1', StateSchema],
-  ['goal.schema.json', 'https://evoworkflow.dev/schema/goal-v1.json', 'EVOworkflow Goal v1', GoalSchema],
-  ['change-metadata.schema.json', 'https://evoworkflow.dev/schema/change-metadata-v1.json', 'EVOworkflow Change Metadata v1', ChangeMetadataSchema],
-  ['linked-artifact-metadata.schema.json', 'https://evoworkflow.dev/schema/linked-artifact-metadata-v1.json', 'EVOworkflow Linked Artifact Metadata v1', LinkedArtifactMetadataSchema],
-  ['decision-metadata.schema.json', 'https://evoworkflow.dev/schema/decision-metadata-v1.json', 'EVOworkflow Decision Metadata v1', DecisionMetadataSchema],
-  ['review-metadata.schema.json', 'https://evoworkflow.dev/schema/review-metadata-v1.json', 'EVOworkflow Review Metadata v1', ReviewMetadataSchema],
+  ['config.schema.json', 'https://evoworkflow.dev/schema/config-v2.json', 'evoworkflow Config v2', ConfigSchema],
+  ['state.schema.json', 'https://evoworkflow.dev/schema/state-v2.json', 'evoworkflow State v2', StateSchema],
+  ['goal.schema.json', 'https://evoworkflow.dev/schema/goal-v1.json', 'evoworkflow Goal v1', GoalSchema],
+  ['change-metadata.schema.json', 'https://evoworkflow.dev/schema/change-metadata-v1.json', 'evoworkflow Change Metadata v1', ChangeMetadataSchema],
+  ['linked-artifact-metadata.schema.json', 'https://evoworkflow.dev/schema/linked-artifact-metadata-v1.json', 'evoworkflow Linked Artifact Metadata v1', LinkedArtifactMetadataSchema],
+  ['decision-metadata.schema.json', 'https://evoworkflow.dev/schema/decision-metadata-v1.json', 'evoworkflow Decision Metadata v1', DecisionMetadataSchema],
+  ['review-metadata.schema.json', 'https://evoworkflow.dev/schema/review-metadata-v1.json', 'evoworkflow Review Metadata v1', ReviewMetadataSchema],
+  ['evidence-record.schema.json', 'https://evoworkflow.dev/schema/evidence-record-v2.json', 'evoworkflow Evidence Record v2', EvidenceRecordSchema],
+  ['evidence-document.schema.json', 'https://evoworkflow.dev/schema/evidence-document-v2.json', 'evoworkflow Evidence Document v2', EvidenceDocumentSchema],
+  ['completion.schema.json', 'https://evoworkflow.dev/schema/completion-v1.json', 'evoworkflow Completion v1', CompletionSchema],
+  ['change-set.schema.json', 'https://evoworkflow.dev/schema/change-set-v1.json', 'evoworkflow Change Set v1', ChangeSetSchema],
 ] as const
 
 /** Projects Zod machine-state authorities into deterministic JSON Schema documents. */

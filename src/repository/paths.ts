@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-/** Resolves all deterministic EVOworkflow paths for a managed repository. */
+/** Resolves all deterministic evoworkflow paths for a managed repository. */
 export function repositoryPaths(root: string) {
   const resolvedRoot = path.resolve(root)
   const evo = path.join(resolvedRoot, '.evo')
@@ -20,6 +20,8 @@ export function repositoryPaths(root: string) {
     workingDecisions: path.join(evo, 'decisions', 'working'),
     currentDecisions: path.join(evo, 'decisions', 'current'),
     declinedDecisions: path.join(evo, 'decisions', 'declined'),
+    changeSets: path.join(evo, 'change-sets'),
+    migrations: path.join(evo, 'migrations'),
     goals: path.join(evo, 'goals'),
     activeGoals: path.join(evo, 'goals', 'active'),
     completedGoals: path.join(evo, 'goals', 'completed'),

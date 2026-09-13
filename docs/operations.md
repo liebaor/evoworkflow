@@ -55,6 +55,24 @@ Adapter 命令或参数变化属于执行策略变化；已有 Goal 批准会失
 
 状态写入是原子的。进程中断可能留下 `RUNNING` Goal 和 `.evo/goals/.locks/` 下的执行锁。把锁视为陈旧前，检查 PID 和当前进程状态。确认安全删除锁后，使用 `evo goal resume <id> --reason <reason>` 记录新的有边界尝试 epoch 并继续。需要变更需求或调查 Bug 时，先保存结构化 Delta/Bug 记录并回到人工批准边界。
 
-证据中的外部或运行环境 `UNVERIFIED` 会阻止 Finish，除非 `review.md` 明确记录 `status: APPROVED`、`humanAcceptance: true` 和 `acceptedLimitations: true`。这种人工接受只保留为已知限制；本地结果不能替代真实模型、跨平台、CI 或生产入口验证，归档证据仍保留 `UNVERIFIED`。
+Evidence v2 中的外部或运行环境 `BLOCKED` / `NOT_RUN` 会阻止 Finish，除非 `review.md` 明确记录 `status: APPROVED`、`humanAcceptance: true` 和 `acceptedLimitations: true`。旧版 `UNVERIFIED` 只在迁移期间兼容。这种人工接受只保留为已知限制；本地结果不能替代真实模型、跨平台、CI 或生产入口验证。
 
-EVOworkflow v0.2 不提供自动 release、deploy 或生产回滚；只读恢复报告也不代表外部运行已验证。
+Evidence v2 的常用操作：
+
+```sh
+evo evidence run --root /path/to/project --change <change-id> --acceptance AC-01 --kind integration --label "focused test" -- pnpm test --filter focused
+evo evidence record --root /path/to/project --change <change-id> --acceptance AC-02 --kind manual --label "browser observation" --status PASS --summary "Observed the approved path"
+evo evidence reconcile --root /path/to/project --change <change-id>
+evo evidence inspect --root /path/to/project --change <change-id>
+```
+
+Finish 后先检查 `evo completion inspect <change-id>`。如果显示 `READY_TO_COMMIT`，由外部 Git 流程提交后再运行 `evo completion bind-commit <change-id>`；该命令不会创建提交。
+
+旧仓库迁移先预览再应用：
+
+```sh
+evo migrate --root /path/to/project
+evo migrate --root /path/to/project --apply
+```
+
+evoworkflow v0.2 不提供自动 release、deploy 或生产回滚；只读恢复报告也不代表外部运行已验证。

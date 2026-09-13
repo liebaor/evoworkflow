@@ -68,7 +68,7 @@ async function executeProcess(command: string, args: readonly string[], cwd: str
 
 function buildSlicePrompt(request: AgentRunRequest): string {
   return [
-    'Execute exactly one approved EVOworkflow Slice in the current repository.',
+    'Execute exactly one approved evoworkflow Slice in the current repository.',
     '',
     `Goal: ${request.goal.id} — ${request.goal.title}`,
     `Slice: ${request.slice.id} — ${request.slice.objective}`,

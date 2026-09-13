@@ -19,7 +19,7 @@ acceptedLimitations: true
 
 ## Expected versus actual blast radius / 预期与实际影响范围
 
-实际只修改 EVOworkflow 本仓库的扫描器、初始化展示、模板、测试、脚本、README、测试文档和本 Change 记录；RuoYi 只作为固定归档的只读评估输入，两个原始 checkout 的 `git status --short` 均为空。
+实际只修改 evoworkflow 本仓库的扫描器、初始化展示、模板、测试、脚本、README、测试文档和本 Change 记录；RuoYi 只作为固定归档的只读评估输入，两个原始 checkout 的 `git status --short` 均为空。
 
 ## Findings / 发现
 

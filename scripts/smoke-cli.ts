@@ -46,8 +46,16 @@ try {
   assertIncludes(recovery, '"workingContext"')
   assertIncludes(recovery, '"recommendedNextAction"')
 
+  const migration = await run(['migrate', '--root', repository])
+  assertIncludes(migration, 'Target protocol: v2')
+
+  const evidence = await run(['evidence', 'run', '--root', repository, '--change', 'smoke-change', '--acceptance', 'AC-01', '--kind', 'build', '--label', 'built evidence', '--', process.execPath, '-e', 'process.exit(0)'])
+  assertIncludes(evidence, 'PASS built evidence')
+  const evidenceCheck = await run(['evidence', 'reconcile', '--root', repository, '--change', 'smoke-change'])
+  assertIncludes(evidenceCheck, 'Valid: yes')
+
   const help = await run(['--help'])
-  for (const command of ['approve', 'check', 'context', 'doctor', 'finish', 'init', 'recover', 'status']) assertIncludes(help, command)
+  for (const command of ['approve', 'check', 'context', 'doctor', 'finish', 'init', 'migrate', 'recover', 'status', 'evidence', 'completion', 'change-set']) assertIncludes(help, command)
   const goalHelp = await run(['goal', '--help'])
   for (const command of ['approve', 'cancel', 'create', 'inspect', 'resume', 'run']) assertIncludes(goalHelp, command)
 } finally {
@@ -87,7 +95,7 @@ async function prepareFiveSliceGoal(root: string): Promise<void> {
     phase: 'PLAN',
     status: 'AWAITING_APPROVAL',
   }))
-  const adapterScript = 'let input="";process.stdin.on("data",c=>input+=c);process.stdin.on("end",()=>{if(!input.includes("approved EVOworkflow Slice"))process.exit(4);console.log(JSON.stringify({status:"COMPLETED",summary:"smoke",changedFiles:[],evidence:[],stopCondition:null}))})'
+  const adapterScript = 'let input="";process.stdin.on("data",c=>input+=c);process.stdin.on("end",()=>{if(!input.includes("approved evoworkflow Slice"))process.exit(4);console.log(JSON.stringify({status:"COMPLETED",summary:"smoke",changedFiles:[],evidence:[],stopCondition:null}))})'
   await updateYaml(path.join(root, '.evo', 'config.yml'), (config) => ({
     ...config,
     agents: {

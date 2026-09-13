@@ -1,4 +1,4 @@
-# EVOworkflow Skill 中文索引
+# evoworkflow Skill 中文索引
 
 每个目录里的 `SKILL.md` 是给 Agent 使用的执行约定。Skill 只完成一个阶段，完成后停止；人工决定是否进入下一阶段。下面的名称是稳定调用标识，说明使用中文。
 

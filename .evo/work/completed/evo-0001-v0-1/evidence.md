@@ -1,4 +1,4 @@
-# EVOworkflow v0.1 Evidence
+# evoworkflow v0.1 Evidence
 
 | Acceptance | Status | Evidence | Scope |
 |---|---|---|---|

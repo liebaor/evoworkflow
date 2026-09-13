@@ -1,6 +1,6 @@
 ---
 name: evo-status
-description: Report deterministic EVOworkflow machine state, protocol validity, active Change and Goal, and the allowed next action. Read-only and narrower than general project advice.
+description: Report deterministic evoworkflow machine state, protocol validity, active Change and Goal, and the allowed next action. Read-only and narrower than general project advice.
 ---
 
 # EVO Status

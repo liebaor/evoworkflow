@@ -34,7 +34,7 @@ export async function planInitialization(root: string): Promise<InitializationPl
   const paths = repositoryPaths(root)
   const candidates: Array<[string, string]> = [
     [paths.agents, 'Standing orders for agents; existing instructions remain authoritative. / Agent 常驻规则；已有指令仍然是权威。'],
-    [paths.config, 'Deterministic EVOworkflow configuration. / 确定性的 EVOworkflow 配置。'],
+    [paths.config, 'Deterministic evoworkflow configuration. / 确定性的 evoworkflow 配置。'],
     [paths.project, 'Observed project map and authority links. / 观察到的项目地图和权威链接。'],
     [paths.state, 'Machine-readable workflow state. / 机器可读的工作流状态。'],
   ]
@@ -66,7 +66,7 @@ export async function applyInitialization(plan: InitializationPlan): Promise<Ini
   }
   const files: Array<[string, string, string]> = [
     [paths.agents, 'project/AGENTS.md', 'Standing orders for agents; existing instructions remain authoritative. / Agent 常驻规则；已有指令仍然是权威。'],
-    [paths.config, 'project/.evo/config.yml', 'Deterministic EVOworkflow configuration. / 确定性的 EVOworkflow 配置。'],
+    [paths.config, 'project/.evo/config.yml', 'Deterministic evoworkflow configuration. / 确定性的 evoworkflow 配置。'],
     [paths.project, 'project/.evo/project.md', 'Observed project map and authority links. / 观察到的项目地图和权威链接。'],
     [paths.state, 'project/.evo/state.yml', 'Machine-readable workflow state. / 机器可读的工作流状态。'],
   ]

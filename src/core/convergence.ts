@@ -9,6 +9,8 @@ import {formatMarkdownDocument, parseMarkdownDocument} from '../repository/markd
 import {listDirectory, openManagedRepository} from '../repository/managed.js'
 import {repositoryPaths} from '../repository/paths.js'
 import {validateProject} from '../validation/project.js'
+import {reconcileEvidence} from '../repository/evidence.js'
+import {checkCurrentTruth, createCompletionRecord} from '../repository/completion.js'
 
 export type ConvergenceStatus = 'APPLY' | 'PENDING' | 'DRIFT' | 'CONFLICT' | 'UNAFFECTED'
 
@@ -49,10 +51,11 @@ export async function checkConvergence(root: string, requestedChangeId?: string)
   else items.push({area: 'spec.md', status: 'UNAFFECTED', detail: 'This Change has no separate Specification artifact.'})
 
   const review = await reviewConvergence(path.join(changeRoot, 'review.md'))
-  items.push(await evidenceConvergence(path.join(changeRoot, 'evidence.md'), review.acceptsLimitations))
+  items.push(await evidenceConvergence(paths.root, changeId, review.acceptsLimitations))
   items.push(review.item)
   items.push(await goalConvergence(paths, managed.state))
   items.push(await decisionConvergence(paths, changeId))
+  items.push(await currentTruthConvergence(paths.root, changeId))
 
   const ready = items.every((item) => item.status === 'APPLY' || item.status === 'UNAFFECTED')
   return {changeId, ready, items}
@@ -115,6 +118,7 @@ export async function finishChange(root: string, requestedChangeId?: string, now
     slices: [],
     updatedAt: timestamp,
   } satisfies State)
+  await createCompletionRecord(paths.root, report.changeId, now)
   return report
 }
 
@@ -148,20 +152,50 @@ async function approvedArtifact(
   }
 }
 
-async function evidenceConvergence(target: string, allowAcceptedLimitations = false): Promise<ConvergenceItem> {
-  if (!(await pathExists(target))) return {area: 'evidence', status: 'CONFLICT', detail: 'evidence.md is missing.'}
-  const source = await readFile(target, 'utf8')
-  const statuses = [...source.matchAll(/^\|\s*AC-[^|]+\|\s*(PASS|FAIL|UNVERIFIED)\s*\|/gmu)].map((match) => match[1])
-  if (statuses.length === 0) return {area: 'evidence', status: 'CONFLICT', detail: 'No acceptance-to-evidence rows were found. / 没有找到验收到证据的表格行。'}
-  if (statuses.includes('FAIL')) return {area: 'evidence', status: 'CONFLICT', detail: 'At least one acceptance criterion is FAIL. / 至少一个验收标准为 FAIL。'}
-  if (statuses.includes('UNVERIFIED')) return {area: 'evidence', status: 'PENDING', detail: 'At least one acceptance criterion is UNVERIFIED. / 至少一个验收标准仍为 UNVERIFIED。'}
-  const externalSection = /^##\s+(?:Unverified external or operational paths|External and operational evidence)\s*$([\s\S]*)/imu.exec(source)?.[1] ?? ''
-  if (/\bUNVERIFIED\b/u.test(externalSection)) {
-    return allowAcceptedLimitations
-      ? {area: 'evidence', status: 'APPLY', detail: 'External or operational evidence remains UNVERIFIED but is explicitly accepted as a limitation in human review. / 外部或运行环境证据仍为 UNVERIFIED，但已在人工评审中明确接受为限制。'}
-      : {area: 'evidence', status: 'PENDING', detail: 'External or operational evidence remains UNVERIFIED. / 外部或运行环境证据仍为 UNVERIFIED。'}
+async function evidenceConvergence(root: string, changeId: string, allowAcceptedLimitations = false): Promise<ConvergenceItem> {
+  try {
+    const report = await reconcileEvidence(root, changeId)
+    const hardIssues = report.issues.filter((issue) => issue.code !== 'LEGACY_EVIDENCE')
+    if (hardIssues.length > 0) {
+      return {area: 'evidence', status: 'CONFLICT', detail: hardIssues.map((issue) => issue.message).join(' ')}
+    }
+    const statuses = report.evidence.map((item) => item.status)
+    if (statuses.length === 0) return {area: 'evidence', status: 'CONFLICT', detail: 'No acceptance-to-evidence entries were found. / 没有找到验收到证据的记录。'}
+    if (statuses.includes('FAIL')) return {area: 'evidence', status: 'CONFLICT', detail: 'At least one acceptance criterion is FAIL. / 至少一个验收标准为 FAIL。'}
+    if (report.legacy) {
+      const legacyTarget = path.join(repositoryPaths(root).activeWork, changeId, 'evidence.md')
+      const legacySource = await readFile(legacyTarget, 'utf8')
+      const externalSection = /^##\s+(?:Unverified external or operational paths|External and operational evidence)\s*$([\s\S]*)/imu.exec(legacySource)?.[1] ?? ''
+      if (/\bUNVERIFIED\b/u.test(externalSection)) {
+        return allowAcceptedLimitations
+          ? {area: 'evidence', status: 'APPLY', detail: 'External or operational evidence remains UNVERIFIED but is explicitly accepted as a limitation in human review. / 外部或运行环境证据仍为 UNVERIFIED，但已在人工评审中明确接受为限制。'}
+          : {area: 'evidence', status: 'PENDING', detail: 'External or operational evidence remains UNVERIFIED. / 外部或运行环境证据仍为 UNVERIFIED。'}
+      }
+    }
+    if (statuses.some((status) => status === 'NOT_RUN' || status === 'BLOCKED')) {
+      if (!allowAcceptedLimitations) return {area: 'evidence', status: 'PENDING', detail: 'At least one acceptance criterion is NOT_RUN or BLOCKED. / 至少一个验收标准仍为 NOT_RUN 或 BLOCKED。'}
+      return {area: 'evidence', status: 'APPLY', detail: 'Unfinished evidence is explicitly accepted as a documented limitation in human review. / 未完成证据已在人工评审中明确作为限制接受。'}
+    }
+    return {
+      area: 'evidence',
+      status: 'APPLY',
+      detail: `${statuses.length} acceptance criteria record PASS evidence${report.legacy ? ' (legacy evidence.md; migrate to evidence.yml)' : ''}. / ${statuses.length} 条验收标准都有 PASS 证据${report.legacy ? '（旧版 evidence.md；应迁移到 evidence.yml）' : ''}。`,
+    }
+  } catch (error) {
+    return {area: 'evidence', status: 'CONFLICT', detail: error instanceof Error ? error.message : String(error)}
   }
-  return {area: 'evidence', status: 'APPLY', detail: `${statuses.length} acceptance criteria record PASS evidence. / ${statuses.length} 条验收标准都有 PASS 证据。`}
+}
+
+async function currentTruthConvergence(root: string, changeId: string): Promise<ConvergenceItem> {
+  try {
+    const report = await checkCurrentTruth(root, changeId)
+    if (report.missing.length > 0) return {area: 'current-truth', status: 'CONFLICT', detail: `Missing current-truth paths: ${report.missing.join(', ')}`}
+    return report.legacy
+      ? {area: 'current-truth', status: 'APPLY', detail: 'No current-truth targets are declared; legacy Plan metadata remains compatible but is not mechanically checked. / 未声明 current-truth 目标；旧版 Plan 元数据保持兼容，但不会机械校验。'}
+      : {area: 'current-truth', status: 'APPLY', detail: `Verified ${report.verified.length} current-truth target(s). / 已验证 ${report.verified.length} 个 current-truth 目标。`}
+  } catch (error) {
+    return {area: 'current-truth', status: 'CONFLICT', detail: error instanceof Error ? error.message : String(error)}
+  }
 }
 
 interface ReviewConvergenceResult {

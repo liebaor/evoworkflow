@@ -4,9 +4,9 @@ import {failCommand, jsonFlag, rootFlag} from '../core/cli.js'
 import {applyInitialization, formatInitializationPlan, planInitialization} from '../repository/init.js'
 
 export default class Init extends Command {
-  public static override description = 'Inspect a repository and optionally apply non-destructive EVOworkflow initialization / 检查仓库，并可应用不破坏文件的 EVOworkflow 初始化'
+  public static override description = 'Inspect a repository and optionally apply non-destructive evoworkflow initialization / 检查仓库，并可应用不破坏文件的 evoworkflow 初始化'
   public static override flags = {
-    apply: Flags.boolean({description: 'Create missing EVOworkflow files after showing the discovery result / 展示发现结果后创建缺失的 EVOworkflow 文件'}),
+    apply: Flags.boolean({description: 'Create missing evoworkflow files after showing the discovery result / 展示发现结果后创建缺失的 evoworkflow 文件'}),
     json: jsonFlag,
     root: rootFlag,
   }

@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evoworkflow.dev/schema/completion-v1.json",
+  "title": "evoworkflow Completion v1",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "change": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
+    },
+    "workflowStatus": {
+      "type": "string",
+      "const": "COMPLETED"
+    },
+    "finishedAt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "baselineCommit": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "finishedTreeFingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "sourceStatus": {
+      "type": "string",
+      "enum": [
+        "READY_TO_COMMIT",
+        "COMMITTED",
+        "COMMIT_NOT_REQUIRED"
+      ]
+    },
+    "commit": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "currentTruth": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "action": {
+                "type": "string",
+                "enum": [
+                  "CREATE",
+                  "UPDATE",
+                  "UNAFFECTED"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "path",
+              "action"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "verified": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "required",
+        "verified"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "change",
+    "workflowStatus",
+    "finishedAt",
+    "baselineCommit",
+    "finishedTreeFingerprint",
+    "sourceStatus",
+    "commit",
+    "currentTruth"
+  ],
+  "additionalProperties": false
+}

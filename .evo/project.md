@@ -2,8 +2,8 @@
 
 ## Initialization / 初始化
 
-- Project / 项目：`EvoFlow`
-- Mode / 模式：`BROWNFIELD`（当前仓库已由 EVOworkflow 管理）
+- Project / 项目：`evoworkflow`
+- Mode / 模式：`BROWNFIELD`（当前仓库已由 evoworkflow 管理）
 - Discovery confidence / 发现置信度：`HIGH`
 - Generated / 生成时间：`2026-09-13T09:22:22.941Z`
 - Files inspected / 已检查文件：`137`

@@ -2,7 +2,7 @@
 
 ## Scope / 范围
 
-本记录保存 EVOworkflow v0.2 的本地、确定性和只读验证结果。评估使用实际 EvoFlow checkout、固定 RuoYi 归档和独立 FastAPI + Ant Design Pro 合成夹具，不复制外部项目源代码，也不把静态结果解释为真实运行结果。
+本记录保存 evoworkflow v0.2 的本地、确定性和只读验证结果。评估使用实际 evoworkflow checkout、固定 RuoYi 归档和独立 FastAPI + Ant Design Pro 合成夹具，不复制外部项目源代码，也不把静态结果解释为真实运行结果。
 
 ## Phase 2 eval harness
 

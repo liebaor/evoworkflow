@@ -1,8 +1,8 @@
-# EVOworkflow v0.2 产品规格
+# evoworkflow v0.2 产品规格
 
 ## 定义
 
-EVOworkflow 是面向长期项目的一套人工控制、以仓库为中心、AI 辅助、证据驱动的软件工程工作流。
+evoworkflow 是面向长期项目的一套人工控制、以仓库为中心、AI 辅助、证据驱动的软件工程工作流。
 
 ```text
 人工控制 WHAT、WHY、APPROVAL 和 ACCEPTANCE。
@@ -11,7 +11,7 @@ Agent 调查事实并执行已授权工作。
 证据决定是否可以完成。
 ```
 
-只有当意图、边界、验收和停止条件已经批准时，EVOworkflow 才可以自动化执行工作；它不会自动化处理模糊意图。
+只有当意图、边界、验收和停止条件已经批准时，evoworkflow 才可以自动化执行工作；它不会自动化处理模糊意图。
 
 ## 产品目标
 
@@ -53,6 +53,9 @@ Agent 调查事实并执行已授权工作。
 17. Consistency 分析报告现有机制、命名和实际影响范围的候选漂移，供人工 Review 使用。
 18. Requirement Delta、Bug 和 Recovery 保留中断、变化与未知项，不能静默覆盖批准或把未知改成已验证。
 19. 二期评估能够比较固定 RuoYi 与独立 FastAPI + Ant Design Pro 仓库，证明框架习惯不会跨项目泄漏。
+20. Evidence v2 能够用精确验收集合、追加式记录、命令输出哈希和 Git 快照支撑 Finish；旧仓库可以保守迁移而不覆盖历史 Markdown。
+21. Finish 能生成独立的 completion handoff，区分“流程已归档”和“源代码已绑定 Git 提交”。
+22. 多仓库 Change Set 能聚合子仓库完成凭证和共享契约哈希，但不替子仓库执行提交或发布。
 
 ## v0.2 仍不做什么
 

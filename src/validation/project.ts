@@ -1,7 +1,7 @@
 import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 
-import {ConfigSchema, DecisionMetadataSchema, GoalSchema, ReviewMetadataSchema, StateSchema, type DecisionMetadata, type State} from '../core/schemas.js'
+import {ConfigSchema, DecisionMetadataSchema, EvidenceDocumentSchema, GoalSchema, ReviewMetadataSchema, StateSchema, type DecisionMetadata, type State} from '../core/schemas.js'
 import {approvalFingerprint, changeContextFingerprint} from '../core/fingerprint.js'
 import {validateGoalIntent} from '../core/goal.js'
 import {inspectArtifactApproval, parseArtifactMetadata, type ApprovableArtifactKind} from '../repository/artifacts.js'
@@ -11,6 +11,7 @@ import {parseMarkdownDocument} from '../repository/markdown.js'
 import {repositoryPaths} from '../repository/paths.js'
 import {validateGoalSlicesAgainstPlan} from '../repository/goals.js'
 import {missingWorkflowDocumentSections} from '../repository/workflow-documents.js'
+import {reconcileEvidence} from '../repository/evidence.js'
 
 export type IssueSeverity = 'error' | 'warning' | 'info'
 
@@ -26,7 +27,7 @@ export interface ValidationReport {
   readonly issues: readonly ValidationIssue[]
 }
 
-/** Validates deterministic EVOworkflow repository invariants. */
+/** Validates deterministic evoworkflow repository invariants. */
 export async function validateProject(root: string): Promise<ValidationReport> {
   const paths = repositoryPaths(root)
   const issues: ValidationIssue[] = []
@@ -61,12 +62,16 @@ export async function validateProject(root: string): Promise<ValidationReport> {
     if (!(await pathExists(changeRoot))) {
       issues.push(issue('MISSING_ACTIVE_CHANGE', 'error', `State references missing active Change ${state.activeChange}.`, relative(paths, changeRoot)))
     } else {
-      for (const filename of ['change.md', 'plan.md', 'evidence.md']) {
+      for (const filename of ['change.md', 'plan.md']) {
         const target = path.join(changeRoot, filename)
-        if (!(await pathExists(target))) {
-          issues.push(issue('INCOMPLETE_ACTIVE_CHANGE', 'error', `Active Change is missing ${filename}.`, relative(paths, target)))
-        }
+        if (!(await pathExists(target))) issues.push(issue('INCOMPLETE_ACTIVE_CHANGE', 'error', `Active Change is missing ${filename}.`, relative(paths, target)))
       }
+      const evidenceMarkdown = path.join(changeRoot, 'evidence.md')
+      const evidenceYaml = path.join(changeRoot, 'evidence.yml')
+      if (!(await pathExists(evidenceMarkdown)) && !(await pathExists(evidenceYaml))) {
+        issues.push(issue('INCOMPLETE_ACTIVE_CHANGE', 'error', 'Active Change is missing evidence.md or evidence.yml.', relative(paths, evidenceMarkdown)))
+      }
+      if (await pathExists(evidenceYaml)) issues.push(...await validateEvidenceDocument(evidenceYaml, state.activeChange, paths))
       for (const kind of ['change', 'plan', 'spec'] as const) {
         const target = path.join(changeRoot, `${kind}.md`)
         if (await pathExists(target)) issues.push(...await validateArtifact(target, kind, state.activeChange, artifactApprovalRequired(kind, state), paths))
@@ -89,6 +94,19 @@ export async function validateProject(root: string): Promise<ValidationReport> {
   issues.push(...await validateDecisionLinks(paths))
 
   return {valid: !issues.some((item) => item.severity === 'error'), issues: sortIssues(issues)}
+}
+
+async function validateEvidenceDocument(target: string, changeId: string, paths: ReturnType<typeof repositoryPaths>): Promise<ValidationIssue[]> {
+  try {
+    const document = await readYaml(target, EvidenceDocumentSchema)
+    if (document.change !== changeId) return [issue('EVIDENCE_CHANGE_MISMATCH', 'error', `Evidence belongs to ${document.change}, not ${changeId}.`, relative(paths, target))]
+    const reconciliation = await reconcileEvidence(paths.root, changeId)
+    return reconciliation.issues
+      .filter((item) => item.code !== 'LEGACY_EVIDENCE')
+      .map((item) => issue('EVIDENCE_RECONCILIATION_DRIFT', 'error', item.message, relative(paths, target)))
+  } catch (error) {
+    return [issue('INVALID_EVIDENCE_DOCUMENT', 'error', errorMessage(error), relative(paths, target))]
+  }
 }
 
 async function validateOptionalWorkflowDocuments(changeRoot: string, paths: ReturnType<typeof repositoryPaths>): Promise<ValidationIssue[]> {

@@ -62,6 +62,7 @@ describe('repository convergence', () => {
     expect(report.ready).toBe(true)
     expect(await pathExists(path.join(paths.activeWork, 'standard-feature'))).toBe(false)
     expect(await pathExists(path.join(paths.completedWork, 'standard-feature', 'evidence.md'))).toBe(true)
+    expect(await pathExists(path.join(paths.completedWork, 'standard-feature', 'completion.yml'))).toBe(true)
     expect(await pathExists(path.join(paths.workingDecisions, 'd-standard.md'))).toBe(false)
     expect(await pathExists(path.join(paths.currentDecisions, 'd-standard.md'))).toBe(true)
     const state = await readState(root)

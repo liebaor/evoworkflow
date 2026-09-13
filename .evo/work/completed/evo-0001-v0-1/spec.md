@@ -8,7 +8,7 @@ approval:
   source: active-thread-goal
 ---
 
-# EVOworkflow v0.1 Specification
+# evoworkflow v0.1 Specification
 
 The behavioral specification and non-goals are owned by [the product specification](../../../../docs/product-spec.md). The active Change acceptance criteria trace AC-01 through AC-15 to that authority.
 

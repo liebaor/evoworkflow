@@ -26,11 +26,41 @@ export const WorkflowStatusSchema = z.enum([
 ])
 export type WorkflowStatus = z.infer<typeof WorkflowStatusSchema>
 
+/** Accepts repository protocol generations that this CLI can read. */
+export const RepositorySchemaVersionSchema = z.union([z.literal(1), z.literal(2)])
+export type RepositorySchemaVersion = z.infer<typeof RepositorySchemaVersionSchema>
+
 export const ChangeWeightSchema = z.enum(['SMALL', 'STANDARD', 'LARGE'])
 export type ChangeWeight = z.infer<typeof ChangeWeightSchema>
 
 export const EvidenceStatusSchema = z.enum(['PASS', 'FAIL', 'UNVERIFIED'])
 export type EvidenceStatus = z.infer<typeof EvidenceStatusSchema>
+
+/** Statuses for append-only, independently observable evidence records. */
+export const EvidenceRecordStatusSchema = z.enum(['PASS', 'FAIL', 'BLOCKED', 'NOT_RUN'])
+export type EvidenceRecordStatus = z.infer<typeof EvidenceRecordStatusSchema>
+
+/** Verification-run statuses aligned with Evidence v2; the old EvidenceStatus remains for v1 files. */
+export const VerificationStatusSchema = EvidenceRecordStatusSchema
+
+export const EvidenceKindSchema = z.enum(['unit', 'integration', 'api', 'browser', 'manual', 'external', 'build', 'other'])
+export type EvidenceKind = z.infer<typeof EvidenceKindSchema>
+
+export const CurrentTruthActionSchema = z.enum(['CREATE', 'UPDATE', 'UNAFFECTED'])
+
+export const CurrentTruthTargetSchema = z.object({
+  path: z.string().min(1),
+  action: CurrentTruthActionSchema,
+  reason: z.string().min(1).optional(),
+})
+export type CurrentTruthTarget = z.infer<typeof CurrentTruthTargetSchema>
+
+export const AcceptanceCriterionSchema = z.object({
+  id: z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*$/),
+  title: z.string().min(1),
+  source: z.string().min(1),
+})
+export type AcceptanceCriterion = z.infer<typeof AcceptanceCriterionSchema>
 
 export const ArtifactApprovalSchema = z.object({
   approvedAt: z.string().min(1),
@@ -52,6 +82,7 @@ export const LinkedArtifactMetadataSchema = z.object({
   change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
   status: WorkflowStatusSchema,
   approval: ArtifactApprovalSchema.nullable(),
+  currentTruthTargets: z.array(CurrentTruthTargetSchema).optional(),
 })
 export type LinkedArtifactMetadata = z.infer<typeof LinkedArtifactMetadataSchema>
 
@@ -83,7 +114,7 @@ export const AgentAdapterConfigSchema = z.object({
 export type AgentAdapterConfig = z.infer<typeof AgentAdapterConfigSchema>
 
 export const ConfigSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: RepositorySchemaVersionSchema,
   project: z.object({
     name: z.string().min(1),
   }),
@@ -118,7 +149,7 @@ export const StateSliceSchema = z.object({
 export type StateSlice = z.infer<typeof StateSliceSchema>
 
 export const StateSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: RepositorySchemaVersionSchema,
   projectMode: ProjectModeSchema,
   phase: WorkflowPhaseSchema,
   status: WorkflowStatusSchema,
@@ -148,6 +179,113 @@ export const StateSchema = z.object({
   }
 })
 export type State = z.infer<typeof StateSchema>
+
+export const GitSnapshotSchema = z.object({
+  branch: z.string().nullable(),
+  head: z.string().regex(/^[a-f0-9]{40}$/).nullable(),
+  treeFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+  dirty: z.boolean(),
+  changedPaths: z.array(z.string()),
+  changedPathsFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+  capturedAt: z.string().min(1),
+})
+export type GitSnapshot = z.infer<typeof GitSnapshotSchema>
+
+export const EvidenceCommandSchema = z.object({
+  executable: z.string().min(1),
+  args: z.array(z.string()),
+  cwd: z.string().min(1),
+})
+export type EvidenceCommand = z.infer<typeof EvidenceCommandSchema>
+
+export const EvidenceArtifactSchema = z.object({
+  path: z.string().min(1),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/),
+  mediaType: z.string().min(1).optional(),
+})
+export type EvidenceArtifact = z.infer<typeof EvidenceArtifactSchema>
+
+export const EvidenceRecordSchema = z.object({
+  schemaVersion: z.literal(2),
+  id: z.string().regex(/^EV-[A-Za-z0-9][A-Za-z0-9_-]*$/),
+  change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  acceptance: z.array(z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*$/)).min(1),
+  kind: EvidenceKindSchema,
+  label: z.string().min(1),
+  status: EvidenceRecordStatusSchema,
+  command: EvidenceCommandSchema.nullable(),
+  exitCode: z.number().int().nullable(),
+  summary: z.string().min(1),
+  outputHash: z.string().regex(/^[a-f0-9]{64}$/).nullable(),
+  git: GitSnapshotSchema,
+  artifacts: z.array(EvidenceArtifactSchema),
+  startedAt: z.string().min(1),
+  endedAt: z.string().min(1),
+})
+export type EvidenceRecord = z.infer<typeof EvidenceRecordSchema>
+
+export const AcceptanceEvidenceSchema = z.object({
+  id: z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*$/),
+  status: EvidenceRecordStatusSchema,
+  evidenceRefs: z.array(z.string().regex(/^EV-[A-Za-z0-9][A-Za-z0-9_-]*$/)),
+  limitations: z.array(z.string().min(1)).default([]),
+})
+export type AcceptanceEvidence = z.infer<typeof AcceptanceEvidenceSchema>
+
+export const EvidenceDocumentSchema = z.object({
+  schemaVersion: z.literal(2),
+  change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  updatedAt: z.string().min(1),
+  acceptance: z.array(AcceptanceEvidenceSchema),
+})
+export type EvidenceDocument = z.infer<typeof EvidenceDocumentSchema>
+
+export const CompletionSchema = z.object({
+  schemaVersion: z.literal(1),
+  change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  workflowStatus: z.literal('COMPLETED'),
+  finishedAt: z.string().min(1),
+  baselineCommit: z.string().regex(/^[a-f0-9]{40}$/).nullable(),
+  finishedTreeFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+  sourceStatus: z.enum(['READY_TO_COMMIT', 'COMMITTED', 'COMMIT_NOT_REQUIRED']),
+  commit: z.string().regex(/^[a-f0-9]{40}$/).nullable(),
+  currentTruth: z.object({
+    required: z.array(CurrentTruthTargetSchema),
+    verified: z.array(z.string().min(1)),
+  }),
+})
+export type Completion = z.infer<typeof CompletionSchema>
+
+export const ChangeSetMemberSchema = z.object({
+  repositoryId: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  pathHint: z.string().min(1),
+  change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  required: z.boolean().default(true),
+})
+export const ChangeSetContractSchema = z.object({
+  id: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  authority: z.string().min(1),
+  path: z.string().min(1),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/),
+})
+export const ChangeSetSchema = z.object({
+  schemaVersion: z.literal(1),
+  id: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  members: z.array(ChangeSetMemberSchema).min(1),
+  contracts: z.array(ChangeSetContractSchema).default([]),
+}).superRefine((value, context) => {
+  const memberIds = new Set<string>()
+  for (const [index, member] of value.members.entries()) {
+    if (memberIds.has(member.repositoryId)) context.addIssue({code: 'custom', message: `Duplicate Change Set member ${member.repositoryId}.`, path: ['members', index, 'repositoryId']})
+    memberIds.add(member.repositoryId)
+  }
+  const contractIds = new Set<string>()
+  for (const [index, contract] of value.contracts.entries()) {
+    if (contractIds.has(contract.id)) context.addIssue({code: 'custom', message: `Duplicate Change Set contract ${contract.id}.`, path: ['contracts', index, 'id']})
+    contractIds.add(contract.id)
+  }
+})
+export type ChangeSet = z.infer<typeof ChangeSetSchema>
 
 export const GoalStatusSchema = z.enum([
   'DRAFT',
@@ -185,7 +323,7 @@ export const VerificationRunSchema = z.object({
   label: z.string().min(1),
   command: z.string().min(1),
   args: z.array(z.string()),
-  status: EvidenceStatusSchema,
+  status: VerificationStatusSchema,
   exitCode: z.number().int().nullable(),
   output: z.string(),
   startedAt: z.string().min(1),

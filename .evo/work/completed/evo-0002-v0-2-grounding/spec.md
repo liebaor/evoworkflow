@@ -8,7 +8,7 @@ approval:
   source: phase2-user-request
 ---
 
-# EVOworkflow v0.2 Grounding Specification / 仓库落地规格
+# evoworkflow v0.2 Grounding Specification / 仓库落地规格
 
 ## Behavioral authority / 行为权威
 

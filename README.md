@@ -1,10 +1,15 @@
-# EVOworkflow
+# evoworkflow
 
-EVOworkflow 是一套由人工驱动、AI 辅助执行、仓库持久化知识的软件工程工作流。
+evoworkflow 是一套由人工驱动、AI 辅助执行、仓库持久化知识的软件工程工作流。
 
 ```text
 人工决定目标与风险 + AI 执行已批准的工作 + 仓库保存知识与状态 + 证据决定是否完成
 ```
+
+## 命名约定
+
+- 项目名称、产品展示名、仓库目录、npm scope 和 Schema 域名统一为：`evoworkflow`。
+- 命令行入口：`evo`；受管理仓库的状态目录：`.evo/`。
 
 ## 核心原则
 
@@ -22,6 +27,9 @@ EVOworkflow 是一套由人工驱动、AI 辅助执行、仓库持久化知识�
 - `evo approve`：把人工批准绑定到 Change、Specification 或 Plan 的精确内容指纹。
 - `evo goal create/approve/run/resume/inspect/cancel`：执行有边界、可恢复、顺序运行的 Goal。
 - `evo finish`：生成收敛报告；只有所有门禁通过并且人工接受后，`--apply` 才会归档 Change。
+- `evo evidence run/record/inspect/reconcile`：把命令执行或人工观察写成带 Git 快照的 Evidence v2，并检查验收项精确集合。
+- `evo completion inspect/bind-commit`：检查 Finish 交付凭证，并绑定已有 Git 提交；不会自动 commit。
+- `evo migrate`：预览或应用 v1 到 v2 的兼容迁移；`evo change-set check/status`：检查多仓库成员和契约哈希。
 - 19 个面向结果的 Skill：调查、决策、规划、实现、验证、评审和维护。
 - Brownfield 发现：依据真实 checkout，而不是根据常见框架名称猜测项目结构。
 - 二期 Grounding：记录技术声明版本、确认/推断状态、仓库区域和可观察运行入口；未确认事实保留为未知。
@@ -31,7 +39,7 @@ EVOworkflow 是一套由人工驱动、AI 辅助执行、仓库持久化知识�
 - 二期评估：提供 E001-E012 确定性评估，以及只读 RuoYi Feature A/B 和 FastAPI + Ant Design Pro 跨框架检验。
 - Greenfield 指导：先比较成熟方案，再决定是否需要自建基础设施。
 
-EVOworkflow v0.2 仍不包含多 Agent 并行执行、云控制面板、中央数据库、自动产品或架构决策，也不会自动提交、合并、发布、部署或完成 Change。
+evoworkflow v0.2 仍不包含多 Agent 并行执行、云控制面板、中央数据库、自动产品或架构决策，也不会自动提交、合并、发布、部署或完成 Change。多仓库 Change Set 只是只读聚合检查；真实人工身份系统也不在本次 Evidence v2 优化范围内，命令行仍按当前测试协议模拟人工操作。
 
 ## 开发要求
 
@@ -63,6 +71,11 @@ pnpm evo goal run --root /path/to/project <goal-id>
 pnpm evo goal inspect --root /path/to/project <goal-id>
 pnpm evo finish --root /path/to/project
 pnpm evo finish --root /path/to/project --apply
+pnpm evo evidence reconcile --root /path/to/project --change <change-id>
+pnpm evo migrate --root /path/to/project
+pnpm evo migrate --root /path/to/project --apply
+pnpm evo completion inspect --root /path/to/project <change-id>
+pnpm evo change-set check --root /path/to/project <change-set-id>
 ```
 
 `evo init` 会报告发现了什么以及准备创建什么。`--apply` 只写入缺失的 EVO 文件，不覆盖项目已有的指令和文档。
@@ -98,4 +111,4 @@ pnpm run eval:ruoyi -- --backend-root /path/to/backend-archive --backend-revisio
 
 Small、Standard、Large 变更需要逐步增强的意图、计划和证据。Skill 永远不会自动串到下一个阶段。
 
-详见[产品规格](docs/product-spec.md)、[工作流协议](docs/workflow-protocol.md)、[仓库协议](docs/repository-protocol.md)、[Skill 约定](docs/skill-contract.md)、[Skill 中文索引](skills/README.zh-CN.md)、[Goal 协议](docs/goal-protocol.md)和[运行手册](docs/operations.md)。
+详见[产品规格](docs/product-spec.md)、[工作流协议](docs/workflow-protocol.md)、[仓库协议](docs/repository-protocol.md)、[优化实施说明](docs/evo-hardening-implementation.md)、[Skill 约定](docs/skill-contract.md)、[Skill 中文索引](skills/README.zh-CN.md)、[Goal 协议](docs/goal-protocol.md)和[运行手册](docs/operations.md)。

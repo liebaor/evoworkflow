@@ -9,7 +9,7 @@ approval:
   source: phase2-user-request
 ---
 
-# EVOworkflow v0.2 — Change Resilience / 变更韧性
+# evoworkflow v0.2 — Change Resilience / 变更韧性
 
 ## Problem / 问题
 
@@ -17,7 +17,7 @@ approval:
 
 ## Goal / 目标
 
-让 EVOworkflow 用持久化的 Requirement Delta、Bug investigation、Decision supersession 和只读 Recovery 报告保留变化链路；新 Agent 能从仓库状态恢复到正确的人控边界。
+让 evoworkflow 用持久化的 Requirement Delta、Bug investigation、Decision supersession 和只读 Recovery 报告保留变化链路；新 Agent 能从仓库状态恢复到正确的人控边界。
 
 ## Scope / 范围
 

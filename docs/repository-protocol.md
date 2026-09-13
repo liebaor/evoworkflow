@@ -9,7 +9,7 @@
 | 领域语言 | 必要时使用 `CONTEXT.md` | 业务词汇是什么意思？ |
 | 持久 Decision | `.evo/decisions/` | 为什么长期选择仍然有效？ |
 | 当前工作 | `.evo/work/` 和 `.evo/state.yml` | 现在正在改变什么？ |
-| 证据 | 测试、CI 和 `evidence.md` | 什么可观察结果支持这个结论？ |
+| 证据 | 测试、CI、`evidence.yml` 和 `evidence/records/` | 什么可观察结果支持这个结论？ |
 
 一个事实只能有一个主权威。`.evo/project.md` 应链接已有架构或领域文档，而不是复制一份竞争性内容。当前文档描述当前行为；Git、被取代的 Decision、completed Change 和 Postmortem 保存历史。
 
@@ -29,7 +29,9 @@ CONTEXT.md                         可选
       change.md
       spec.md                       仅 Large Change
       plan.md
-      evidence.md
+      evidence.yml                  机器证据权威
+      evidence/records/*.yml        追加式执行记录
+      evidence.md                   人类可读摘要
       review.md                     Review 之后
     completed/<change-id>/
     backlog/<change-id>/
@@ -41,6 +43,8 @@ CONTEXT.md                         可选
     active/<goal-id>.yml
     completed/<goal-id>.yml
   postmortems/
+  change-sets/                      可选的多仓库聚合定义
+  migrations/                       协议迁移收据
 ```
 
 Markdown 保存叙事知识，YAML 保存机器状态。空的可选目录不创建。
@@ -76,10 +80,12 @@ Decision 从 `working` 移到 `current` 或 `declined`。当结论变化时，�
 已批准意图 = 当前 Decision = 实现 = 测试 = 证据 = 当前文档
 ```
 
-`UNVERIFIED`、未解决冲突、缺失权威路径、未关闭的阻塞性评审问题和范围漂移都会阻止无条件完成声明。
+`BLOCKED` / `NOT_RUN`（旧版为 `UNVERIFIED`）、未解决冲突、缺失权威路径、未关闭的阻塞性评审问题和范围漂移都会阻止无条件完成声明。
 
-证据门禁同时检查验收表和 `Unverified external or operational paths` 章节。本地测试不能静默替代真实模型、跨平台、CI、外部服务或生产结果。
+Evidence v2 的门禁先从批准的 Change/Spec 提取验收项，再要求 `evidence.yml` 的 id 集合与其完全一致；引用的每条记录必须存在、属于同一 Change，`PASS` 必须有 `PASS` 记录。命令记录不可使用 shell 字符串，输出受大小限制并保存哈希，Git 快照用于发现证据之后的工作树变化。本地测试不能静默替代真实模型、跨平台、CI、外部服务或生产结果。
 
-只有当 `review.md` 同时记录 `status: APPROVED`、`humanAcceptance: true` 和 `acceptedLimitations: true` 时，人工才能把这些外部或运行环境项目作为已知限制接受。Finish 会保留原始 `UNVERIFIED` 记录；它们不会被改写成 `PASS`，也不等价于真实环境已经验证。
+`evo finish --apply` 归档后必须生成 `completion.yml`。当前事实目标由 Plan 的 `currentTruthTargets` 声明；目标缺失会阻止 Finish，旧版没有该字段的 Change 会保留兼容警告。完成但未绑定 Git 提交的 Change 状态为 `READY_TO_COMMIT`，不是已提交，也不是发布完成。
+
+只有当 `review.md` 同时记录 `status: APPROVED`、`humanAcceptance: true` 和 `acceptedLimitations: true` 时，人工才能把 `BLOCKED` / `NOT_RUN` 或旧版外部 `UNVERIFIED` 作为已知限制接受。Finish 会保留限制记录；它们不会被改写成 `PASS`，也不等价于真实环境已经验证。
 
 Requirement Delta 和 Bug 记录属于活动工作证据。它们应分别保存旧/新意图或复现/根因/回归/真实入口状态；写入后使受影响工作回到 `NEEDS_INFO`，不覆盖原批准内容。`evo recover` 只读读取这些资料，恢复到人工可判断的阶段边界。

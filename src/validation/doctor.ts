@@ -6,6 +6,11 @@ import {pathExists} from '../repository/io.js'
 import {listDirectory, openManagedRepository, readOptionalText} from '../repository/managed.js'
 import {repositoryPaths} from '../repository/paths.js'
 import {formatValidationReport, validateProject, type ValidationIssue, type ValidationReport} from './project.js'
+import {checkCurrentTruth, readCompletion} from '../repository/completion.js'
+import {readEvidence, readEvidenceRecords, reconcileEvidence} from '../repository/evidence.js'
+import {captureGitSnapshot} from '../repository/git-snapshot.js'
+import {createHash} from 'node:crypto'
+import {readFile} from 'node:fs/promises'
 
 export interface DoctorReport extends ValidationReport {
   readonly checkedAt: string
@@ -52,10 +57,77 @@ export async function runDoctor(root: string, now = new Date()): Promise<DoctorR
     if (evidence && /\bUNVERIFIED\b/u.test(evidence)) {
       issues.push(diagnostic('UNVERIFIED_ACTIVE_WORK', 'warning', `Active Change ${workId} still records UNVERIFIED evidence.`, relative(paths.root, evidencePath)))
     }
+    await addEvidenceDiagnostics(issues, paths.root, workId, false)
+  }
+
+  for (const workId of await listDirectory(paths.completedWork)) {
+    const completion = await readCompletion(paths.root, workId)
+    const target = path.join(paths.completedWork, workId, 'completion.yml')
+    if (!completion) {
+      issues.push(diagnostic('MISSING_COMPLETION_RECORD', 'warning', `Completed Change ${workId} has no completion.yml handoff record.`, relative(paths.root, target)))
+    } else {
+      if (completion.sourceStatus === 'READY_TO_COMMIT') issues.push(diagnostic('COMPLETED_CHANGE_UNCOMMITTED', 'warning', `Completed Change ${workId} is archived but its source changes are not bound to a Git commit.`, relative(paths.root, target)))
+      const truth = await checkCurrentTruth(paths.root, workId, true)
+      if (truth.missing.length > 0) issues.push(diagnostic('CURRENT_TRUTH_NOT_UPDATED', 'error', `Completed Change ${workId} is missing current-truth paths: ${truth.missing.join(', ')}.`, relative(paths.root, path.join(paths.completedWork, workId, 'plan.md'))))
+      if (truth.legacy) issues.push(diagnostic('LEGACY_CURRENT_TRUTH_TARGETS', 'warning', `Completed Change ${workId} has no mechanically declared current-truth targets.`, relative(paths.root, path.join(paths.completedWork, workId, 'plan.md'))))
+    }
+    await addEvidenceDiagnostics(issues, paths.root, workId, true)
   }
 
   const sorted = sortDiagnostics(issues)
   return {valid: !sorted.some((item) => item.severity === 'error'), issues: sorted, checkedAt: now.toISOString()}
+}
+
+async function addEvidenceDiagnostics(issues: ValidationIssue[], root: string, changeId: string, completed: boolean): Promise<void> {
+  const paths = repositoryPaths(root)
+  const base = completed ? paths.completedWork : paths.activeWork
+  const evidenceTarget = path.join(base, changeId, 'evidence.yml')
+  const read = await readEvidence(root, changeId, completed)
+  if (!read.document) return
+  if (read.legacy) {
+    issues.push(diagnostic('LEGACY_PROTOCOL', 'warning', `Change ${changeId} still uses legacy evidence.md; run evo migrate --apply.`, read.path ?? relative(root, path.join(base, changeId, 'evidence.md'))))
+    return
+  }
+  try {
+    const reconciliation = await reconcileEvidence(root, changeId, completed)
+    for (const issue of reconciliation.issues.filter((item) => item.code !== 'LEGACY_EVIDENCE')) {
+      issues.push(diagnostic('EVIDENCE_RECONCILIATION_DRIFT', 'error', issue.message, relative(root, evidenceTarget)))
+    }
+    const records = await readEvidenceRecords(root, changeId, completed)
+    const referenced = new Set(read.document.acceptance.flatMap((item) => item.evidenceRefs))
+    for (const record of records) {
+      if (!referenced.has(record.id)) issues.push(diagnostic('ORPHAN_EVIDENCE_RECORD', 'warning', `Evidence record ${record.id} is not referenced by evidence.yml.`, relative(root, path.join(base, changeId, 'evidence', 'records', `${record.id}.yml`))))
+      for (const artifact of record.artifacts) {
+        const artifactTarget = path.resolve(root, artifact.path)
+        const artifactRelative = path.relative(root, artifactTarget)
+        if (artifactRelative.startsWith('..') || path.isAbsolute(artifactRelative)) {
+          issues.push(diagnostic('MISSING_EVIDENCE_ARTIFACT', 'error', `Evidence artifact escapes the repository: ${artifact.path}.`, artifact.path))
+          continue
+        }
+        try {
+          const source = await readFile(artifactTarget)
+          const digest = createHash('sha256').update(source).digest('hex')
+          if (digest !== artifact.sha256) issues.push(diagnostic('MISSING_EVIDENCE_ARTIFACT', 'error', `Artifact hash changed: ${artifact.path}.`, relative(root, artifactTarget)))
+        } catch {
+          issues.push(diagnostic('MISSING_EVIDENCE_ARTIFACT', 'error', `Evidence artifact is missing: ${artifact.path}.`, relative(root, artifactTarget)))
+        }
+      }
+    }
+    const latest = completed ? undefined : records.at(-1)
+    if (latest) {
+      const current = await captureGitSnapshot(root)
+      if ((latest.git.head !== current.head || latest.git.treeFingerprint !== current.treeFingerprint) && !onlyEvidencePaths(current.changedPaths, changeId, completed)) {
+        issues.push(diagnostic('EVIDENCE_TREE_STALE', 'warning', `Working tree changed after the latest evidence record ${latest.id}; rerun affected evidence.`, relative(root, evidenceTarget)))
+      }
+    }
+  } catch (error) {
+    issues.push(diagnostic('INVALID_EVIDENCE_RECORD', 'error', error instanceof Error ? error.message : String(error), relative(root, evidenceTarget)))
+  }
+}
+
+function onlyEvidencePaths(paths: readonly string[], changeId: string, completed: boolean): boolean {
+  const prefix = `.evo/work/${completed ? 'completed' : 'active'}/${changeId}/`
+  return paths.length > 0 && paths.every((item) => item.startsWith(prefix) && (item === `${prefix}evidence.yml` || item.startsWith(`${prefix}evidence/`)))
 }
 
 /** Formats protocol violations and Doctor findings without applying repairs. */

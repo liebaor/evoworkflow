@@ -1,6 +1,6 @@
 ---
 name: evo-init
-description: Initialize an existing or empty repository for EVOworkflow by discovering actual conventions, producing a reviewable report, and applying only approved non-destructive scaffolding.
+description: Initialize an existing or empty repository for evoworkflow by discovering actual conventions, producing a reviewable report, and applying only approved non-destructive scaffolding.
 ---
 
 # EVO Init

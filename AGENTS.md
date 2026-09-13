@@ -1,6 +1,6 @@
 # AGENTS.md
 
-EVOworkflow 是一套由人工控制、以仓库为中心的 AI 辅助软件工程工作流。修改产品行为前，先阅读[产品规格](docs/product-spec.md)、[工作流协议](docs/workflow-protocol.md)和[仓库协议](docs/repository-protocol.md)。
+evoworkflow 是一套由人工控制、以仓库为中心的 AI 辅助软件工程工作流。修改产品行为前，先阅读[产品规格](docs/product-spec.md)、[工作流协议](docs/workflow-protocol.md)和[仓库协议](docs/repository-protocol.md)。
 
 ## 产品不变量
 
@@ -12,7 +12,7 @@ EVOworkflow 是一套由人工控制、以仓库为中心的 AI 辅助软件工�
 - Standard 和 Large 工作只能执行 `.evo/state.yml` 或活动 Goal 持久化的 `currentSlice`，不能根据文档顺序猜测。
 - 长期知识必须进入仓库。一个事实只能有一个主权威，其他文档链接到它。
 - 当前文档描述当前行为；历史进入 Git、Decision、Postmortem 和已完成 Change 证据。
-- 验证记录 `PASS`、`FAIL` 或 `UNVERIFIED`。声明不是证据。
+- Evidence v2 记录 `PASS`、`FAIL`、`BLOCKED` 或 `NOT_RUN`；旧版 `UNVERIFIED` 仅在迁移期间兼容。声明不是证据。
 - 除非已有批准 Decision，否则已有仓库模式和成熟能力优先于新抽象。
 - 初始化不破坏数据并且幂等；不覆盖已有项目指令和权威文档。
 
@@ -26,6 +26,7 @@ EVOworkflow 是一套由人工控制、以仓库为中心的 AI 辅助软件工�
 - `skills/`：面向结果的 Agent Skill；保持 `SKILL.md` 简洁，把条件性内容放到 references。
 - `templates/`：安装到受管理仓库的文件。
 - `schemas/`：Zod 权威生成的 JSON Schema 投影。
+- `src/repository/evidence.ts`：验收项精确映射、追加式证据记录和迁移兼容。
 
 ## 常用命令
 
@@ -36,6 +37,7 @@ pnpm run typecheck
 pnpm run test
 pnpm run build
 pnpm run validate:skills
+pnpm run eval:hardening
 pnpm run check
 ```
 

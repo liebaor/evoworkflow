@@ -1,6 +1,6 @@
-schemaVersion: 1
+schemaVersion: 2
 project:
-  name: "EvoFlow"
+  name: evoworkflow
 workflow:
   defaultWeight: STANDARD
   requireHumanApproval: true
@@ -17,7 +17,6 @@ agents:
     codex:
       kind: codex
       command: codex
-      timeoutMs: 3600000
       args:
         - exec
         - --sandbox
@@ -25,21 +24,22 @@ agents:
         - --cd
         - "{repository}"
         - "-"
+      timeoutMs: 3600000
     claude:
       kind: claude
       command: claude
-      timeoutMs: 3600000
       args:
         - --print
         - --permission-mode
         - acceptEdits
         - --output-format
         - json
+      timeoutMs: 3600000
     opencode:
       kind: opencode
       command: opencode
-      timeoutMs: 3600000
       args:
         - run
         - --dir
         - "{repository}"
+      timeoutMs: 3600000

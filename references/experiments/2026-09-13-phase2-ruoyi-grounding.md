@@ -1,6 +1,6 @@
 # RuoYi Grounding Evaluation / RuoYi 落地评估
 
-评估日期：2026-09-13（Asia/Shanghai）。本记录只证明 EVOworkflow 对固定源码归档的只读发现结果，不证明 RuoYi 已经构建、启动或连接数据库。
+评估日期：2026-09-13（Asia/Shanghai）。本记录只证明 evoworkflow 对固定源码归档的只读发现结果，不证明 RuoYi 已经构建、启动或连接数据库。
 
 ## Fixed inputs / 固定输入
 

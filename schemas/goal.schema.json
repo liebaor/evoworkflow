@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://evoworkflow.dev/schema/goal-v1.json",
-  "title": "EVOworkflow Goal v1",
+  "title": "evoworkflow Goal v1",
   "type": "object",
   "properties": {
     "schemaVersion": {
@@ -246,7 +246,8 @@
                         "enum": [
                           "PASS",
                           "FAIL",
-                          "UNVERIFIED"
+                          "BLOCKED",
+                          "NOT_RUN"
                         ]
                       },
                       "exitCode": {

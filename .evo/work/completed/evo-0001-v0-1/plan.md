@@ -8,7 +8,7 @@ approval:
   source: human-confirmed
 ---
 
-# EVOworkflow v0.1 implementation plan
+# evoworkflow v0.1 implementation plan
 
 ## Reuse analysis
 

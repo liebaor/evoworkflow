@@ -68,7 +68,7 @@ async function evaluateTarget(target: EvaluationTarget): Promise<void> {
 }
 
 function assertReport(target: EvaluationTarget, report: DiscoveryReport): void {
-  if (report.mode !== 'BROWNFIELD') throw new Error(`${target.label} must remain BROWNFIELD, received ${report.mode}.`)
+  if (!['BROWNFIELD', 'EVO_MANAGED'].includes(report.mode)) throw new Error(`${target.label} must remain BROWNFIELD or EVO_MANAGED, received ${report.mode}.`)
   if (report.filesScanned === 0) throw new Error(`${target.label} produced an empty inventory.`)
 
   if (target.kind === 'backend') {

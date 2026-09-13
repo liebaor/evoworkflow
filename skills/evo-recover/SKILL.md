@@ -1,6 +1,6 @@
 ---
 name: evo-recover
-description: Recover an interrupted EVOworkflow session from repository state, active work, Decisions, Goals, Evidence, and Git without relying on historical chat or automatically continuing work.
+description: Recover an interrupted evoworkflow session from repository state, active work, Decisions, Goals, Evidence, and Git without relying on historical chat or automatically continuing work.
 ---
 
 # EVO Recover

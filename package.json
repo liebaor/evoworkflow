@@ -20,11 +20,12 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run smoke:cli && pnpm run validate:skills && pnpm run check:schemas",
+    "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run smoke:cli && pnpm run validate:skills && pnpm run check:schemas && pnpm run eval:hardening",
     "check:schemas": "tsx scripts/check-schemas.ts",
     "dev": "tsx src/index.ts",
     "evo": "tsx src/index.ts",
     "eval:ruoyi": "tsx scripts/phase2-ruoyi-smoke.ts",
+    "eval:hardening": "tsx scripts/hardening-evals.ts",
     "eval:phase2": "tsx scripts/phase2-evals.ts",
     "generate:schemas": "tsx scripts/generate-schemas.ts",
     "smoke:cli": "tsx scripts/smoke-cli.ts",

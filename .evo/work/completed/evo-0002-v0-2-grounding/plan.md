@@ -8,7 +8,7 @@ approval:
   source: phase2-user-request
 ---
 
-# EVOworkflow v0.2 Grounding Implementation Plan / 落地实施计划
+# evoworkflow v0.2 Grounding Implementation Plan / 落地实施计划
 
 ## Reuse analysis / 复用分析
 

@@ -1,0 +1,9 @@
+schemaVersion: 2
+change: evo-0003-v0-2-context-consistency
+updatedAt: 2026-09-13T16:37:19.705Z
+acceptance:
+  - id: AC-3
+    status: NOT_RUN
+    evidenceRefs:
+      - EV-MIGRATED-01
+    limitations: []

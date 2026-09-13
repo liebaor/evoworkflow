@@ -9,11 +9,11 @@ approval:
   source: phase2-user-request
 ---
 
-# EVOworkflow v0.2 — Repository Grounding / 仓库落地
+# evoworkflow v0.2 — Repository Grounding / 仓库落地
 
 ## Problem / 问题
 
-一期的 EVOworkflow 已能保存协议、状态、批准、证据和恢复信息，但在真实 Brownfield Repository 上的技术版本、模块区域、运行入口和未知项仍然过薄，不能可靠支撑二期的一致性开发。
+一期的 evoworkflow 已能保存协议、状态、批准、证据和恢复信息，但在真实 Brownfield Repository 上的技术版本、模块区域、运行入口和未知项仍然过薄，不能可靠支撑二期的一致性开发。
 
 ## Goal / 目标
 

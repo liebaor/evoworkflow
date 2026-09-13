@@ -9,7 +9,7 @@ approval:
   source: phase2-user-request
 ---
 
-# EVOworkflow v0.2 — Working Context 与一致性 / Working Context and Consistency
+# evoworkflow v0.2 — Working Context 与一致性 / Working Context and Consistency
 
 ## Problem / 问题
 

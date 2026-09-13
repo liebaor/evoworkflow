@@ -1,10 +1,11 @@
-import {GoalSchema, type ChangeWeight, type Goal, type State} from './schemas.js'
+import {GoalSchema, type ChangeWeight, type Completion, type Goal, type State} from './schemas.js'
 import {pathExists, readYaml} from '../repository/io.js'
-import {openManagedRepository, readOptionalText} from '../repository/managed.js'
+import {listDirectory, openManagedRepository, readOptionalText} from '../repository/managed.js'
 import {artifactPath, parseArtifactMetadata} from '../repository/artifacts.js'
 import {parseMarkdownDocument} from '../repository/markdown.js'
 import {repositoryPaths} from '../repository/paths.js'
 import {validateProject} from '../validation/project.js'
+import {readCompletion} from '../repository/completion.js'
 
 export interface StatusSummary {
   readonly root: string
@@ -12,6 +13,7 @@ export interface StatusSummary {
   readonly state: State | null
   readonly changeWeight: ChangeWeight | null
   readonly goal: Goal | null
+  readonly completion: Completion | null
   readonly errors: number
   readonly warnings: number
   readonly nextAction: string
@@ -28,6 +30,7 @@ export async function getStatusSummary(root: string): Promise<StatusSummary> {
       state: null,
       changeWeight: null,
       goal: null,
+      completion: null,
       errors: 0,
       warnings: 0,
       nextAction: 'evo init --apply',
@@ -54,6 +57,7 @@ export async function getStatusSummary(root: string): Promise<StatusSummary> {
     const target = `${paths.activeGoals}/${managed.state.activeGoal}.yml`
     if (await pathExists(target)) goal = await readYaml(target, GoalSchema)
   }
+  const completion = managed.state.activeChange ? null : await latestCompletion(paths)
   const recommendation = recommend(managed.state, goal, validation.valid, changeWeight)
   return {
     root: paths.root,
@@ -61,6 +65,7 @@ export async function getStatusSummary(root: string): Promise<StatusSummary> {
     state: managed.state,
     changeWeight,
     goal,
+    completion,
     errors: validation.issues.filter((item) => item.severity === 'error').length,
     warnings: validation.issues.filter((item) => item.severity === 'warning').length,
     ...recommendation,
@@ -70,7 +75,7 @@ export async function getStatusSummary(root: string): Promise<StatusSummary> {
 /** Formats status for humans without mutating state or entering another phase. */
 export function formatStatusSummary(summary: StatusSummary): string {
   if (!summary.initialized) {
-    return [`Repository: ${summary.root} / 仓库：${summary.root}`, 'EVOworkflow: not initialized / EVOworkflow：未初始化', `Recommended next action: ${summary.nextAction} / 推荐下一步：${summary.nextAction}`, `Reason / 原因: ${summary.reason}`].join('\n')
+    return [`Repository: ${summary.root} / 仓库：${summary.root}`, 'evoworkflow: not initialized / evoworkflow：未初始化', `Recommended next action: ${summary.nextAction} / 推荐下一步：${summary.nextAction}`, `Reason / 原因: ${summary.reason}`].join('\n')
   }
   return [
     `Repository: ${summary.root} / 仓库：${summary.root}`,
@@ -80,12 +85,23 @@ export function formatStatusSummary(summary: StatusSummary): string {
     `Active Change: ${summary.state?.activeChange ?? 'none'} / 活动 Change：${summary.state?.activeChange ?? 'none'}`,
     `Change weight: ${summary.changeWeight ?? 'none'} / Change 权重：${summary.changeWeight ?? 'none'}`,
     `Active Goal: ${summary.state?.activeGoal ?? 'none'}${summary.goal ? ` (${summary.goal.status})` : ''} / 活动 Goal：${summary.state?.activeGoal ?? 'none'}${summary.goal ? `（${summary.goal.status}）` : ''}`,
+    `Last completion: ${summary.completion ? `${summary.completion.change} (${summary.completion.sourceStatus})` : 'none'} / 最近完成：${summary.completion ? `${summary.completion.change}（${summary.completion.sourceStatus}）` : '无'}`,
     `Current Slice: ${summary.state?.currentSlice ?? 'none'} / 当前 Slice：${summary.state?.currentSlice ?? 'none'}`,
     `Slice checkpoints: ${summary.state?.slices.length ? summary.state.slices.map((slice) => `${slice.id}=${slice.status}`).join(', ') : 'none'} / Slice 检查点：${summary.state?.slices.length ? summary.state.slices.map((slice) => `${slice.id}=${slice.status}`).join(', ') : 'none'}`,
     `Protocol issues: ${summary.errors} errors, ${summary.warnings} warnings / 协议问题：${summary.errors} 个错误，${summary.warnings} 个警告`,
     `Recommended next action: ${summary.nextAction} / 推荐下一步：${summary.nextAction}`,
     `Reason / 原因: ${summary.reason}`,
   ].join('\n')
+}
+
+async function latestCompletion(paths: ReturnType<typeof repositoryPaths>): Promise<Completion | null> {
+  const values: Completion[] = []
+  for (const changeId of await listDirectory(paths.completedWork)) {
+    const completion = await readCompletion(paths.root, changeId)
+    if (completion) values.push(completion)
+  }
+  values.sort((left, right) => right.finishedAt.localeCompare(left.finishedAt))
+  return values[0] ?? null
 }
 
 function recommend(state: State, goal: Goal | null, valid: boolean, changeWeight: ChangeWeight | null): Pick<StatusSummary, 'nextAction' | 'reason'> {

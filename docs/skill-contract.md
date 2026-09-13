@@ -1,6 +1,6 @@
 # Skill 约定
 
-每个 EVOworkflow Skill 都面向一个结果。它的 `SKILL.md` 只保留会改变 Agent 决策或保护工程不变量的信息。
+每个 evoworkflow Skill 都面向一个结果。它的 `SKILL.md` 只保留会改变 Agent 决策或保护工程不变量的信息。
 
 每个 Skill 必须说明：
 
@@ -22,7 +22,7 @@ Skill 不规定有能力的 Agent 可以安全选择的通用搜索或编辑步�
 - 只询问尚未解决的人工 Decision；可行时一次只问一个有实质影响的 Decision。
 - 不能把建议、草稿或提议中的 Decision 当成批准。
 - 永远不能自动串到另一个 Skill 或阶段。
-- 记录精确证据；没有观察结果时保留 `UNVERIFIED`。
+- 记录精确 Evidence v2；没有观察结果时保留 `NOT_RUN`，阻塞时记录 `BLOCKED`，旧版 `UNVERIFIED` 只在迁移期间兼容。
 - 未经明确授权，不 commit、merge、deploy、删除数据或写入外部系统。
 
 Advisory Skill 只读。Planning Skill 只能写 working Change 和 Decision Artifact。Execution Skill 只能编辑已批准 Slice 的范围。Quality Skill 按阶段写证据、评审和收敛 Artifact。

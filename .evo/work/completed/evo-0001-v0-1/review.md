@@ -19,7 +19,7 @@ acceptedLimitations: true
 
 ## Expected versus actual blast radius / 预期与实际影响范围
 
-实际改动只发生在独立的 EVOworkflow 仓库。测试使用临时目录，不写入 DeepSeek Harness 学习仓库、真实模型、外部平台或生产环境。
+实际改动只发生在独立的 evoworkflow 仓库。测试使用临时目录，不写入 DeepSeek Harness 学习仓库、真实模型、外部平台或生产环境。
 
 ## Findings / 发现
 

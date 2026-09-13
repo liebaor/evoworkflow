@@ -9,11 +9,11 @@ approval:
   source: phase2-user-request
 ---
 
-# EVOworkflow v0.2 — Cross-project validation / 跨项目验证
+# evoworkflow v0.2 — Cross-project validation / 跨项目验证
 
 ## Problem / 问题
 
-核心 Context、Consistency、Resilience 能力已经在 EVOworkflow 合成夹具上通过，但还需要证明这些能力依赖实际 Repository 证据，而不会把 RuoYi 的 Java/Spring/AjaxResult/注解习惯误套到 FastAPI + Ant Design Pro 项目。
+核心 Context、Consistency、Resilience 能力已经在 evoworkflow 合成夹具上通过，但还需要证明这些能力依赖实际 Repository 证据，而不会把 RuoYi 的 Java/Spring/AjaxResult/注解习惯误套到 FastAPI + Ant Design Pro 项目。
 
 ## Goal / 目标
 

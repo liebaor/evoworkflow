@@ -9,7 +9,7 @@ approval:
   source: active-thread-goal
 ---
 
-# EVOworkflow v0.1
+# evoworkflow v0.1
 
 ## Problem
 
@@ -17,7 +17,7 @@ Coding agents can generate code but lack a durable, human-controlled engineering
 
 ## Goal
 
-Deliver an independent EVOworkflow v0.1 that lets humans control requirements, Decisions, approvals, phase transitions, and acceptance while agents execute bounded work and the repository preserves durable knowledge and evidence.
+Deliver an independent evoworkflow v0.1 that lets humans control requirements, Decisions, approvals, phase transitions, and acceptance while agents execute bounded work and the repository preserves durable knowledge and evidence.
 
 ## Scope
 

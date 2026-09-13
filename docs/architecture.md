@@ -2,7 +2,7 @@
 
 ## 系统上下文
 
-EVOworkflow v0.2 没有服务器和数据库。它把 Markdown Skill、一个本地确定性 CLI 和每个受管理 Git 仓库中的工作流状态组合起来。
+evoworkflow v0.2 没有服务器和数据库。它把 Markdown Skill、一个本地确定性 CLI 和每个受管理 Git 仓库中的工作流状态组合起来。
 
 ```text
 人工
@@ -30,7 +30,7 @@ TypeScript CLI
 
 ## 权威来源与状态
 
-`src/core/schemas.ts` 中的 Zod Schema 是机器数据权威；`schemas/*.schema.json` 是自动生成的投影。`templates/` 是安装权威，CLI 运行时读取它，不在源代码中复制模板文本。
+`src/core/schemas.ts` 中的 Zod Schema 是机器数据权威；`schemas/*.schema.json` 是自动生成的投影。`templates/` 是安装权威，CLI 运行时读取它，不在源代码中复制模板文本。Config/State 同时读取 v1 和 v2，初始化写入 v2；`evo migrate` 负责保守升级旧仓库。
 
 YAML 写入先写临时文件再 rename，避免中断留下半个状态文件。初始化使用排他创建并保留所有已有路径。可选的工作、Decision、Goal 和 Postmortem 目录只在使用时创建。Standard 和 Large 的 Plan 拥有 Slice 定义；`state.yml` 只保存 Slice id、状态、阻塞原因和当前 Slice。Goal 执行期间，State 是经过检查的 Goal YAML 投影。
 
@@ -53,6 +53,8 @@ Change、Specification 和 Plan 的批准分别绑定规范化 frontmatter 与�
 `buildWorkingContext` 根据当前 Change、项目地图、活动工作、Decision、能力、参考实现、测试和 Git 快照返回路径、优先级与选择理由。它默认只读，不复制源代码或文档正文；明确使用 `evo context --write` 时，才把同一份路径化结果写入活动 Change 的 `context.md`。
 
 `analyzeRepositoryConsistency` 将当前实现与项目已有的响应、权限、命名和实际区域进行比较，输出候选漂移、重复机制和实际影响范围扩大的警告。它是 Review 的证据输入，不拥有架构 Decision，也不会自动重写实现。
+
+Evidence v2 由三层组成：`evidence.yml` 保存验收项到记录的精确映射，`evidence/records/*.yml` 保存不可覆盖的执行观察，`evidence.md` 保存面向人的解释。命令执行使用参数数组和 `shell: false`，捕获输出有上限，记录绑定排除证据 bookkeeping 后的 Git 源工作树指纹；Finish 的 `completion.yml` 单独表达“流程已归档”和“源代码是否已绑定提交”，不把它们混成一个状态。
 
 `classifyChange` 依据请求中的影响信号建议 Small、Standard 或 Large；分类结果只用于选择流程强度，人工仍可在 Change 中确认或调整。Requirement Delta、Bug 调查和 `evo recover` 都通过仓库文件与确定性解析保留可恢复信息。
 
