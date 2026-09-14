@@ -2,7 +2,9 @@ import {afterEach, describe, expect, it} from 'vitest'
 
 import {admitProjectGate, candidateAdmission, evaluateExecutionPreflight, evaluateProjectGates, evaluateGatePromotion} from '../src/validation/gates.js'
 import {ProjectGateDefinitionSchema} from '../src/core/schemas.js'
+import {approveArtifact} from '../src/repository/artifacts.js'
 import {cleanupTemporaryRepositories, createActiveChange, initializeRepository, temporaryRepository, writeRepositoryFiles} from './helpers.js'
+import {runEvidence} from '../src/repository/evidence.js'
 
 afterEach(cleanupTemporaryRepositories)
 
@@ -37,6 +39,36 @@ describe('protocol and project gates', () => {
     const admission = await candidateAdmission(root, 'change-one')
     expect(admission.status).toBe('NOT_READY')
     expect(admission.reasons.join('\n')).toMatch(/Evidence|Acceptance|Freshness|current-truth/u)
+  })
+
+  it('requires explicit deferred acceptance ids for post-admission obligations', async () => {
+    const root = await temporaryRepository('admission-deferred')
+    await initializeRepository(root)
+    await createActiveChange(root)
+    await writeRepositoryFiles(root, {
+      '.evo/work/active/change-one/change.md': '---\nid: change-one\nweight: STANDARD\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Change\n\n- AC-01: Implemented behavior.\n- AC-02: Final delivery after Finish.\n',
+      '.evo/work/active/change-one/plan.md': '---\nchange: change-one\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Plan\n\n### S1 — Implement behavior\n\n- AC-01: implementation in `src/feature.ts`; verify with the focused test.\n- AC-02: final delivery; verify with the delivery checkpoint.\n',
+      'src/feature.ts': 'export const feature = true\n',
+    })
+    await approveArtifact(root, 'change-one', 'change', 'test human')
+    await approveArtifact(root, 'change-one', 'plan', 'test human')
+    await runEvidence({
+      root,
+      changeId: 'change-one',
+      acceptance: ['AC-01'],
+      kind: 'unit',
+      label: 'implemented behavior',
+      executable: process.execPath,
+      args: ['-e', 'process.exit(0)'],
+    })
+
+    const pending = await candidateAdmission(root, 'change-one')
+    expect(pending.status).toBe('NOT_READY')
+    const admitted = await candidateAdmission(root, 'change-one', {deferredAcceptance: ['AC-02']})
+    expect(admitted.gates.find((gate) => gate.id === 'G-evidence-current')?.status).toBe('PASS')
+    expect(admitted.gates.find((gate) => gate.id === 'G-acceptance-coverage')?.status).toBe('PASS')
+    expect(admitted.reasons.some((reason) => reason.startsWith('AC-02:'))).toBe(false)
+    expect(admitted.deferredAcceptance).toEqual(['AC-02'])
   })
 
   it('executes a promoted deterministic project gate through pass, violation, and restore', async () => {

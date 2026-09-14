@@ -199,6 +199,7 @@ export const CandidateAdmissionSchema = z.object({
   change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
   evaluatedAt: z.string().min(1),
   status: AdmissionStatusSchema,
+  deferredAcceptance: z.array(z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\.[A-Za-z0-9][A-Za-z0-9_-]*)*$/)).default([]),
   reasons: z.array(z.string().min(1)),
   gates: z.array(GateResultSchema),
   trace: AcceptanceTraceDocumentSchema,
@@ -258,6 +259,7 @@ export const ReviewMetadataSchema = z.object({
   humanAcceptance: z.boolean(),
   openFindings: z.number().int().nonnegative(),
   docsConverged: z.boolean(),
+  deferredAcceptance: z.array(z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\.[A-Za-z0-9][A-Za-z0-9_-]*)*$/)).default([]),
   acceptedLimitations: z.boolean().default(false),
 })
 export type ReviewMetadata = z.infer<typeof ReviewMetadataSchema>

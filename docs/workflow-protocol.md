@@ -78,11 +78,11 @@ Resolved Constraints 是可删除、可重建的派生视图，不是新的 Auth
 
 ### REVIEW
 
-检查规格一致性、现有模式复用、范围纪律、改动局部性、约定泄漏、不必要复杂度、Consistency 候选信号、实际与预期影响范围以及证据质量。Candidate Admission 只把满足硬 Protocol Gate、Acceptance Trace 和 freshness 条件的候选交给 Review；项目命名/架构信号默认是 `WARNING`，不能仅凭启发式统计阻断。只有 registry 中的 deterministic checker 加上默认 CI regression 才能晋升 Project HARD。评审报告问题，不静默修复。
+检查规格一致性、现有模式复用、范围纪律、改动局部性、约定泄漏、不必要复杂度、Consistency 候选信号、实际与预期影响范围以及证据质量。Candidate Admission 只把满足硬 Protocol Gate、Acceptance Trace 和 freshness 条件的候选交给 Review；默认要求全部当前验收项有 PASS Evidence。若验收事实只能在 Admission 之后产生，调用方必须逐项声明 `deferredAcceptance`；该声明写入 Admission 报告，只有列出的项可以保持 NOT_RUN，不能把它们伪装成 PASS。项目命名/架构信号默认是 `WARNING`，不能仅凭启发式统计阻断。只有 registry 中的 deterministic checker 加上默认 CI regression 才能晋升 Project HARD。评审报告问题，不静默修复。
 
 ### FINISH
 
-人工接受后，协调已批准意图、当前 Decision、实现、测试、证据和当前文档，把活动工作移到 completed 并更新机器状态。Finish 同时写入 `completion.yml`，记录完成时间、Git 基线、工作树指纹、当前事实目标和 `READY_TO_COMMIT` / `COMMITTED` 状态。Finish 不自动 commit、merge、release 或 deploy；`evo-commit` 只负责结构化 Git chronology，checkpoint commit 不能创造 `COMPLETED`，push 必须有明确授权。
+人工接受后，协调已批准意图、当前 Decision、实现、测试、证据和当前文档，把活动工作移到 completed 并更新机器状态。若 final delivery 只能在 Finish 后产生，可在 Admission/Review 中显式声明 post-admission/post-finish acceptance；Finish 只允许该明确列表中的 NOT_RUN 项暂缓，Finish 后用 `evo evidence record --completed` 追加真实结果。Finish 同时写入 `completion.yml`，记录完成时间、Git 基线、工作树指纹、当前事实目标和 `READY_TO_COMMIT` / `COMMITTED` 状态。Finish 不自动 commit、merge、release 或 deploy；`evo-commit` 只负责结构化 Git chronology，checkpoint commit 不能创造 `COMPLETED`，push 必须有明确授权。
 
 ### Gates and promotion / 门禁与晋升
 

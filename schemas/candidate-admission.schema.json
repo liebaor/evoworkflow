@@ -23,6 +23,14 @@
         "NOT_READY"
       ]
     },
+    "deferredAcceptance": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9][A-Za-z0-9_-]*)*$"
+      }
+    },
     "reasons": {
       "type": "array",
       "items": {
@@ -359,6 +367,7 @@
     "change",
     "evaluatedAt",
     "status",
+    "deferredAcceptance",
     "reasons",
     "gates",
     "trace",

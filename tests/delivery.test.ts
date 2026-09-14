@@ -1,9 +1,14 @@
 import {execFile as execFileCallback} from 'node:child_process'
+import {mkdir, rename} from 'node:fs/promises'
 import {promisify} from 'node:util'
 import {afterEach, describe, expect, it} from 'vitest'
 
 import {createDeliveryCommit, prepareDeliveryCheckpoint} from '../src/repository/delivery.js'
+import {createCompletionRecord} from '../src/repository/completion.js'
+import {StateSchema} from '../src/core/schemas.js'
 import {cleanupTemporaryRepositories, createActiveChange, initializeRepository, temporaryRepository, writeRepositoryFiles} from './helpers.js'
+import {readYaml, writeYaml} from '../src/repository/io.js'
+import {repositoryPaths} from '../src/repository/paths.js'
 
 const execFile = promisify(execFileCallback)
 
@@ -91,5 +96,54 @@ describe('Git delivery chronology', () => {
     await expect(createDeliveryCommit(root, {apply: true, paths: ['src/feature.ts'], checkpoint: 'SLICE', sliceId: 'S1'}))
       .rejects.toThrow('outside this checkpoint')
     expect((await execFile('git', ['log', '-1', '--format=%s'], {cwd: root})).stdout.trim()).toBe('baseline')
+  })
+
+  it('accepts an archived Change whose selected paths are represented as Git renames', async () => {
+    const root = await temporaryRepository('delivery-rename')
+    await initializeRepository(root)
+    const paths = repositoryPaths(root)
+    await writeRepositoryFiles(root, {
+      '.evo/work/active/rename-change/change.md': '---\nid: rename-change\nweight: SMALL\nstatus: APPROVED\napproval: null\n---\n\n# Change\n',
+      '.evo/work/active/rename-change/plan.md': '---\nchange: rename-change\nstatus: APPROVED\napproval: null\n---\n\n# Plan\n',
+    })
+    await execFile('git', ['init', '-q'], {cwd: root})
+    await execFile('git', ['config', 'user.email', 'evo@test.invalid'], {cwd: root})
+    await execFile('git', ['config', 'user.name', 'EVO Test'], {cwd: root})
+    await execFile('git', ['add', '.'], {cwd: root})
+    await execFile('git', ['commit', '-qm', 'baseline'], {cwd: root})
+    await mkdir(paths.completedWork, {recursive: true})
+    await rename(
+      `${paths.activeWork}/rename-change`,
+      `${paths.completedWork}/rename-change`,
+    )
+    const state = await readYaml(paths.state, StateSchema)
+    await writeYaml(paths.state, {
+      ...state,
+      activeChange: null,
+      activeGoal: null,
+      currentSlice: null,
+      phase: 'IDLE',
+      status: 'COMPLETED',
+      slices: [],
+      updatedAt: new Date().toISOString(),
+    })
+    await createCompletionRecord(root, 'rename-change')
+
+    const selected = [
+      '.evo/state.yml',
+      '.evo/work/active/rename-change/change.md',
+      '.evo/work/active/rename-change/plan.md',
+      '.evo/work/completed/rename-change/change.md',
+      '.evo/work/completed/rename-change/plan.md',
+      '.evo/work/completed/rename-change/completion.yml',
+    ]
+    const result = await createDeliveryCommit(root, {
+      apply: true,
+      checkpoint: 'FINAL_DELIVERY',
+      changeId: 'rename-change',
+      paths: selected,
+    })
+    expect(result.commit).toMatch(/^[a-f0-9]{40}$/u)
+    expect((await execFile('git', ['status', '--short'], {cwd: root})).stdout.trim()).toBe('')
   })
 })

@@ -40,9 +40,12 @@ evo gate --root /path/to/project <change-id> --kind protocol
 evo gate --root /path/to/project <change-id> --kind project
 evo admission --root /path/to/project <change-id>
 evo admission --root /path/to/project <change-id> --write
+evo admission --root /path/to/project <change-id> --write --defer-acceptance AC-F6 --defer-acceptance AC-F8
 ```
 
 `constraints --write`、`gate --write` 和 `admission --write` 只写入可删除、可重建的派生视图，不批准 Change、不解决 Decision，也不推进阶段。Protocol Gate 的冲突、未知、过期批准或缺失证据会阻止 bounded Goal；项目命名/架构信号默认保持 `WARNING`。只有保存了完整五项晋升材料并选择受支持确定性 `check` 的 Project Gate 才能使用 `HARD`；它会在 postflight 中失败关闭，普通启发式信号仍只记录 warning。
+
+Admission 默认要求全部验收项在进入 Review 前具备 current PASS Evidence。对于 Review、Finish 或 final delivery 才能产生事实的后置验收项，必须使用重复的 `--defer-acceptance <AC-id>` 显式声明；声明会进入 `admission.yml`，只放宽指定后置项，绝不把 NOT_RUN 改成 PASS。
 
 三期收尾使用受控的 Project HARD registry。`authority`、`predicate`、`falsifyingCase`、`negativeRegression` 和 `remediation` 五项文字是必要解释，但文字本身不能晋升 HARD；还必须存在已注册的 deterministic checker、regression id，并由默认 CI 命令实际覆盖。没有注册 checker 的命名/架构 heuristic 始终是 `WARNING`。
 
@@ -77,11 +80,12 @@ Evidence v2 的常用操作：
 ```sh
 evo evidence run --root /path/to/project --change <change-id> --acceptance AC-01 --kind integration --label "focused test" -- pnpm test --filter focused
 evo evidence record --root /path/to/project --change <change-id> --acceptance AC-02 --kind manual --label "browser observation" --status PASS --summary "Observed the approved path"
+evo evidence record --root /path/to/project --change <completed-change-id> --completed --acceptance AC-08 --kind manual --label "post-finish delivery" --status PASS --summary "Observed the final delivery checkpoint"
 evo evidence reconcile --root /path/to/project --change <change-id>
 evo evidence inspect --root /path/to/project --change <change-id>
 ```
 
-Finish 后先检查 `evo completion inspect <change-id>`。如果显示 `READY_TO_COMMIT`，由外部 Git 流程提交后再运行 `evo completion bind-commit <change-id>`；该命令不会创建提交。
+Finish 后先检查 `evo completion inspect <change-id>`。如果还有明确的 post-finish acceptance obligation，可用 `evo evidence record --completed` 将实际结果追加到已归档 Change 的 Evidence；如果 completion 显示 `READY_TO_COMMIT`，由外部 Git 流程提交后再运行 `evo completion bind-commit <change-id>`；该命令不会创建提交。
 
 `evo commit` 独立负责 Git chronology。它默认只预览：
 

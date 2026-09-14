@@ -1,22 +1,10 @@
 schemaVersion: 2
 projectMode: BROWNFIELD
-phase: PLAN
-status: APPROVED
-activeChange: evo-0006-v0-3-engineering-closure
+phase: IDLE
+status: COMPLETED
+activeChange: null
 activeGoal: null
 currentSlice: null
-slices:
-  - id: F1
-    status: PENDING
-    blockReason: null
-  - id: F2
-    status: PENDING
-    blockReason: null
-  - id: F3
-    status: PENDING
-    blockReason: null
-  - id: F4
-    status: PENDING
-    blockReason: null
+slices: []
 initializedAt: 2026-09-12T19:14:18.407Z
-updatedAt: 2026-09-14T11:02:18.640Z
+updatedAt: 2026-09-14T12:58:58.625Z

@@ -1,6 +1,6 @@
 schemaVersion: 1
 change: evo-0006-v0-3-engineering-closure
-evaluatedAt: 2026-09-13T21:45:39.162Z
+evaluatedAt: 2026-09-14T12:55:33.382Z
 status: PASS
 gates:
   - id: G-project-consistency
@@ -16,7 +16,7 @@ gates:
     remediation: Review the signal and either reuse the pattern or document an approved exception.
     evidence:
       - scripts/phase2-evals.ts
-      - scripts/phase2-ruoyi-smoke.ts
+      - scripts/phase3-development-continuity.ts
       - scripts/phase3-evals.ts
       - scripts/phase3-ruoyi-behavioral.ts
       - src/commands/init.ts
@@ -25,4 +25,4 @@ gates:
       - src/repository/init.ts
       - src/repository/scanner.ts
       - src/validation/project.ts
-    evaluatedAt: 2026-09-13T21:45:39.162Z
+    evaluatedAt: 2026-09-14T12:55:33.382Z

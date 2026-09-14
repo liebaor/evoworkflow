@@ -71,6 +71,7 @@ pnpm evo constraints --root /path/to/project <change-id>
 pnpm evo constraints --root /path/to/project <change-id> --write
 pnpm evo gate --root /path/to/project <change-id> --kind both
 pnpm evo admission --root /path/to/project <change-id>
+pnpm evo admission --root /path/to/project <change-id> --defer-acceptance AC-F6 --defer-acceptance AC-F8
 pnpm evo approve --root /path/to/project <change-id> change
 pnpm evo approve --root /path/to/project <change-id> spec
 pnpm evo approve --root /path/to/project <change-id> plan
@@ -83,6 +84,7 @@ pnpm evo finish --root /path/to/project --apply
 pnpm evo commit --root /path/to/project <change-id> --checkpoint SLICE --slice S1 --path src/example.ts
 pnpm evo commit --root /path/to/project <change-id> --apply --checkpoint SLICE --slice S1 --path src/example.ts
 pnpm evo evidence reconcile --root /path/to/project --change <change-id>
+pnpm evo evidence record --root /path/to/project --change <completed-change-id> --completed --acceptance AC-08 --kind manual --label "post-finish delivery" --status PASS --summary "Observed the final delivery checkpoint"
 pnpm evo migrate --root /path/to/project
 pnpm evo migrate --root /path/to/project --apply
 pnpm evo completion inspect --root /path/to/project <change-id>
@@ -90,6 +92,8 @@ pnpm evo change-set check --root /path/to/project <change-set-id>
 ```
 
 `evo init` 会报告发现了什么以及准备创建什么。`--apply` 只写入缺失的 EVO 文件，不覆盖项目已有的指令和文档。
+
+Candidate Admission 默认要求所有当前验收项都有 current PASS Evidence。若某些验收项的事实必然在 Admission 之后产生（例如独立 Review、Finish 或 final delivery），必须在命令行逐项使用 `--defer-acceptance` 声明；该列表会写入 `admission.yml`，其他验收项仍不能暂缓或跳过。
 
 `evo context` 默认只读输出当前 Change 的路径化上下文；只有明确使用 `--write` 才会在活动 Change 下写入 `.evo/work/active/<change-id>/context.md`。`evo recover` 始终只读，不会自动恢复 Goal、改变阶段或继续实现。
 

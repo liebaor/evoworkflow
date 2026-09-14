@@ -14,6 +14,7 @@ export default class EvidenceRecord extends Command {
     acceptance: Flags.string({description: 'Acceptance id; repeat for multiple criteria / 验收项 id，可重复', multiple: true, required: true}),
     artifact: Flags.string({description: 'Repository artifact path; repeatable / 仓库内证据产物路径，可重复', multiple: true}),
     change: Flags.string({description: 'Change id; defaults to state.yml / Change id，默认读取 state.yml'}),
+    completed: Flags.boolean({description: 'Record against an archived completed Change / 针对已归档的 completed Change 记录证据'}),
     json: jsonFlag,
     kind: Flags.string({options: evidenceKinds, default: 'manual', description: 'Evidence kind / 证据类型'}),
     label: Flags.string({description: 'Human-readable evidence label / 人类可读证据标签', required: true}),
@@ -36,6 +37,7 @@ export default class EvidenceRecord extends Command {
         status: flags.status as EvidenceRecordStatus,
         summary: flags.summary,
         ...(flags.artifact === undefined ? {} : {artifacts: flags.artifact}),
+        ...(flags.completed === undefined ? {} : {completed: flags.completed}),
       })
       this.log(flags.json ? JSON.stringify(record, null, 2) : `${record.status} ${record.label}\nRecord: ${record.id}\nAcceptance: ${record.acceptance.join(', ')}\nSummary: ${record.summary}`)
     } catch (error) {

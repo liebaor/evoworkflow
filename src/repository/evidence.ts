@@ -54,6 +54,7 @@ export interface RunEvidenceInput {
   readonly cwd?: string
   readonly timeoutMs?: number
   readonly artifacts?: readonly string[]
+  readonly completed?: boolean
   readonly now?: Date
 }
 
@@ -69,6 +70,7 @@ export interface RecordEvidenceInput {
   readonly exitCode?: number | null
   readonly output?: string | null
   readonly artifacts?: readonly string[]
+  readonly completed?: boolean
   readonly now?: Date
 }
 
@@ -131,6 +133,7 @@ export async function runEvidence(input: RunEvidenceInput): Promise<EvidenceReco
     exitCode: result.exitCode,
     output: result.output,
     ...(input.artifacts === undefined ? {} : {artifacts: input.artifacts}),
+    ...(input.completed === undefined ? {} : {completed: input.completed}),
     ...(input.now === undefined ? {} : {now: input.now}),
     run: result,
   })
@@ -142,8 +145,9 @@ export async function recordEvidence(input: RecordEvidenceInput & {readonly run?
   const startedAt = input.run?.startedAt ?? now.toISOString()
   const endedAt = input.run?.endedAt ?? now.toISOString()
   const git = await captureGitSnapshot(input.root, now)
-  const currentInputs = await fingerprintInputs(input.root, evidenceInputs(input.root, input.changeId))
-  const artifacts = await resolveArtifacts(input.root, input.changeId, input.artifacts ?? [])
+  const completed = input.completed === true
+  const currentInputs = await fingerprintInputs(input.root, evidenceInputs(input.root, input.changeId, completed))
+  const artifacts = await resolveArtifacts(input.root, input.changeId, input.artifacts ?? [], completed)
   const record: EvidenceRecord = EvidenceRecordSchema.parse({
     schemaVersion: 2,
     id: evidenceRecordId(now),
@@ -163,9 +167,9 @@ export async function recordEvidence(input: RecordEvidenceInput & {readonly run?
     inputFingerprint: currentInputs.fingerprint,
     freshness: 'CURRENT',
   })
-  const target = evidenceRecordPath(input.root, input.changeId, record.id)
+  const target = evidenceRecordPath(input.root, input.changeId, record.id, completed)
   await writeYaml(target, record)
-  await linkRecordToEvidence(input.root, input.changeId, record)
+  await linkRecordToEvidence(input.root, input.changeId, record, completed)
   return record
 }
 
@@ -253,9 +257,9 @@ export function evidenceDocumentPath(root: string, changeId: string, completed =
 }
 
 /** Returns the append-only record path for one Change. */
-export function evidenceRecordPath(root: string, changeId: string, id: string): string {
+export function evidenceRecordPath(root: string, changeId: string, id: string, completed = false): string {
   if (!/^EV-[A-Za-z0-9][A-Za-z0-9_-]*$/u.test(id)) throw new EvoError(`Invalid evidence record id: ${id}`)
-  return path.join(evidenceRecordsPath(root, changeId), `${id}.yml`)
+  return path.join(evidenceRecordsPath(root, changeId, completed), `${id}.yml`)
 }
 
 function evidenceRecordsPath(root: string, changeId: string, completed = false): string {
@@ -263,15 +267,15 @@ function evidenceRecordsPath(root: string, changeId: string, completed = false):
   return path.join(completed ? paths.completedWork : paths.activeWork, safeChange(changeId), 'evidence', 'records')
 }
 
-async function linkRecordToEvidence(root: string, changeId: string, record: EvidenceRecord): Promise<void> {
-  const read = await readEvidence(root, changeId)
-  const authority = await readAcceptanceSource(root, changeId)
+async function linkRecordToEvidence(root: string, changeId: string, record: EvidenceRecord, completed = false): Promise<void> {
+  const read = await readEvidence(root, changeId, completed)
+  const authority = await readAcceptanceSource(root, changeId, completed)
   const existing = read.document?.acceptance ?? authority.criteria.map((criterion) => ({id: criterion.id, status: 'NOT_RUN' as const, evidenceRefs: [], limitations: []}))
   const selected = new Set(record.acceptance)
   const acceptance = existing.map((item) => selected.has(item.id)
     ? {...item, status: record.status, evidenceRefs: [...new Set([...item.evidenceRefs, record.id])]}
     : item)
-  const currentInputs = await fingerprintInputs(root, evidenceInputs(root, changeId))
+  const currentInputs = await fingerprintInputs(root, evidenceInputs(root, changeId, completed))
   const document: EvidenceDocument = {
     schemaVersion: 2,
     change: changeId,
@@ -280,12 +284,13 @@ async function linkRecordToEvidence(root: string, changeId: string, record: Evid
     inputFingerprint: currentInputs.fingerprint,
     freshness: 'CURRENT',
   }
-  await writeYaml(evidenceDocumentPath(root, changeId), document)
+  await writeYaml(evidenceDocumentPath(root, changeId, completed), document)
 }
 
-async function resolveArtifacts(root: string, changeId: string, values: readonly string[]): Promise<EvidenceArtifact[]> {
+async function resolveArtifacts(root: string, changeId: string, values: readonly string[], completed = false): Promise<EvidenceArtifact[]> {
   const result: EvidenceArtifact[] = []
-  const artifactDirectory = path.join(repositoryPaths(root).activeWork, safeChange(changeId), 'evidence', 'artifacts')
+  const work = completed ? repositoryPaths(root).completedWork : repositoryPaths(root).activeWork
+  const artifactDirectory = path.join(work, safeChange(changeId), 'evidence', 'artifacts')
   for (const [index, value] of values.entries()) {
     const target = path.resolve(root, value)
     const relativeTarget = path.relative(root, target)

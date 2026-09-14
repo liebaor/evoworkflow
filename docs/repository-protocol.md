@@ -86,7 +86,7 @@ Decision > explicit Authority > approved Contract > Project Map > representative
 
 ## 门禁与准入
 
-Protocol Gate 是协议硬门禁，Project Gate 默认是评审 warning。任何晋升为硬门禁的 Project Gate 都必须同时保存：`authoritative source`、`deterministic predicate`、`falsifying case`、`negative regression` 和 `remediation`，并选择受支持的确定性 `check`。当前 `check` 覆盖整体一致性、响应、权限、命名和范围膨胀；已晋升定义会在 Project Gate 评估和 Goal postflight 中实际执行。每个硬 Gate 都必须有 valid → PASS、故意违反 → FAIL、恢复 → PASS 的负向回归。Candidate Admission 在硬门禁、Acceptance Trace、Evidence 和 freshness 未满足时返回 `NOT_READY`，不会替人工批准或接受 Review。
+Protocol Gate 是协议硬门禁，Project Gate 默认是评审 warning。任何晋升为硬门禁的 Project Gate 都必须同时保存：`authoritative source`、`deterministic predicate`、`falsifying case`、`negative regression` 和 `remediation`，并选择受支持的确定性 `check`。当前 `check` 覆盖整体一致性、响应、权限、命名和范围膨胀；已晋升定义会在 Project Gate 评估和 Goal postflight 中实际执行。每个硬 Gate 都必须有 valid → PASS、故意违反 → FAIL、恢复 → PASS 的负向回归。Candidate Admission 默认要求所有验收项有 current PASS Evidence；Review/Finish/delivery 才能产生事实的后置项必须通过显式 `deferredAcceptance` 列表暂缓，并在 Admission 报告中保留该边界。硬门禁、Acceptance Trace、Evidence 和 freshness 的其他缺口仍返回 `NOT_READY`，不会替人工批准或接受 Review。
 
 ## Decision 生命周期
 

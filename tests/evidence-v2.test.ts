@@ -1,4 +1,4 @@
-import {writeFile} from 'node:fs/promises'
+import {mkdir, rename, writeFile} from 'node:fs/promises'
 import path from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
 
@@ -78,6 +78,28 @@ describe('Evidence v2', () => {
       args: ['-e', 'process.exit(0)'],
       cwd: '..',
     })).rejects.toThrow('escapes repository')
+  })
+
+  it('keeps explicitly post-finish evidence and artifacts under completed work', async () => {
+    const root = await preparedEvidenceRepository('evidence-completed')
+    const paths = repositoryPaths(root)
+    await mkdir(paths.completedWork, {recursive: true})
+    await rename(path.join(paths.activeWork, 'evidence-change'), path.join(paths.completedWork, 'evidence-change'))
+
+    const record = await runEvidence({
+      root,
+      changeId: 'evidence-change',
+      acceptance: ['AC-01'],
+      kind: 'manual',
+      label: 'post-finish evidence',
+      executable: process.execPath,
+      args: ['-e', 'process.exit(0)'],
+      artifacts: ['evidence-fixture.txt'],
+      completed: true,
+    })
+
+    expect(record.artifacts[0]?.path).toMatch(/\.evo\/work\/completed\/evidence-change\/evidence\/artifacts\//u)
+    expect(await reconcileEvidence(root, 'evidence-change', true)).toEqual(expect.objectContaining({valid: true}))
   })
 })
 

@@ -37,6 +37,8 @@ export interface GateEvaluationOptions {
   readonly humanApprovedConventionChange?: boolean
   readonly persist?: boolean
   readonly allowLegacyEvidence?: boolean
+  /** Acceptance ids that are explicitly post-admission obligations. */
+  readonly deferredAcceptance?: readonly string[]
 }
 
 export interface GatePromotionEvaluation {
@@ -93,12 +95,13 @@ export async function evaluateProtocolGates(root: string, requestedChangeId?: st
 
   try {
     const trace = await buildAcceptanceTraceability(root, changeId, options.now === undefined ? {} : {now: options.now})
-    gates.push(makeGate('G-acceptance-coverage', 'PROTOCOL', 'HARD', 'Acceptance traceability is complete', trace.valid ? 'PASS' : 'FAIL', trace.valid ? 'Every acceptance criterion maps to implementation, verification, and evidence.' : trace.issues.map((item) => `${item.acceptance}:${item.code}`).join(', '), evaluatedAt, ['acceptance.yml', 'change.md', 'plan.md'], 'Build a complete Acceptance → Surface → Verification → Evidence mapping.', 'Remove one required mapping or current evidence record.', 'Update the owning trace or rerun evidence.', trace.issues.map((item) => item.acceptance)))
+    const traceIssues = requiredAdmissionIssues(trace.issues, options.deferredAcceptance)
+    gates.push(makeGate('G-acceptance-coverage', 'PROTOCOL', 'HARD', 'Acceptance traceability is complete', traceIssues.length === 0 ? 'PASS' : 'FAIL', traceIssues.length === 0 ? admissionTraceDetail(options.deferredAcceptance) : traceIssues.map((item) => `${item.acceptance}:${item.code}`).join(', '), evaluatedAt, ['acceptance.yml', 'change.md', 'plan.md'], 'Build a complete Acceptance → Surface → Verification → Evidence mapping.', 'Remove one required mapping or current evidence record.', 'Update the owning trace or rerun evidence.', traceIssues.map((item) => item.acceptance)))
   } catch (error) {
     gates.push(makeGate('G-acceptance-coverage', 'PROTOCOL', 'HARD', 'Acceptance traceability is complete', 'NOT_RUN', error instanceof Error ? error.message : String(error), evaluatedAt, [], 'Build acceptance traceability.', 'Omit the acceptance authority.', 'Restore the acceptance authority and rebuild the trace.', []))
   }
 
-  const evidence = await evidenceGate(root, changeId, evaluatedAt, options.allowLegacyEvidence === true)
+  const evidence = await evidenceGate(root, changeId, evaluatedAt, options.allowLegacyEvidence === true, options.deferredAcceptance)
   gates.push(evidence)
   gates.push(await constraintsGate(root, changeId, evaluatedAt))
   gates.push(await currentTruthGate(root, changeId, evaluatedAt))
@@ -230,19 +233,23 @@ export async function candidateAdmission(root: string, requestedChangeId?: strin
   if (managed.state.activeChange !== changeId) throw new EvoError(`Change ${changeId} is not the active Change.`)
   const evaluatedAt = (options.now ?? new Date()).toISOString()
   const persist = options.persist === true
+  const deferredAcceptance = [...new Set(options.deferredAcceptance ?? [])]
   await resolveEngineeringConstraints(root, changeId, options.now === undefined ? {persist} : {persist, now: options.now})
   const protocol = await evaluateProtocolGates(root, changeId, options)
   const project = await evaluateProjectGates(root, changeId, options)
   const trace = await buildAcceptanceTraceability(root, changeId, options.now === undefined ? {persist} : {persist, now: options.now})
   const freshness = await inspectFreshness(root, changeId, options.now)
   const gates = [...protocol.gates, ...project.gates]
+  const knownAcceptance = new Set(trace.document.items.map((item) => item.id))
+  const unknownDeferred = deferredAcceptance.filter((id) => !knownAcceptance.has(id))
   const reasons = [
+    ...(unknownDeferred.length > 0 ? [`Unknown deferred acceptance id(s): ${unknownDeferred.join(', ')}.`] : []),
     ...gates.filter((gate) => gate.enforcement === 'HARD' && gate.status !== 'PASS').map((gate) => `${gate.id}: ${gate.detail}`),
-    ...trace.issues.map((issue) => `${issue.acceptance}: ${issue.detail}`),
+    ...requiredAdmissionIssues(trace.issues, deferredAcceptance).map((issue) => `${issue.acceptance}: ${issue.detail}`),
     ...(freshness.status === 'CURRENT' ? [] : [`Freshness is ${freshness.status}; rebuild affected derived artifacts.`]),
   ]
   const status = reasons.length === 0 ? 'REVIEW_ADMITTED' : 'NOT_READY'
-  const result = CandidateAdmissionSchema.parse({schemaVersion: 1, change: changeId, evaluatedAt, status, reasons, gates, trace: trace.document, freshness})
+  const result = CandidateAdmissionSchema.parse({schemaVersion: 1, change: changeId, evaluatedAt, status, deferredAcceptance, reasons, gates, trace: trace.document, freshness})
   if (options.persist) await writeYaml(admissionPath(root, changeId), result)
   return result
 }
@@ -346,19 +353,38 @@ function decisionGate(issues: readonly {code: string; message: string; path: str
   return makeGate('G-decision-lifecycle', 'PROTOCOL', 'HARD', 'Decision lifecycle is valid', relevant.length === 0 ? 'PASS' : 'FAIL', relevant.length === 0 ? 'Decision links and lifecycle directories are valid.' : relevant.map((item) => item.code).join(', '), evaluatedAt, relevant.map((item) => item.path ?? item.code), 'Validate Decision ids, lifecycle status, and supersession links.', 'Break a Decision link or create a supersession cycle.', 'Repair the owning Decision metadata and lifecycle link.', relevant.map((item) => item.path ?? item.code))
 }
 
-async function evidenceGate(root: string, changeId: string, evaluatedAt: string, allowLegacy: boolean): Promise<GateResult> {
+async function evidenceGate(root: string, changeId: string, evaluatedAt: string, allowLegacy: boolean, deferredAcceptance: readonly string[] = []): Promise<GateResult> {
   try {
     const read = await readEvidence(root, changeId)
     const reconciliation = await reconcileEvidence(root, changeId)
     const hardIssues = reconciliation.issues.filter((issue) => issue.code !== 'LEGACY_EVIDENCE')
-    const statuses = reconciliation.evidence.map((item) => item.status)
+    const deferred = new Set(deferredAcceptance)
+    const requiredCriteria = reconciliation.criteria.filter((id) => !deferred.has(id))
+    const statuses = reconciliation.evidence.filter((item) => !deferred.has(item.id)).map((item) => item.status)
     const legacyOnly = reconciliation.legacy && reconciliation.issues.every((issue) => issue.code === 'LEGACY_EVIDENCE')
-    const pass = hardIssues.length === 0 && statuses.length > 0 && statuses.every((status) => status === 'PASS')
+    const pass = hardIssues.length === 0 && requiredCriteria.length > 0 && requiredCriteria.every((id) => reconciliation.evidence.find((item) => item.id === id)?.status === 'PASS')
     const status = pass ? 'PASS' : legacyOnly && allowLegacy ? 'WARN' : statuses.length === 0 ? 'NOT_RUN' : 'FAIL'
-    return makeGate('G-evidence-current', 'PROTOCOL', 'HARD', 'Required Evidence is current', status, pass ? 'Every acceptance item has current PASS evidence.' : reconciliation.issues.map((issue) => issue.message).join(' ') || (read.document ? 'Evidence is not complete.' : 'No Evidence document exists.'), evaluatedAt, [reconciliation.authority, read.path ?? 'evidence.yml'], 'Reconcile acceptance ids, records, statuses, and input fingerprints.', 'Delete a record, change an acceptance contract, or leave a PASS without a PASS record.', 'Rerun or record the affected Evidence and reconcile the document.', [reconciliation.authority])
+    return makeGate('G-evidence-current', 'PROTOCOL', 'HARD', 'Required Evidence is current', status, pass ? evidenceGateDetail(deferredAcceptance) : reconciliation.issues.map((issue) => issue.message).join(' ') || (read.document ? 'Evidence is not complete.' : 'No Evidence document exists.'), evaluatedAt, [reconciliation.authority, read.path ?? 'evidence.yml'], 'Reconcile acceptance ids, records, statuses, and input fingerprints.', 'Delete a record, change an acceptance contract, or leave a PASS without a PASS record.', 'Rerun or record the affected Evidence and reconcile the document.', [reconciliation.authority])
   } catch (error) {
     return makeGate('G-evidence-current', 'PROTOCOL', 'HARD', 'Required Evidence is current', 'NOT_RUN', error instanceof Error ? error.message : String(error), evaluatedAt, [], 'Reconcile Evidence v2.', 'Remove the Evidence authority.', 'Restore the Evidence authority and rerun reconciliation.', [])
   }
+}
+
+function requiredAdmissionIssues(issues: readonly {acceptance: string; code: string; detail: string}[], deferredAcceptance: readonly string[] = []): typeof issues {
+  const deferred = new Set(deferredAcceptance)
+  return issues.filter((issue) => !deferred.has(issue.acceptance))
+}
+
+function admissionTraceDetail(deferredAcceptance: readonly string[] = []): string {
+  return deferredAcceptance.length > 0
+    ? `Every required-for-admission acceptance criterion maps to current implementation, verification, and evidence; deferred post-admission criteria: ${[...new Set(deferredAcceptance)].join(', ')}.`
+    : 'Every acceptance criterion maps to implementation, verification, and evidence.'
+}
+
+function evidenceGateDetail(deferredAcceptance: readonly string[] = []): string {
+  return deferredAcceptance.length > 0
+    ? `Every required-for-admission acceptance item has current PASS evidence; deferred post-admission criteria: ${[...new Set(deferredAcceptance)].join(', ')}.`
+    : 'Every acceptance item has current PASS evidence.'
 }
 
 async function constraintsGate(root: string, changeId: string, evaluatedAt: string): Promise<GateResult> {

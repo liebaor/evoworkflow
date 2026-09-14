@@ -1,0 +1,67 @@
+schemaVersion: 1
+change: evo-0006-v0-3-engineering-closure
+workflowStatus: COMPLETED
+finishedAt: 2026-09-14T12:58:58.625Z
+baselineCommit: 5ed7e4ebb42a85cfeeb91730b222396e6a5f8041
+finishedTreeFingerprint: 43424f0becd7b3bc6121a21e54a0fb43c9b4eb7564b5c867393bd013fb548a5f
+sourceStatus: READY_TO_COMMIT
+commit: null
+currentTruth:
+  required:
+    - path: src/validation/doctor.ts
+      action: UPDATE
+      reason: Detect implementation-ahead-of-approval without adding a new workflow state.
+    - path: src/repository/recovery.ts
+      action: UPDATE
+      reason: Explain out-of-band implementation recovery and preserve chronology.
+    - path: src/validation/gates.ts
+      action: UPDATE
+      reason: Keep project hard-gate promotion bound to registered deterministic checks and regressions.
+    - path: scripts/phase3-development-continuity.ts
+      action: CREATE
+      reason: Real code-changing long-horizon Brownfield continuity evaluation.
+    - path: references/experiments/phase3/development-continuity.json
+      action: CREATE
+      reason: Durable sanitized machine-readable behavioral trace.
+    - path: references/experiments/phase3/development-continuity.md
+      action: CREATE
+      reason: Human-readable summary that points to the raw trace and evidence boundaries.
+    - path: scripts/phase3-evals.ts
+      action: UPDATE
+      reason: Regression coverage for dogfood deviation detection and project-gate promotion safety.
+    - path: tests/goal-orchestration.test.ts
+      action: UPDATE
+      reason: Preserve bounded worker/review boundary if recovery diagnostics touch orchestration state.
+    - path: tests/gates.test.ts
+      action: UPDATE
+      reason: Verify only registered deterministic project checks can be promoted HARD.
+    - path: package.json
+      action: UPDATE
+      reason: Align final repository version with v0.3.0 before final acceptance.
+    - path: README.md
+      action: UPDATE
+      reason: Describe final v0.3 verified boundary and remaining explicit limitations.
+    - path: docs/testing.md
+      action: UPDATE
+      reason: Document long-horizon continuity eval and durable trace rules.
+    - path: docs/workflow-protocol.md
+      action: UPDATE
+      reason: Document implementation-ahead-of-approval recovery without retroactive authorization.
+    - path: docs/operations.md
+      action: UPDATE
+      reason: Document final Approval → Admission → Review → Finish → Delivery sequence.
+  verified:
+    - src/validation/doctor.ts
+    - src/repository/recovery.ts
+    - src/validation/gates.ts
+    - scripts/phase3-development-continuity.ts
+    - references/experiments/phase3/development-continuity.json
+    - references/experiments/phase3/development-continuity.md
+    - scripts/phase3-evals.ts
+    - tests/goal-orchestration.test.ts
+    - tests/gates.test.ts
+    - package.json
+    - README.md
+    - docs/testing.md
+    - docs/workflow-protocol.md
+    - docs/operations.md

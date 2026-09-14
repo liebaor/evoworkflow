@@ -1,7 +1,7 @@
 import {mkdir, readFile, rename} from 'node:fs/promises'
 import path from 'node:path'
 
-import {GoalSchema, type State} from './schemas.js'
+import {GoalSchema, ReviewMetadataSchema, type State} from './schemas.js'
 import {EvoError} from './errors.js'
 import {pathExists, readYaml, writeTextAtomic, writeYaml} from '../repository/io.js'
 import {inspectArtifactApproval, parseArtifactMetadata, type ApprovableArtifactKind} from '../repository/artifacts.js'
@@ -51,7 +51,7 @@ export async function checkConvergence(root: string, requestedChangeId?: string)
   else items.push({area: 'spec.md', status: 'UNAFFECTED', detail: 'This Change has no separate Specification artifact.'})
 
   const review = await reviewConvergence(path.join(changeRoot, 'review.md'))
-  items.push(await evidenceConvergence(paths.root, changeId, review.acceptsLimitations))
+  items.push(await evidenceConvergence(paths.root, changeId, review.acceptsLimitations, review.deferredAcceptance, review.item.status === 'APPLY'))
   items.push(review.item)
   items.push(await goalConvergence(paths, managed.state))
   items.push(await decisionConvergence(paths, changeId))
@@ -152,14 +152,27 @@ async function approvedArtifact(
   }
 }
 
-async function evidenceConvergence(root: string, changeId: string, allowAcceptedLimitations = false): Promise<ConvergenceItem> {
+async function evidenceConvergence(
+  root: string,
+  changeId: string,
+  allowAcceptedLimitations = false,
+  deferredAcceptance: readonly string[] = [],
+  reviewAccepted = false,
+): Promise<ConvergenceItem> {
   try {
     const report = await reconcileEvidence(root, changeId)
     const hardIssues = report.issues.filter((issue) => issue.code !== 'LEGACY_EVIDENCE')
     if (hardIssues.length > 0) {
       return {area: 'evidence', status: 'CONFLICT', detail: hardIssues.map((issue) => issue.message).join(' ')}
     }
-    const statuses = report.evidence.map((item) => item.status)
+    const criteria = new Set(report.criteria)
+    const deferred = [...new Set(deferredAcceptance)]
+    const unknownDeferred = deferred.filter((id) => !criteria.has(id))
+    if (unknownDeferred.length > 0) return {area: 'evidence', status: 'CONFLICT', detail: `Review defers unknown acceptance ids: ${unknownDeferred.join(', ')}.`}
+    if (deferred.length > 0 && !reviewAccepted) return {area: 'evidence', status: 'PENDING', detail: 'Deferred acceptance requires an accepted converged Review before Finish. / 后置验收项必须先有已接受且收敛的 Review。'}
+    const failedDeferred = report.evidence.filter((item) => deferred.includes(item.id) && item.status === 'FAIL')
+    if (failedDeferred.length > 0) return {area: 'evidence', status: 'CONFLICT', detail: `Deferred acceptance cannot hide FAIL evidence: ${failedDeferred.map((item) => item.id).join(', ')}.`}
+    const statuses = report.evidence.filter((item) => !deferred.includes(item.id)).map((item) => item.status)
     if (statuses.length === 0) return {area: 'evidence', status: 'CONFLICT', detail: 'No acceptance-to-evidence entries were found. / 没有找到验收到证据的记录。'}
     if (statuses.includes('FAIL')) return {area: 'evidence', status: 'CONFLICT', detail: 'At least one acceptance criterion is FAIL. / 至少一个验收标准为 FAIL。'}
     if (report.legacy) {
@@ -179,7 +192,7 @@ async function evidenceConvergence(root: string, changeId: string, allowAccepted
     return {
       area: 'evidence',
       status: 'APPLY',
-      detail: `${statuses.length} acceptance criteria record PASS evidence${report.legacy ? ' (legacy evidence.md; migrate to evidence.yml)' : ''}. / ${statuses.length} 条验收标准都有 PASS 证据${report.legacy ? '（旧版 evidence.md；应迁移到 evidence.yml）' : ''}。`,
+      detail: `${statuses.length} required acceptance criteria record PASS evidence${deferred.length > 0 ? `; ${deferred.length} post-admission criterion/criteria remain explicitly deferred.` : ''}${report.legacy ? ' (legacy evidence.md; migrate to evidence.yml)' : ''}. / ${statuses.length} 条必需验收标准都有 PASS 证据${deferred.length > 0 ? `；${deferred.length} 条后置验收项被明确暂缓` : ''}${report.legacy ? '（旧版 evidence.md；应迁移到 evidence.yml）' : ''}。`,
     }
   } catch (error) {
     return {area: 'evidence', status: 'CONFLICT', detail: error instanceof Error ? error.message : String(error)}
@@ -201,26 +214,31 @@ async function currentTruthConvergence(root: string, changeId: string): Promise<
 interface ReviewConvergenceResult {
   readonly item: ConvergenceItem
   readonly acceptsLimitations: boolean
+  readonly deferredAcceptance: readonly string[]
 }
 
 async function reviewConvergence(target: string): Promise<ReviewConvergenceResult> {
   if (!(await pathExists(target))) return {
     item: {area: 'review', status: 'PENDING', detail: 'review.md is missing. / 缺少 review.md。'},
     acceptsLimitations: false,
+    deferredAcceptance: [],
   }
   try {
     const document = parseMarkdownDocument(await readFile(target, 'utf8'), target)
-    const accepted = document.data.status === 'APPROVED' && document.data.humanAcceptance === true
-    const converged = document.data.docsConverged === true && document.data.openFindings === 0
+    const metadata = ReviewMetadataSchema.parse(document.data)
+    const accepted = metadata.status === 'APPROVED' && metadata.humanAcceptance === true
+    const converged = metadata.docsConverged === true && metadata.openFindings === 0
     if (!accepted) return {
       item: {area: 'review', status: 'PENDING', detail: 'Current review lacks explicit human acceptance. / 当前评审还没有明确的人工接受。'},
       acceptsLimitations: false,
+      deferredAcceptance: metadata.deferredAcceptance,
     }
     if (!converged) return {
       item: {area: 'review', status: 'CONFLICT', detail: 'Documentation convergence or finding disposition is incomplete. / 文档收敛或问题处置尚未完成。'},
       acceptsLimitations: false,
+      deferredAcceptance: metadata.deferredAcceptance,
     }
-    const acceptsLimitations = document.data.acceptedLimitations === true
+    const acceptsLimitations = metadata.acceptedLimitations
     return {
       item: {
         area: 'review',
@@ -230,11 +248,13 @@ async function reviewConvergence(target: string): Promise<ReviewConvergenceResul
           : 'Human acceptance, zero open findings, and documentation convergence are recorded. / 已记录人工接受、零个未关闭问题和文档收敛。',
       },
       acceptsLimitations,
+      deferredAcceptance: metadata.deferredAcceptance,
     }
   } catch (error) {
     return {
       item: {area: 'review', status: 'CONFLICT', detail: error instanceof Error ? error.message : String(error)},
       acceptsLimitations: false,
+      deferredAcceptance: [],
     }
   }
 }

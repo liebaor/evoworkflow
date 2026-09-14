@@ -318,7 +318,11 @@ async function gitConflicts(root: string): Promise<string[]> {
 }
 
 async function stagedPaths(root: string): Promise<string[]> {
-  return (await gitText(root, ['diff', '--cached', '--name-only']))
+  // Keep both sides of an active -> completed archive visible to the scope
+  // checker. Git's default rename detection reports only the destination for
+  // a high-similarity move, even though the selected delivery scope includes
+  // the source deletion as well.
+  return (await gitText(root, ['diff', '--cached', '--no-renames', '--name-only']))
     .split(/\r?\n/u)
     .map((item) => item.trim())
     .filter(Boolean)
