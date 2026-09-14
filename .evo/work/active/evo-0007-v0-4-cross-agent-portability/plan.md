@@ -1,7 +1,11 @@
 ---
 change: evo-0007-v0-4-cross-agent-portability
-status: AWAITING_APPROVAL
-approval: null
+status: APPROVED
+approval:
+  approvedAt: 2026-09-14T15:12:54.355Z
+  approvedBy: human
+  fingerprint: ef429ca085365a16d863bae6370fe17545b4478e6dda113f04daf8b08d59995b
+  source: user-delegated human approval for v0.4 completion after execution-boundary correction
 currentTruthTargets:
   - path: skills/ask-evo/SKILL.md
     action: UPDATE
@@ -110,6 +114,30 @@ v0.4 不新增新的开发生命周期，也不重写 v0.3 的 Repository / Cons
 - generic multi-agent orchestration runtime。
 
 ---
+
+## Execution Slices / 执行切片
+
+以下是本 Plan 的唯一执行边界。其他 `###` 标题是设计、诊断、会话或评估说明，不是可独立执行的 Slice。
+
+### S1 — M4.1 Canonical Skill Compatibility
+
+完成 canonical Skill 审计、可重建 manifest、Universal Router 以及对应确定性回归测试。
+
+### S2 — M4.2 Repository Agent Compatibility
+
+完成 Codex、Claude Code、OpenCode 的运行时发现、AGENTS 单一权威、Claude 薄桥接和重复来源检测。
+
+### S3 — M4.3 Setup and Doctor
+
+完成 `evo agents inspect/setup/doctor` 的只读报告、预览/显式 apply 安全边界和确定性诊断。
+
+### S4 — M4.4 Universal Distribution
+
+完成现有通用 Skill 分发路径、版本/哈希一致性检查、使用文档和包级 smoke 验证。
+
+### S5 — M4.5 Cross-Agent Continuity
+
+完成固定 Brownfield 版本上的真实跨 Agent 接力、独立评估、持久化 machine-readable/human-readable 行为证据和最终收口准备。
 
 # M4.1 — Canonical Skill Compatibility
 

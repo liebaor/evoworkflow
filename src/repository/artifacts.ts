@@ -16,6 +16,7 @@ import {writeTextAtomic, writeYaml} from './io.js'
 import {formatMarkdownDocument, parseMarkdownDocument, type MarkdownDocument} from './markdown.js'
 import {openManagedRepository} from './managed.js'
 import {repositoryPaths} from './paths.js'
+import {extractPlanSliceIds} from './plan-slices.js'
 
 export type ApprovableArtifactKind = 'change' | 'spec' | 'plan'
 
@@ -67,7 +68,7 @@ export async function approveArtifact(
     // Re-approving an exact Plan establishes a new execution boundary. Any
     // checkpoints projected from a previous Plan must not survive as if they
     // belonged to the newly approved content.
-    nextState.slices = planSliceIds(document.body).map((id) => ({id, status: 'PENDING', blockReason: null}))
+    nextState.slices = extractPlanSliceIds(document.body).map((id) => ({id, status: 'PENDING', blockReason: null}))
     nextState.currentSlice = null
   }
   await writeYaml(repositoryPaths(root).state, nextState)
@@ -142,10 +143,6 @@ export function inspectArtifactApproval(document: MarkdownDocument): ArtifactApp
 export function artifactPath(root: string, changeId: string, kind: ApprovableArtifactKind): string {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/u.test(changeId)) throw new EvoError(`Invalid Change id: ${changeId}`)
   return path.join(repositoryPaths(root).activeWork, changeId, `${kind}.md`)
-}
-
-function planSliceIds(body: string): string[] {
-  return [...body.matchAll(/^###\s+([A-Za-z0-9][A-Za-z0-9_-]*)\s+(?:—|-)\s+/gmu)].map((match) => match[1] ?? '')
 }
 
 function invalidMetadata(kind: ApprovableArtifactKind, issues: readonly {readonly path: readonly PropertyKey[]; readonly message: string}[]): EvoError {

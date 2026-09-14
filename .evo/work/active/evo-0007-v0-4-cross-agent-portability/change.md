@@ -1,8 +1,12 @@
 ---
 id: evo-0007-v0-4-cross-agent-portability
 weight: LARGE
-status: AWAITING_APPROVAL
-approval: null
+status: APPROVED
+approval:
+  approvedAt: 2026-09-14T15:02:36.340Z
+  approvedBy: human
+  fingerprint: a4449344277da1406bdecae80485863c5b7e602eafad133c74d49198031de7b3
+  source: user-delegated human approval for v0.4 completion
 ---
 
 # evoworkflow v0.4 — Cross-Agent Portability

@@ -5,6 +5,7 @@ import {afterEach, describe, expect, it} from 'vitest'
 import {approveArtifact} from '../src/repository/artifacts.js'
 import {writeYaml} from '../src/repository/io.js'
 import {repositoryPaths} from '../src/repository/paths.js'
+import {extractPlanSliceIds} from '../src/repository/plan-slices.js'
 import {validateProject} from '../src/validation/project.js'
 import {
   cleanupTemporaryRepositories,
@@ -18,6 +19,20 @@ import {
 afterEach(cleanupTemporaryRepositories)
 
 describe('narrative artifact approval', () => {
+  it('extracts only explicit execution Slices from a Plan with narrative headings', () => {
+    const plan = `## Execution Slices / 执行切片
+
+### S1 — Canonical skills
+### S2 — Agent compatibility
+
+## M4.3 — Setup and Doctor
+### ERROR
+### Session A — Codex
+`
+
+    expect(extractPlanSliceIds(plan)).toEqual(['S1', 'S2'])
+  })
+
   it('detects an approved Plan changed after human approval', async () => {
     const root = await temporaryRepository('artifact-drift')
     await initializeRepository(root)

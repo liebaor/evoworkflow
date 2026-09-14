@@ -18,6 +18,7 @@ import {pathExists, writeYaml} from './io.js'
 import {artifactPath, requireApprovedChangeContext} from './artifacts.js'
 import {activeGoalPath, openManagedRepository, readActiveGoal} from './managed.js'
 import {repositoryPaths} from './paths.js'
+import {extractPlanSliceIds} from './plan-slices.js'
 
 /** Reads and validates a Goal definition used by `evo goal create --from`. */
 export async function readGoalDefinition(target: string): Promise<GoalDefinition> {
@@ -101,7 +102,7 @@ export async function approveActiveGoal(root: string, id: string, now = new Date
 export async function validateGoalSlicesAgainstPlan(root: string, changeId: string, sliceIds: readonly string[]): Promise<void> {
   const target = artifactPath(root, changeId, 'plan')
   const source = await readFile(target, 'utf8')
-  const planIds = [...source.matchAll(/^###\s+([A-Za-z0-9][A-Za-z0-9_-]*)\s+(?:—|-)\s+/gmu)].map((match) => match[1] ?? '')
+  const planIds = extractPlanSliceIds(source)
   if (planIds.length === 0) throw new EvoError(`Approved Plan for Change ${changeId} has no machine-identifiable Slice headings.`)
   if (new Set(planIds).size !== planIds.length) throw new EvoError(`Approved Plan for Change ${changeId} contains duplicate Slice headings.`)
   const planned = new Set(planIds)

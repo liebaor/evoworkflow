@@ -33,6 +33,29 @@ export type RepositorySchemaVersion = z.infer<typeof RepositorySchemaVersionSche
 export const ChangeWeightSchema = z.enum(['SMALL', 'STANDARD', 'LARGE'])
 export type ChangeWeight = z.infer<typeof ChangeWeightSchema>
 
+export const SkillCategorySchema = z.enum(['router', 'discovery', 'planning', 'execution', 'verification', 'delivery', 'resilience', 'workflow'])
+export type SkillCategory = z.infer<typeof SkillCategorySchema>
+
+export const SkillManifestEntrySchema = z.object({
+  name: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+  category: SkillCategorySchema,
+  sha256: z.string().regex(/^[a-f0-9]{64}$/),
+})
+export type SkillManifestEntry = z.infer<typeof SkillManifestEntrySchema>
+
+export const SkillManifestSchema = z.object({
+  schemaVersion: z.literal(1),
+  evoVersion: z.string().regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/),
+  skills: z.array(SkillManifestEntrySchema),
+}).superRefine((value, context) => {
+  const names = new Set<string>()
+  for (const [index, skill] of value.skills.entries()) {
+    if (names.has(skill.name)) context.addIssue({code: 'custom', message: `Duplicate Skill name ${skill.name}.`, path: ['skills', index, 'name']})
+    names.add(skill.name)
+  }
+})
+export type SkillManifest = z.infer<typeof SkillManifestSchema>
+
 export const EvidenceStatusSchema = z.enum(['PASS', 'FAIL', 'UNVERIFIED'])
 export type EvidenceStatus = z.infer<typeof EvidenceStatusSchema>
 

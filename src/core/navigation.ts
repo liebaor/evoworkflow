@@ -17,8 +17,26 @@ export interface StatusSummary {
   readonly errors: number
   readonly warnings: number
   readonly nextAction: string
+  readonly nextSkill: UniversalSkill
   readonly reason: string
 }
+
+export type UniversalSkill =
+  | 'ask-evo'
+  | 'evo-bug'
+  | 'evo-change'
+  | 'evo-commit'
+  | 'evo-doctor'
+  | 'evo-finish'
+  | 'evo-goal'
+  | 'evo-grill-with-docs'
+  | 'evo-implement'
+  | 'evo-init'
+  | 'evo-plan'
+  | 'evo-recover'
+  | 'evo-review'
+  | 'evo-to-spec'
+  | 'evo-verify'
 
 /** Reconstructs current workflow state and recommends one non-executing next action. */
 export async function getStatusSummary(root: string): Promise<StatusSummary> {
@@ -34,6 +52,7 @@ export async function getStatusSummary(root: string): Promise<StatusSummary> {
       errors: 0,
       warnings: 0,
       nextAction: 'evo init --apply',
+      nextSkill: 'evo-init',
       reason: 'The repository is not EVO-managed.',
     }
   }
@@ -68,6 +87,7 @@ export async function getStatusSummary(root: string): Promise<StatusSummary> {
     completion,
     errors: validation.issues.filter((item) => item.severity === 'error').length,
     warnings: validation.issues.filter((item) => item.severity === 'warning').length,
+    nextSkill: universalSkillForRecommendation(recommendation.nextAction, goal),
     ...recommendation,
   }
 }
@@ -90,8 +110,29 @@ export function formatStatusSummary(summary: StatusSummary): string {
     `Slice checkpoints: ${summary.state?.slices.length ? summary.state.slices.map((slice) => `${slice.id}=${slice.status}`).join(', ') : 'none'} / Slice 检查点：${summary.state?.slices.length ? summary.state.slices.map((slice) => `${slice.id}=${slice.status}`).join(', ') : 'none'}`,
     `Protocol issues: ${summary.errors} errors, ${summary.warnings} warnings / 协议问题：${summary.errors} 个错误，${summary.warnings} 个警告`,
     `Recommended next action: ${summary.nextAction} / 推荐下一步：${summary.nextAction}`,
+    `Recommended Skill: ${summary.nextSkill} / 推荐 Skill：${summary.nextSkill}`,
     `Reason / 原因: ${summary.reason}`,
   ].join('\n')
+}
+
+/** Maps deterministic status advice to one harness-neutral canonical Skill. */
+export function universalSkillForRecommendation(nextAction: string, goal: Goal | null = null): UniversalSkill {
+  if (goal?.status === 'DRAFT' || goal?.status === 'APPROVED' || goal?.status === 'RUNNING' || goal?.status === 'BLOCKED') return 'evo-goal'
+  const direct = /(?:^|\/)(evo-[a-z0-9-]+|ask-evo)(?:\s|$)/iu.exec(nextAction)?.[1]?.toLowerCase()
+  if (direct === 'ask-evo') return 'ask-evo'
+  if (direct && isUniversalSkill(direct)) return direct
+  if (/^evo\s+init\b/iu.test(nextAction)) return 'evo-init'
+  if (/^evo\s+(?:approve|check)\b/iu.test(nextAction)) return 'ask-evo'
+  if (/^review the Goal\b/iu.test(nextAction)) return 'evo-goal'
+  return 'ask-evo'
+}
+
+function isUniversalSkill(value: string): value is UniversalSkill {
+  return new Set<UniversalSkill>([
+    'ask-evo', 'evo-bug', 'evo-change', 'evo-commit', 'evo-doctor', 'evo-finish', 'evo-goal',
+    'evo-grill-with-docs', 'evo-implement', 'evo-init', 'evo-plan', 'evo-recover', 'evo-review',
+    'evo-to-spec', 'evo-verify',
+  ]).has(value as UniversalSkill)
 }
 
 async function latestCompletion(paths: ReturnType<typeof repositoryPaths>): Promise<Completion | null> {

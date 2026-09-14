@@ -11,6 +11,7 @@ import {listDirectory, readOptionalText} from '../repository/managed.js'
 import {parseMarkdownDocument} from '../repository/markdown.js'
 import {repositoryPaths} from '../repository/paths.js'
 import {validateGoalSlicesAgainstPlan} from '../repository/goals.js'
+import {extractPlanSliceIds} from '../repository/plan-slices.js'
 import {missingWorkflowDocumentSections} from '../repository/workflow-documents.js'
 import {reconcileEvidence} from '../repository/evidence.js'
 
@@ -297,7 +298,7 @@ async function validateSliceTracking(
     const change = parseArtifactMetadata(changeDocument, 'change', state.activeChange ?? '')
     if (!('weight' in change) || change.weight === 'SMALL') return []
     const plan = await readFile(planTarget, 'utf8')
-    const planIds = [...plan.matchAll(/^###\s+([A-Za-z0-9][A-Za-z0-9_-]*)\s+(?:—|-)\s+/gmu)].map((match) => match[1] ?? '')
+    const planIds = extractPlanSliceIds(plan)
     const required = (state.status === 'APPROVED' && ['PLAN', 'IMPLEMENT', 'VERIFY', 'REVIEW', 'FINISH'].includes(state.phase))
       || ['IMPLEMENT', 'VERIFY', 'REVIEW', 'FINISH'].includes(state.phase)
     if (new Set(planIds).size !== planIds.length) {

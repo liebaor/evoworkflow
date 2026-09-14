@@ -1,6 +1,6 @@
 {
   "name": "@evoworkflow/cli",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Human-controlled, repository-centered AI software engineering workflow",
   "type": "module",
@@ -36,6 +36,7 @@
     "eval:ruoyi:phase3": "tsx scripts/phase3-ruoyi-smoke.ts",
     "eval:ruoyi:phase3:behavioral": "tsx scripts/phase3-ruoyi-behavioral.ts",
     "generate:schemas": "tsx scripts/generate-schemas.ts",
+    "generate:skill-manifest": "tsx scripts/generate-skill-manifest.ts",
     "smoke:cli": "tsx scripts/smoke-cli.ts",
     "smoke:package": "tsx scripts/package-smoke.ts",
     "test": "vitest run",

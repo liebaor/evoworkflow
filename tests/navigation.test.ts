@@ -2,7 +2,7 @@ import {writeFile} from 'node:fs/promises'
 import path from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
 
-import {getStatusSummary} from '../src/core/navigation.js'
+import {getStatusSummary, universalSkillForRecommendation} from '../src/core/navigation.js'
 import {approveArtifact} from '../src/repository/artifacts.js'
 import {writeYaml} from '../src/repository/io.js'
 import {repositoryPaths} from '../src/repository/paths.js'
@@ -18,6 +18,13 @@ import {
 afterEach(cleanupTemporaryRepositories)
 
 describe('state-based navigation', () => {
+  it('maps the same recommendation to one harness-neutral Skill', () => {
+    expect(universalSkillForRecommendation('evo init --apply')).toBe('evo-init')
+    expect(universalSkillForRecommendation('/evo-implement S1')).toBe('evo-implement')
+    expect(universalSkillForRecommendation('/evo-verify')).toBe('evo-verify')
+    expect(universalSkillForRecommendation('evo approve change-one plan')).toBe('ask-evo')
+  })
+
   it('routes an unmanaged repository to non-destructive initialization', async () => {
     const root = await temporaryRepository('navigation-unmanaged')
 

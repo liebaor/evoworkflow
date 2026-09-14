@@ -17,6 +17,7 @@ import {
   ProjectGateDefinitionSchema,
   ResolvedConstraintsDocumentSchema,
   ReviewMetadataSchema,
+  SkillManifestSchema,
   StateSchema,
 } from '../src/core/schemas.js'
 
@@ -38,6 +39,7 @@ const definitions = [
   ['candidate-admission.schema.json', 'https://evoworkflow.dev/schema/candidate-admission-v1.json', 'evoworkflow Candidate Admission v1', CandidateAdmissionSchema],
   ['completion.schema.json', 'https://evoworkflow.dev/schema/completion-v1.json', 'evoworkflow Completion v1', CompletionSchema],
   ['change-set.schema.json', 'https://evoworkflow.dev/schema/change-set-v1.json', 'evoworkflow Change Set v1', ChangeSetSchema],
+  ['skill-manifest.schema.json', 'https://evoworkflow.dev/schema/skill-manifest-v1.json', 'evoworkflow Skill Manifest v1', SkillManifestSchema],
 ] as const
 
 /** Projects Zod machine-state authorities into deterministic JSON Schema documents. */
