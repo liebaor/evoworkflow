@@ -1,6 +1,6 @@
 schemaVersion: 1
 change: evo-0007-v0-4-cross-agent-portability
-evaluatedAt: 2026-09-14T16:28:55.374Z
+evaluatedAt: 2026-09-14T16:33:11.657Z
 status: PASS
 gates:
   - id: G-protocol-valid
@@ -16,7 +16,7 @@ gates:
     remediation: Add or repair the owning repository artifact.
     evidence:
       - validateProject
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-approval-current
     kind: PROTOCOL
     enforcement: HARD
@@ -31,7 +31,7 @@ gates:
     evidence:
       - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
       - .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-state-slice-current
     kind: PROTOCOL
     enforcement: HARD
@@ -44,7 +44,7 @@ gates:
     negativeRegression: "A deliberate violation of: Change a persisted currentSlice or Slice status without updating its authority."
     remediation: Reconcile state.yml with the active Goal checkpoint.
     evidence: []
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-decision-lifecycle
     kind: PROTOCOL
     enforcement: HARD
@@ -57,7 +57,7 @@ gates:
     negativeRegression: "A deliberate violation of: Break a Decision link or create a supersession cycle."
     remediation: Repair the owning Decision metadata and lifecycle link.
     evidence: []
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-acceptance-coverage
     kind: PROTOCOL
     enforcement: HARD
@@ -73,7 +73,7 @@ gates:
       - acceptance.yml
       - change.md
       - plan.md
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-evidence-current
     kind: PROTOCOL
     enforcement: HARD
@@ -88,7 +88,7 @@ gates:
     evidence:
       - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
       - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-constraints-resolved
     kind: PROTOCOL
     enforcement: HARD
@@ -118,7 +118,7 @@ gates:
       - src/repository/consistency.ts
       - src/repository/init.ts
       - src/repository/scanner.ts
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-current-truth
     kind: PROTOCOL
     enforcement: HARD
@@ -152,4 +152,4 @@ gates:
       - src/commands/agents/doctor.ts
       - src/commands/agents/inspect.ts
       - src/commands/agents/setup.ts
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z

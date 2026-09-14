@@ -1,6 +1,6 @@
 schemaVersion: 1
 change: evo-0007-v0-4-cross-agent-portability
-evaluatedAt: 2026-09-14T16:28:55.610Z
+evaluatedAt: 2026-09-14T16:33:11.922Z
 status: PASS
 gates:
   - id: G-project-consistency
@@ -25,4 +25,4 @@ gates:
       - src/repository/consistency.ts
       - src/repository/init.ts
       - src/repository/scanner.ts
-    evaluatedAt: 2026-09-14T16:28:55.610Z
+    evaluatedAt: 2026-09-14T16:33:11.922Z

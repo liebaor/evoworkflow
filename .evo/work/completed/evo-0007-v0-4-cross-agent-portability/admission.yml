@@ -1,6 +1,6 @@
 schemaVersion: 1
 change: evo-0007-v0-4-cross-agent-portability
-evaluatedAt: 2026-09-14T16:28:55.262Z
+evaluatedAt: 2026-09-14T16:33:11.532Z
 status: REVIEW_ADMITTED
 deferredAcceptance: []
 reasons: []
@@ -18,7 +18,7 @@ gates:
     remediation: Add or repair the owning repository artifact.
     evidence:
       - validateProject
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-approval-current
     kind: PROTOCOL
     enforcement: HARD
@@ -33,7 +33,7 @@ gates:
     evidence:
       - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
       - .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-state-slice-current
     kind: PROTOCOL
     enforcement: HARD
@@ -46,7 +46,7 @@ gates:
     negativeRegression: "A deliberate violation of: Change a persisted currentSlice or Slice status without updating its authority."
     remediation: Reconcile state.yml with the active Goal checkpoint.
     evidence: []
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-decision-lifecycle
     kind: PROTOCOL
     enforcement: HARD
@@ -59,7 +59,7 @@ gates:
     negativeRegression: "A deliberate violation of: Break a Decision link or create a supersession cycle."
     remediation: Repair the owning Decision metadata and lifecycle link.
     evidence: []
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-acceptance-coverage
     kind: PROTOCOL
     enforcement: HARD
@@ -75,7 +75,7 @@ gates:
       - acceptance.yml
       - change.md
       - plan.md
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-evidence-current
     kind: PROTOCOL
     enforcement: HARD
@@ -90,7 +90,7 @@ gates:
     evidence:
       - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
       - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-constraints-resolved
     kind: PROTOCOL
     enforcement: HARD
@@ -120,7 +120,7 @@ gates:
       - src/repository/consistency.ts
       - src/repository/init.ts
       - src/repository/scanner.ts
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-current-truth
     kind: PROTOCOL
     enforcement: HARD
@@ -154,7 +154,7 @@ gates:
       - src/commands/agents/doctor.ts
       - src/commands/agents/inspect.ts
       - src/commands/agents/setup.ts
-    evaluatedAt: 2026-09-14T16:28:55.374Z
+    evaluatedAt: 2026-09-14T16:33:11.657Z
   - id: G-project-consistency
     kind: PROJECT
     enforcement: WARNING
@@ -177,11 +177,11 @@ gates:
       - src/repository/consistency.ts
       - src/repository/init.ts
       - src/repository/scanner.ts
-    evaluatedAt: 2026-09-14T16:28:55.610Z
+    evaluatedAt: 2026-09-14T16:33:11.922Z
 trace:
   schemaVersion: 1
   change: evo-0007-v0-4-cross-agent-portability
-  updatedAt: 2026-09-14T16:28:55.630Z
+  updatedAt: 2026-09-14T16:33:11.944Z
   inputFingerprint: 81373ab6803c1a5f008427e6808adcd5601d9ff1f20999ef369ffd2dab398900
   items:
     - id: AC-7.1
@@ -309,9 +309,11 @@ trace:
         - tests/agent-setup.test.ts
       verification:
         - "build: Current universal distribution and package smoke"
+        - "external: GitHub Actions Node 22 and Node 24 full check"
         - pnpm run smoke:package
       evidenceRefs:
         - EV-20260914162752-8944e84a
+        - EV-20260914163311-fb05dcea
       status: PASS
       freshness: CURRENT
       limitations: []
@@ -851,7 +853,7 @@ trace:
 freshness:
   schemaVersion: 1
   change: evo-0007-v0-4-cross-agent-portability
-  generatedAt: 2026-09-14T16:28:55.636Z
+  generatedAt: 2026-09-14T16:33:11.950Z
   status: CURRENT
   entries:
     - id: change
@@ -863,7 +865,7 @@ freshness:
         - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
       changedInputs: []
       detail: Authoritative file .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md exists.
-      generatedAt: 2026-09-14T16:28:55.636Z
+      generatedAt: 2026-09-14T16:33:11.950Z
     - id: plan
       kind: plan
       status: CURRENT
@@ -876,7 +878,7 @@ freshness:
       changedInputs:
         - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
       detail: Authoritative file .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md exists.
-      generatedAt: 2026-09-14T16:28:55.636Z
+      generatedAt: 2026-09-14T16:33:11.950Z
     - id: constraints
       kind: derived
       status: CURRENT
@@ -909,11 +911,11 @@ freshness:
       changedInputs:
         - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
       detail: Derived artifact .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml matches its recorded inputs.
-      generatedAt: 2026-09-14T16:28:55.636Z
+      generatedAt: 2026-09-14T16:33:11.950Z
     - id: acceptance
       kind: derived
       status: CURRENT
-      fingerprint: 6f932a360e5904f2fdadf28004e3b321a49c8b59098538ab118f8a94d69c3c33
+      fingerprint: 6ba2cbf6aaaaa1b1dd7ed0e277293ba1ed5713c7631f9572b5dad41a988ef109
       inputFingerprint: 81373ab6803c1a5f008427e6808adcd5601d9ff1f20999ef369ffd2dab398900
       inputs:
         - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
@@ -922,11 +924,11 @@ freshness:
       changedInputs:
         - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
       detail: Derived artifact .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml matches its recorded inputs.
-      generatedAt: 2026-09-14T16:28:55.636Z
+      generatedAt: 2026-09-14T16:33:11.950Z
     - id: evidence
       kind: derived
       status: CURRENT
-      fingerprint: 472b6c71d6e8d8c8c6c7fd58747c469c4ac9380d30ab7252acea3ef8468ed831
+      fingerprint: ae7194494fb8b2f717d621097073187398c8b995ac2bf8adcbcbbb3989efec58
       inputFingerprint: 094ae6b012d7670b728ff3cd45fbcb3b1833c673b03b3a1a74f5300983e018ab
       inputs:
         - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
@@ -936,7 +938,7 @@ freshness:
       changedInputs:
         - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
       detail: Derived artifact .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml matches its recorded inputs.
-      generatedAt: 2026-09-14T16:28:55.636Z
+      generatedAt: 2026-09-14T16:33:11.950Z
     - id: context
       kind: context
       status: CURRENT
@@ -977,4 +979,4 @@ freshness:
       changedInputs:
         - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
       detail: context.md matches its recorded inputs.
-      generatedAt: 2026-09-14T16:28:55.636Z
+      generatedAt: 2026-09-14T16:33:11.950Z

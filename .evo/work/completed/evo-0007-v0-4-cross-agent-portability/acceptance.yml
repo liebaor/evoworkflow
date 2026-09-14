@@ -1,6 +1,6 @@
 schemaVersion: 1
 change: evo-0007-v0-4-cross-agent-portability
-updatedAt: 2026-09-14T16:28:55.630Z
+updatedAt: 2026-09-14T16:33:11.944Z
 inputFingerprint: 81373ab6803c1a5f008427e6808adcd5601d9ff1f20999ef369ffd2dab398900
 items:
   - id: AC-7.1
@@ -128,9 +128,11 @@ items:
       - tests/agent-setup.test.ts
     verification:
       - "build: Current universal distribution and package smoke"
+      - "external: GitHub Actions Node 22 and Node 24 full check"
       - pnpm run smoke:package
     evidenceRefs:
       - EV-20260914162752-8944e84a
+      - EV-20260914163311-fb05dcea
     status: PASS
     freshness: CURRENT
     limitations: []
