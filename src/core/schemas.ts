@@ -40,6 +40,172 @@ export type EvidenceStatus = z.infer<typeof EvidenceStatusSchema>
 export const EvidenceRecordStatusSchema = z.enum(['PASS', 'FAIL', 'BLOCKED', 'NOT_RUN'])
 export type EvidenceRecordStatus = z.infer<typeof EvidenceRecordStatusSchema>
 
+/** Current/derived status used by constraints, context, and evidence freshness checks. */
+export const FreshnessStatusSchema = z.enum(['CURRENT', 'STALE', 'UNKNOWN', 'MISSING', 'CONFLICT'])
+export type FreshnessStatus = z.infer<typeof FreshnessStatusSchema>
+
+/** Constraint strength is intentionally separate from evidence status. */
+export const ConstraintTypeSchema = z.enum(['HARD', 'SOFT', 'REFERENCE', 'UNKNOWN', 'CONFLICT'])
+export type ConstraintType = z.infer<typeof ConstraintTypeSchema>
+
+export const ConstraintSourceKindSchema = z.enum([
+  'DECISION',
+  'AUTHORITY',
+  'CONTRACT',
+  'PROJECT_MAP',
+  'REPRESENTATIVE_CODE',
+  'INFERENCE',
+])
+export type ConstraintSourceKind = z.infer<typeof ConstraintSourceKindSchema>
+
+export const ConstraintSourceSchema = z.object({
+  kind: ConstraintSourceKindSchema,
+  path: z.string().min(1),
+  locator: z.string().min(1).optional(),
+})
+export type ConstraintSource = z.infer<typeof ConstraintSourceSchema>
+
+export const ResolvedConstraintSchema = z.object({
+  id: z.string().regex(/^C-[A-Za-z0-9][A-Za-z0-9_-]*$/),
+  type: ConstraintTypeSchema,
+  topic: z.string().min(1),
+  statement: z.string().min(1),
+  source: ConstraintSourceSchema,
+  scope: z.string().min(1),
+  evidence: z.array(z.string().min(1)).min(1),
+  fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+  confidence: z.number().min(0).max(1).optional(),
+})
+export type ResolvedConstraint = z.infer<typeof ResolvedConstraintSchema>
+
+export const ResolvedConstraintsDocumentSchema = z.object({
+  schemaVersion: z.literal(1),
+  change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  generatedAt: z.string().min(1),
+  inputFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+  inputs: z.array(z.string().min(1)),
+  freshness: FreshnessStatusSchema,
+  constraints: z.array(ResolvedConstraintSchema),
+})
+export type ResolvedConstraintsDocument = z.infer<typeof ResolvedConstraintsDocumentSchema>
+
+export const FreshnessEntrySchema = z.object({
+  id: z.string().min(1),
+  kind: z.string().min(1),
+  status: FreshnessStatusSchema,
+  fingerprint: z.string().regex(/^[a-f0-9]{64}$/).nullable(),
+  inputFingerprint: z.string().regex(/^[a-f0-9]{64}$/).nullable(),
+  inputs: z.array(z.string().min(1)),
+  changedInputs: z.array(z.string().min(1)),
+  detail: z.string().min(1),
+  generatedAt: z.string().min(1),
+})
+export type FreshnessEntry = z.infer<typeof FreshnessEntrySchema>
+
+export const FreshnessDocumentSchema = z.object({
+  schemaVersion: z.literal(1),
+  change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  generatedAt: z.string().min(1),
+  status: FreshnessStatusSchema,
+  entries: z.array(FreshnessEntrySchema),
+})
+export type FreshnessDocument = z.infer<typeof FreshnessDocumentSchema>
+
+export const GateKindSchema = z.enum(['PROTOCOL', 'PROJECT'])
+export type GateKind = z.infer<typeof GateKindSchema>
+
+export const GateEnforcementSchema = z.enum(['HARD', 'WARNING'])
+export type GateEnforcement = z.infer<typeof GateEnforcementSchema>
+
+export const GateResultStatusSchema = z.enum(['PASS', 'FAIL', 'BLOCKED', 'NOT_RUN', 'WARN'])
+export type GateResultStatus = z.infer<typeof GateResultStatusSchema>
+
+export const GateResultSchema = z.object({
+  id: z.string().regex(/^G-[A-Za-z0-9][A-Za-z0-9_-]*$/),
+  kind: GateKindSchema,
+  enforcement: GateEnforcementSchema,
+  status: GateResultStatusSchema,
+  title: z.string().min(1),
+  detail: z.string().min(1),
+  authority: z.string().min(1).nullable(),
+  predicate: z.string().min(1),
+  falsifyingCase: z.string().min(1),
+  negativeRegression: z.string().min(1),
+  remediation: z.string().min(1),
+  evidence: z.array(z.string().min(1)),
+  evaluatedAt: z.string().min(1),
+})
+export type GateResult = z.infer<typeof GateResultSchema>
+
+/** Deterministic predicates currently supported by promoted Project Gates. */
+export const ProjectGateCheckSchema = z.enum([
+  'NO_CONSISTENCY_FINDINGS',
+  'NO_RESPONSE_DRIFT',
+  'NO_PERMISSION_DRIFT',
+  'NO_NAMING_DRIFT',
+  'NO_BLAST_RADIUS_EXPANSION',
+])
+export type ProjectGateCheck = z.infer<typeof ProjectGateCheckSchema>
+
+export const GateReportSchema = z.object({
+  schemaVersion: z.literal(1),
+  change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  evaluatedAt: z.string().min(1),
+  status: GateResultStatusSchema,
+  gates: z.array(GateResultSchema),
+})
+export type GateReport = z.infer<typeof GateReportSchema>
+
+export const AdmissionStatusSchema = z.enum(['REVIEW_ADMITTED', 'NOT_READY'])
+export type AdmissionStatus = z.infer<typeof AdmissionStatusSchema>
+
+export const AcceptanceTraceItemSchema = z.object({
+  id: z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\.[A-Za-z0-9][A-Za-z0-9_-]*)*$/),
+  title: z.string().min(1),
+  source: z.string().min(1),
+  implementationSurface: z.array(z.string().min(1)),
+  verification: z.array(z.string().min(1)),
+  evidenceRefs: z.array(z.string().regex(/^EV-[A-Za-z0-9][A-Za-z0-9_-]*$/)),
+  status: EvidenceRecordStatusSchema,
+  freshness: FreshnessStatusSchema,
+  limitations: z.array(z.string().min(1)),
+})
+export type AcceptanceTraceItem = z.infer<typeof AcceptanceTraceItemSchema>
+
+export const AcceptanceTraceDocumentSchema = z.object({
+  schemaVersion: z.literal(1),
+  change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  updatedAt: z.string().min(1),
+  inputFingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+  items: z.array(AcceptanceTraceItemSchema),
+})
+export type AcceptanceTraceDocument = z.infer<typeof AcceptanceTraceDocumentSchema>
+
+export const ProjectGateDefinitionSchema = z.object({
+  id: z.string().regex(/^PG-[A-Za-z0-9][A-Za-z0-9_-]*$/),
+  title: z.string().min(1),
+  check: ProjectGateCheckSchema.default('NO_CONSISTENCY_FINDINGS'),
+  authority: z.string().min(1),
+  predicate: z.string().min(1),
+  falsifyingCase: z.string().min(1),
+  negativeRegression: z.string().min(1),
+  remediation: z.string().min(1),
+  enforcement: GateEnforcementSchema.default('WARNING'),
+})
+export type ProjectGateDefinition = z.infer<typeof ProjectGateDefinitionSchema>
+
+export const CandidateAdmissionSchema = z.object({
+  schemaVersion: z.literal(1),
+  change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
+  evaluatedAt: z.string().min(1),
+  status: AdmissionStatusSchema,
+  reasons: z.array(z.string().min(1)),
+  gates: z.array(GateResultSchema),
+  trace: AcceptanceTraceDocumentSchema,
+  freshness: FreshnessDocumentSchema,
+})
+export type CandidateAdmission = z.infer<typeof CandidateAdmissionSchema>
+
 /** Verification-run statuses aligned with Evidence v2; the old EvidenceStatus remains for v1 files. */
 export const VerificationStatusSchema = EvidenceRecordStatusSchema
 
@@ -56,7 +222,7 @@ export const CurrentTruthTargetSchema = z.object({
 export type CurrentTruthTarget = z.infer<typeof CurrentTruthTargetSchema>
 
 export const AcceptanceCriterionSchema = z.object({
-  id: z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*$/),
+  id: z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\.[A-Za-z0-9][A-Za-z0-9_-]*)*$/),
   title: z.string().min(1),
   source: z.string().min(1),
 })
@@ -209,7 +375,7 @@ export const EvidenceRecordSchema = z.object({
   schemaVersion: z.literal(2),
   id: z.string().regex(/^EV-[A-Za-z0-9][A-Za-z0-9_-]*$/),
   change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
-  acceptance: z.array(z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*$/)).min(1),
+  acceptance: z.array(z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\.[A-Za-z0-9][A-Za-z0-9_-]*)*$/)).min(1),
   kind: EvidenceKindSchema,
   label: z.string().min(1),
   status: EvidenceRecordStatusSchema,
@@ -221,11 +387,13 @@ export const EvidenceRecordSchema = z.object({
   artifacts: z.array(EvidenceArtifactSchema),
   startedAt: z.string().min(1),
   endedAt: z.string().min(1),
+  inputFingerprint: z.string().regex(/^[a-f0-9]{64}$/).nullable().optional(),
+  freshness: FreshnessStatusSchema.optional(),
 })
 export type EvidenceRecord = z.infer<typeof EvidenceRecordSchema>
 
 export const AcceptanceEvidenceSchema = z.object({
-  id: z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*$/),
+  id: z.string().regex(/^AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\.[A-Za-z0-9][A-Za-z0-9_-]*)*$/),
   status: EvidenceRecordStatusSchema,
   evidenceRefs: z.array(z.string().regex(/^EV-[A-Za-z0-9][A-Za-z0-9_-]*$/)),
   limitations: z.array(z.string().min(1)).default([]),
@@ -237,6 +405,8 @@ export const EvidenceDocumentSchema = z.object({
   change: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/),
   updatedAt: z.string().min(1),
   acceptance: z.array(AcceptanceEvidenceSchema),
+  inputFingerprint: z.string().regex(/^[a-f0-9]{64}$/).nullable().optional(),
+  freshness: FreshnessStatusSchema.optional(),
 })
 export type EvidenceDocument = z.infer<typeof EvidenceDocumentSchema>
 
@@ -308,6 +478,10 @@ export const StopConditionSchema = z.enum([
   'SCOPE_EXPANSION',
   'REPEATED_FAILURE',
   'TRANSIENT_FAILURE',
+  'STALE_APPROVAL',
+  'CONSTRAINT_CONFLICT',
+  'HARD_GATE_FAILURE',
+  'FAILURE_BUDGET_EXHAUSTED',
 ])
 export type StopCondition = z.infer<typeof StopConditionSchema>
 
@@ -354,6 +528,11 @@ export const GoalAttemptSchema = z.object({
   endedAt: z.string().min(1),
   agent: AgentRunResultSchema,
   verification: z.array(VerificationRunSchema),
+  invocationId: z.string().min(1).optional(),
+  workingContextFingerprint: z.string().regex(/^[a-f0-9]{64}$/).nullable().optional(),
+  constraintsFingerprint: z.string().regex(/^[a-f0-9]{64}$/).nullable().optional(),
+  preflight: z.array(GateResultSchema).optional(),
+  postflight: z.array(GateResultSchema).optional(),
 })
 export type GoalAttempt = z.infer<typeof GoalAttemptSchema>
 
@@ -394,6 +573,8 @@ export const GoalSchema = z.object({
     at: z.string().min(1),
     reason: z.string().min(1),
   })).default([]),
+  failureBudget: z.number().int().positive().optional(),
+  failuresUsed: z.number().int().nonnegative().default(0),
   createdAt: z.string().min(1),
   updatedAt: z.string().min(1),
 })
@@ -405,6 +586,7 @@ export const GoalDefinitionSchema = z.object({
   repository: z.string().min(1).optional(),
   adapter: z.string().min(1).optional(),
   maxAttempts: z.number().int().min(1).max(10).optional(),
+  failureBudget: z.number().int().positive().optional(),
   stopConditions: z.array(StopConditionSchema).min(1).optional(),
   slices: z.array(z.object({
     id: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/),

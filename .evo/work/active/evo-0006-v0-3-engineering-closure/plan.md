@@ -2,6 +2,52 @@
 change: evo-0006-v0-3-engineering-closure
 status: AWAITING_APPROVAL
 approval: null
+currentTruthTargets:
+  - path: src/core/schemas.ts
+    action: UPDATE
+    reason: Phase 3 machine-state contracts and compatibility fields.
+  - path: src/core/goal.ts
+    action: UPDATE
+    reason: Bounded per-Slice execution and READY_FOR_REVIEW boundary.
+  - path: src/repository/working-context.ts
+    action: UPDATE
+    reason: Fresh context and resolved-constraint routing.
+  - path: src/repository/constraints.ts
+    action: CREATE
+    reason: Rebuildable task-level engineering constraints.
+  - path: src/repository/freshness.ts
+    action: CREATE
+    reason: Derived-artifact input fingerprint and freshness checks.
+  - path: src/repository/acceptance-trace.ts
+    action: CREATE
+    reason: Acceptance to implementation, verification, and evidence mapping.
+  - path: src/validation/gates.ts
+    action: CREATE
+    reason: Protocol/project gates and candidate admission.
+  - path: src/repository/delivery.ts
+    action: CREATE
+    reason: Read-only and explicitly authorized Git chronology delivery.
+  - path: src/commands/commit.ts
+    action: CREATE
+    reason: evo-commit CLI boundary.
+  - path: src/repository/recovery.ts
+    action: UPDATE
+    reason: Fresh-session constraint, gate, freshness, and chronology handoff.
+  - path: src/validation/doctor.ts
+    action: UPDATE
+    reason: Report-first Phase 3 repository diagnostics.
+  - path: scripts/phase3-evals.ts
+    action: CREATE
+    reason: Deterministic Phase 3 evaluation suite.
+  - path: scripts/phase3-ruoyi-smoke.ts
+    action: CREATE
+    reason: Clean-revision real RuoYi field evaluation.
+  - path: scripts/phase3-ruoyi-behavioral.ts
+    action: CREATE
+    reason: Real-Agent behavioral baseline and positive cross-framework evaluation.
+  - path: scripts/package-smoke.ts
+    action: CREATE
+    reason: Packed-artifact clean-install black-box smoke.
 ---
 
 # Implementation plan / 实施计划
@@ -42,6 +88,32 @@ Phase 3 统一采用五层架构：
 - Derived State Is Disposable.
 - Worker Cannot Accept Its Own Work.
 - Contract Strict, Method Flexible.
+
+## Vertical Slice checkpoints / 垂直 Slice 检查点
+
+### S1 — M3.1 Behavior Baseline & Field Evaluation
+
+建立真实 Brownfield 与跨框架行为基线，并区分确定性、行为性和运行时未知结果。
+
+### S2 — M3.2 Resolved Engineering Constraints
+
+解析带 source/scope/evidence/fingerprint 的任务级约束，处理冲突和新鲜度。
+
+### S3 — M3.3 Deterministic Control & Git Chronology
+
+落地 Protocol/Project Gate、Acceptance Trace、Candidate Admission 和 evo-commit 交付边界。
+
+### S4 — M3.4 Bounded Execution Integration
+
+将 fresh context、constraints、preflight、focused verification、postflight 和 checkpoint 接入 Goal。
+
+### S5 — M3.5 Change Resilience & Knowledge Learning
+
+验证 Delta/Bug/Recovery 的 freshness 与 Evidence 边界，并保留 Finding 晋升的人工控制。
+
+### S6 — M3.6 Doctor, Package Black-box & Release Readiness
+
+完成 Doctor、Phase 3 eval、RuoYi clean-revision 场景和 packed artifact 黑盒路径。
 
 ## 3. Expected blast radius / 预计影响范围
 

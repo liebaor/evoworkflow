@@ -24,22 +24,26 @@ evoworkflow 是一套由人工驱动、AI 辅助执行、仓库持久化知识�
 - `evo init`：先报告仓库发现结果，再以不破坏现有文件的方式初始化。
 - `evo status`、`evo check`、`evo doctor`：恢复状态、检查协议、报告陈旧知识和锁。
 - `evo context`、`evo recover`：分别生成当前任务的路径化 Working Context，以及只读恢复报告。
+- `evo constraints`、`evo gate`、`evo admission`：重建任务约束、评估协议/项目门禁，并在满足硬条件后准入 Review。
 - `evo approve`：把人工批准绑定到 Change、Specification 或 Plan 的精确内容指纹。
 - `evo goal create/approve/run/resume/inspect/cancel`：执行有边界、可恢复、顺序运行的 Goal。
 - `evo finish`：生成收敛报告；只有所有门禁通过并且人工接受后，`--apply` 才会归档 Change。
+- `evo commit`：默认只预览结构化 Git checkpoint；只有明确 `--apply`、选择路径并获得授权后才创建 commit，`--push` 也必须显式指定。
 - `evo evidence run/record/inspect/reconcile`：把命令执行或人工观察写成带 Git 快照的 Evidence v2，并检查验收项精确集合。
 - `evo completion inspect/bind-commit`：检查 Finish 交付凭证，并绑定已有 Git 提交；不会自动 commit。
 - `evo migrate`：预览或应用 v1 到 v2 的兼容迁移；`evo change-set check/status`：检查多仓库成员和契约哈希。
-- 19 个面向结果的 Skill：调查、决策、规划、实现、验证、评审和维护。
+- 20 个面向结果的 Skill：调查、决策、规划、实现、验证、评审、交付和维护。
 - Brownfield 发现：依据真实 checkout，而不是根据常见框架名称猜测项目结构。
 - 二期 Grounding：记录技术声明版本、确认/推断状态、仓库区域和可观察运行入口；未确认事实保留为未知。
 - 二期 Working Context：按当前 Change、项目地图、参考实现、能力、测试和 Git 状态路由路径与理由，不复制源代码或文档正文。
 - 二期 Consistency：报告响应、权限、命名和实际影响范围的候选漂移；它提供评审信号，不替人工做架构决定。
 - 二期 Resilience：记录 Requirement Delta、Bug 调查和中断恢复信息，保留批准失效与 `UNVERIFIED` 证据。
 - 二期评估：提供 E001-E012 确定性评估，以及只读 RuoYi Feature A/B 和 FastAPI + Ant Design Pro 跨框架检验。
+- 三期 Engineering Closure：提供可重建的 Resolved Constraints、freshness、Protocol/Project Gate、Acceptance Trace、Candidate Admission、bounded Goal preflight 和 Git chronology。
+- 三期评估：提供 E301-E315 确定性评估，以及从固定 Git revision clean archive 执行的 RuoYi backend/frontend 场景；真实 runtime、数据库、浏览器和 Agent 行为单独报告。真实 Agent 现场基线使用 `pnpm run eval:ruoyi:phase3:behavioral`，不作为普通 CI hard gate。
 - Greenfield 指导：先比较成熟方案，再决定是否需要自建基础设施。
 
-evoworkflow v0.2 仍不包含多 Agent 并行执行、云控制面板、中央数据库、自动产品或架构决策，也不会自动提交、合并、发布、部署或完成 Change。多仓库 Change Set 只是只读聚合检查；真实人工身份系统也不在本次 Evidence v2 优化范围内，命令行仍按当前测试协议模拟人工操作。
+evoworkflow v0.3 仍不包含多 Agent 并行执行、云控制面板、中央数据库、自动产品或架构决策，也不会自动提交、合并、发布、部署或完成 Change。多仓库 Change Set 只是只读聚合检查；真实人工身份系统仍不在命令行测试范围内，人工批准继续由显式测试协议模拟。
 
 ## 开发要求
 
@@ -62,6 +66,10 @@ pnpm evo check --root /path/to/project
 pnpm evo doctor --root /path/to/project
 pnpm evo context --root /path/to/project
 pnpm evo recover --root /path/to/project
+pnpm evo constraints --root /path/to/project <change-id>
+pnpm evo constraints --root /path/to/project <change-id> --write
+pnpm evo gate --root /path/to/project <change-id> --kind both
+pnpm evo admission --root /path/to/project <change-id>
 pnpm evo approve --root /path/to/project <change-id> change
 pnpm evo approve --root /path/to/project <change-id> spec
 pnpm evo approve --root /path/to/project <change-id> plan
@@ -71,6 +79,8 @@ pnpm evo goal run --root /path/to/project <goal-id>
 pnpm evo goal inspect --root /path/to/project <goal-id>
 pnpm evo finish --root /path/to/project
 pnpm evo finish --root /path/to/project --apply
+pnpm evo commit --root /path/to/project <change-id> --checkpoint SLICE --slice S1 --path src/example.ts
+pnpm evo commit --root /path/to/project <change-id> --apply --checkpoint SLICE --slice S1 --path src/example.ts
 pnpm evo evidence reconcile --root /path/to/project --change <change-id>
 pnpm evo migrate --root /path/to/project
 pnpm evo migrate --root /path/to/project --apply
@@ -89,6 +99,20 @@ pnpm run eval:phase2
 pnpm run eval:ruoyi -- --backend-root /path/to/backend-archive --backend-revision <40-char-commit> \
   --frontend-root /path/to/frontend-archive --frontend-revision <40-char-commit>
 ```
+
+三期验证命令：
+
+```sh
+pnpm run eval:phase3
+pnpm run eval:ruoyi:phase3 -- \
+  --backend-root /path/to/ruoyi-backend-git-root --backend-revision <40-char-commit> \
+  --frontend-root /path/to/ruoyi-frontend-git-root --frontend-revision <40-char-commit>
+pnpm run smoke:package
+```
+
+三期 RuoYi 评估会先用 `git archive` 固定指定 revision，再在临时副本中执行初始化、Feature A/B、Delta、Bug、Recovery 和 Feature C 的静态/确定性检查；不会修改输入仓库，也不会把未执行的 runtime、MySQL、浏览器或真实 Agent 结果写成 `PASS`。
+
+真实 Agent 行为评估使用固定 revision 的临时组合副本，运行多个全新 Agent invocation 和一个 FastAPI/React 正向场景。Agent 只能写 `.evo/behavioral/` 评估材料；独立 verifier 检查真实源码引用、跨任务引用、Forbidden RuoYi 机制和产品源码完整性。命令需要额外提供 `--backend-root`、`--backend-revision`、`--frontend-root`、`--frontend-revision`，可用 `--output` 保存结构化结果。
 
 规划 Skill 会把文档留在 `AWAITING_APPROVAL`。人工检查精确内容后，再执行 `evo approve <change-id> <change|spec|plan>` 记录批准。之后任何实质编辑都会使旧指纹失效，必须重新审阅和批准。
 

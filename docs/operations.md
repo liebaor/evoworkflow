@@ -31,6 +31,19 @@ evo recover --root /path/to/project
 
 `evo context` 默认输出当前 Change 的路径化 Working Context，并说明每个引用的优先级和理由。只有明确添加 `--write` 才会写入活动 Change 的 `context.md`；它不会复制源码正文，也不会改变批准状态。`evo recover` 始终只读，汇总当前阶段、Slice、证据、阻塞、Git 变化和未知项，不会自动恢复 Goal 或进入下一阶段。
 
+三期的派生约束、门禁和 Review 准入也默认只读：
+
+```sh
+evo constraints --root /path/to/project <change-id>
+evo constraints --root /path/to/project <change-id> --write
+evo gate --root /path/to/project <change-id> --kind protocol
+evo gate --root /path/to/project <change-id> --kind project
+evo admission --root /path/to/project <change-id>
+evo admission --root /path/to/project <change-id> --write
+```
+
+`constraints --write`、`gate --write` 和 `admission --write` 只写入可删除、可重建的派生视图，不批准 Change、不解决 Decision，也不推进阶段。Protocol Gate 的冲突、未知、过期批准或缺失证据会阻止 bounded Goal；项目命名/架构信号默认保持 `WARNING`。只有保存了完整五项晋升材料并选择受支持确定性 `check` 的 Project Gate 才能使用 `HARD`；它会在 postflight 中失败关闭，普通启发式信号仍只记录 warning。
+
 当 Change、Specification 或 Plan 到达 `AWAITING_APPROVAL` 时，先检查精确内容，再记录批准：
 
 ```sh
@@ -68,6 +81,16 @@ evo evidence inspect --root /path/to/project --change <change-id>
 
 Finish 后先检查 `evo completion inspect <change-id>`。如果显示 `READY_TO_COMMIT`，由外部 Git 流程提交后再运行 `evo completion bind-commit <change-id>`；该命令不会创建提交。
 
+`evo commit` 独立负责 Git chronology。它默认只预览：
+
+```sh
+evo commit --root /path/to/project <change-id> --checkpoint SLICE --slice S1 --path src/example.ts
+evo commit --root /path/to/project <change-id> --apply --checkpoint SLICE --slice S1 --path src/example.ts
+evo commit --root /path/to/project <change-id> --apply --push --path src/example.ts
+```
+
+创建 commit 必须同时使用 `--apply` 和至少一个明确的 `--path`；`--push` 只能附加在显式 commit 授权之后。Checkpoint commit 不会把活动 Change 变成 `COMPLETED`，也不会代替 Review、Human Acceptance 或 `evo-finish`。
+
 旧仓库迁移先预览再应用：
 
 ```sh
@@ -75,4 +98,4 @@ evo migrate --root /path/to/project
 evo migrate --root /path/to/project --apply
 ```
 
-evoworkflow v0.2 不提供自动 release、deploy 或生产回滚；只读恢复报告也不代表外部运行已验证。
+evoworkflow v0.3 不提供自动 release、deploy 或生产回滚；只读恢复报告也不代表外部运行已验证。

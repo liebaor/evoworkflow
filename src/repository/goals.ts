@@ -50,6 +50,8 @@ export async function createGoal(root: string, id: string, definition: GoalDefin
     repository,
     adapter,
     maxAttempts: definition.maxAttempts ?? managed.config.goal.maxAttempts,
+    failureBudget: definition.failureBudget ?? (definition.maxAttempts ?? managed.config.goal.maxAttempts) * definition.slices.length,
+    failuresUsed: 0,
     status: 'DRAFT',
     stopConditions: definition.stopConditions ?? DEFAULT_STOP_CONDITIONS,
     slices: definition.slices.map((slice) => ({
@@ -187,6 +189,7 @@ export function formatGoal(goal: Goal): string {
     `Adapter: ${goal.adapter} / Adapter：${goal.adapter}`,
     `Approval: ${goal.approval ? `human at ${goal.approval.approvedAt}` : 'none'} / 批准：${goal.approval ? `人工于 ${goal.approval.approvedAt}` : '无'}`,
     `Attempt epoch: ${goal.runEpoch} / 尝试 epoch：${goal.runEpoch}`,
+    `Failure budget: ${goal.failuresUsed}/${goal.failureBudget ?? 'unbounded'} / 失败预算：${goal.failuresUsed}/${goal.failureBudget ?? '无限'}`,
     '',
     'Slices / Slice 列表:',
     ...goal.slices.map((slice) => {

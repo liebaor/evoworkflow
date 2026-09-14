@@ -41,6 +41,7 @@ export function goalApprovalPayload(goal: Goal, adapter: AgentAdapterConfig): un
       changeId: goal.changeId,
       id: goal.id,
       maxAttempts: goal.maxAttempts,
+      failureBudget: goal.failureBudget ?? null,
       repository: goal.repository,
       slices: goal.slices.map((slice) => ({
         acceptance: slice.acceptance,

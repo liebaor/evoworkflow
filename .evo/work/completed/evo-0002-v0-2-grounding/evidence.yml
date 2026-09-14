@@ -2,8 +2,33 @@ schemaVersion: 2
 change: evo-0002-v0-2-grounding
 updatedAt: 2026-09-13T16:37:19.705Z
 acceptance:
-  - id: AC-2
+  - id: AC-2.1
     status: NOT_RUN
     evidenceRefs:
       - EV-MIGRATED-01
-    limitations: []
+    limitations:
+      - Imported legacy NOT_RUN record was expanded after hierarchical acceptance-id parsing was corrected.
+  - id: AC-2.2
+    status: NOT_RUN
+    evidenceRefs:
+      - EV-MIGRATED-01
+    limitations:
+      - Imported legacy NOT_RUN record was expanded after hierarchical acceptance-id parsing was corrected.
+  - id: AC-2.3
+    status: NOT_RUN
+    evidenceRefs:
+      - EV-MIGRATED-01
+    limitations:
+      - Imported legacy NOT_RUN record was expanded after hierarchical acceptance-id parsing was corrected.
+  - id: AC-2.4
+    status: NOT_RUN
+    evidenceRefs:
+      - EV-MIGRATED-01
+    limitations:
+      - Imported legacy NOT_RUN record was expanded after hierarchical acceptance-id parsing was corrected.
+  - id: AC-2.5
+    status: NOT_RUN
+    evidenceRefs:
+      - EV-MIGRATED-01
+    limitations:
+      - Imported legacy NOT_RUN record was expanded after hierarchical acceptance-id parsing was corrected.

@@ -1,0 +1,99 @@
+schemaVersion: 2
+id: EV-20260913212143-ff665d1e
+change: evo-0006-v0-3-engineering-closure
+acceptance:
+  - AC-6.2
+  - AC-6.3
+  - AC-6.4
+  - AC-6.5
+  - AC-6.6
+  - AC-6.7
+  - AC-6.8
+  - AC-6.9
+kind: integration
+label: Phase 3 deterministic and bounded execution verification
+status: PASS
+command: null
+exitCode: null
+summary: "pnpm run check under Node 22 passed: 93 tests, build, CLI/Schema/Skill checks, Phase 2, Phase 3 E301-E315, hardening, and packed-artifact smoke; focused tests cover constraints, gates, admission, traceability, freshness, Goal boundary, recovery, and delivery."
+outputHash: null
+git:
+  branch: phase3/v0.3-engineering-closure
+  head: 64e1e313e494d758c03e849a224ea20563e10e84
+  treeFingerprint: 425ffd13dcdd48162726c5e7b8feafb66cfc42a4545b4642d6dfa423007e9b68
+  dirty: true
+  changedPaths:
+    - .evo/project.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/admission.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/context.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212142-9324ad08.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/plan.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/project-gates.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/protocol-gates.yml
+    - docs/goal-protocol.md
+    - docs/operations.md
+    - docs/product-spec.md
+    - docs/repository-protocol.md
+    - docs/testing.md
+    - docs/workflow-protocol.md
+    - package.json
+    - README.md
+    - references/experiments/2026-09-14-phase3-ruoyi-behavioral.md
+    - schemas/acceptance-trace.schema.json
+    - schemas/candidate-admission.schema.json
+    - schemas/evidence-document.schema.json
+    - schemas/evidence-record.schema.json
+    - schemas/freshness.schema.json
+    - schemas/gate-report.schema.json
+    - schemas/goal.schema.json
+    - schemas/project-gate-definition.schema.json
+    - schemas/resolved-constraints.schema.json
+    - scripts/package-smoke.ts
+    - scripts/phase3-evals.ts
+    - scripts/phase3-ruoyi-behavioral.ts
+    - scripts/phase3-ruoyi-smoke.ts
+    - scripts/schema-documents.ts
+    - scripts/smoke-cli.ts
+    - scripts/validate-skills.ts
+    - skills/README.zh-CN.md
+    - src/agents/adapter.ts
+    - src/agents/process-adapter.ts
+    - src/commands/admission.ts
+    - src/commands/commit.ts
+    - src/commands/constraints.ts
+    - src/commands/gate.ts
+    - src/core/fingerprint.ts
+    - src/core/goal.ts
+    - src/core/schemas.ts
+    - src/repository/acceptance-trace.ts
+    - src/repository/acceptance.ts
+    - src/repository/consistency.ts
+    - src/repository/constraints.ts
+    - src/repository/delivery.ts
+    - src/repository/evidence.ts
+    - src/repository/freshness.ts
+    - src/repository/goal-execution.ts
+    - src/repository/goals.ts
+    - src/repository/paths.ts
+    - src/repository/recovery.ts
+    - src/repository/working-context.ts
+    - src/validation/doctor.ts
+    - src/validation/gates.ts
+    - src/validation/project.ts
+    - tests/acceptance-trace.test.ts
+    - tests/constraints.test.ts
+    - tests/delivery.test.ts
+    - tests/freshness.test.ts
+    - tests/gates.test.ts
+    - tests/goal-orchestration.test.ts
+    - tests/goal.test.ts
+  changedPathsFingerprint: 3b86b55659cf018544f5bf176ddadef8e223e74e579eb36bdb191ba4b3a7cedf
+  capturedAt: 2026-09-13T21:21:43.942Z
+artifacts: []
+startedAt: 2026-09-13T21:21:43.942Z
+endedAt: 2026-09-13T21:21:43.942Z
+inputFingerprint: 558a45d9b076f844f1986c35502650b488b918451cae365ce17b3ac87ffa19d8
+freshness: CURRENT

@@ -3,7 +3,7 @@ import {promisify} from 'node:util'
 import {readFile, readdir} from 'node:fs/promises'
 import path from 'node:path'
 
-import type {ChangeWeight} from '../core/schemas.js'
+import type {ChangeWeight, FreshnessStatus, ResolvedConstraint} from '../core/schemas.js'
 import {EvoError} from '../core/errors.js'
 import {artifactPath, parseArtifactMetadata} from './artifacts.js'
 import {pathExists, writeTextAtomic} from './io.js'
@@ -12,6 +12,7 @@ import {parseMarkdownDocument} from './markdown.js'
 import {repositoryPaths} from './paths.js'
 import {scanRepository} from './scanner.js'
 import {captureGitSnapshot} from './git-snapshot.js'
+import {fingerprintInputs} from './freshness.js'
 
 const execFile = promisify(execFileCallback)
 
@@ -47,10 +48,15 @@ export interface WorkingContext {
   readonly schemaVersion: 1
   readonly root: string
   readonly generatedAt: string
+  readonly inputFingerprint: string
+  readonly inputPaths: readonly string[]
   readonly change: WorkingContextChange | null
   readonly references: readonly WorkingContextReference[]
   readonly git: WorkingContextGit
   readonly unknowns: readonly string[]
+  readonly constraints?: readonly ResolvedConstraint[]
+  readonly constraintsFingerprint?: string
+  readonly constraintsFreshness?: FreshnessStatus
 }
 
 export interface BuildWorkingContextOptions {
@@ -178,14 +184,26 @@ export async function buildWorkingContext(
     ...report.unknowns.filter((item) => /(?:test|run|architecture|version|CI)/iu.test(item)),
   ])]
 
-  return {
+  const inputPaths = contextInputPaths(paths.root, changeId, references)
+  const baseContext: WorkingContext = {
     schemaVersion: 1,
     root: paths.root,
     generatedAt: (options.now ?? new Date()).toISOString(),
+    inputFingerprint: (await fingerprintInputs(paths.root, inputPaths)).fingerprint,
+    inputPaths,
     change,
     references: sortedReferences,
     git,
     unknowns,
+  }
+  if (!changeId) return baseContext
+  const {resolveEngineeringConstraints} = await import('./constraints.js')
+  const resolution = await resolveEngineeringConstraints(paths.root, changeId, options.now === undefined ? {workingContext: baseContext} : {workingContext: baseContext, now: options.now})
+  return {
+    ...baseContext,
+    constraints: resolution.constraints,
+    constraintsFingerprint: resolution.inputFingerprint,
+    constraintsFreshness: resolution.status,
   }
 }
 
@@ -212,6 +230,8 @@ export function formatWorkingContext(context: WorkingContext): string {
     `Repository / 仓库：${context.root}`,
     `Change / Change：${change?.id ?? 'none'}${change ? ` — ${change.title} (${change.weight}/${change.status})` : ''}`,
     `Generated / 生成时间：${context.generatedAt}`,
+    `Input fingerprint / 输入指纹：${context.inputFingerprint}`,
+    `<!-- evo-context-inputs: ${context.inputPaths.join('|')} -->`,
     '',
     '## References / 参考路径',
     '',
@@ -231,7 +251,32 @@ export function formatWorkingContext(context: WorkingContext): string {
     '## Unknowns / 未知项',
     '',
     ...(context.unknowns.length > 0 ? context.unknowns.map((item) => `- ${item}`) : ['- none / 无']),
+    '',
+    '## Resolved constraints / 已解析工程约束',
+    '',
+    `- Freshness / 新鲜度：${context.constraintsFreshness ?? 'NOT_BUILT'}`,
+    ...(context.constraints && context.constraints.length > 0
+      ? context.constraints.map((item) => `- ${item.type} ${item.topic}: ${item.statement} [${item.source.kind}:${item.source.path}]`)
+      : ['- none / 无']),
   ].join('\n')
+}
+
+function contextInputPaths(root: string, changeId: string | null, references: readonly WorkingContextReference[]): string[] {
+  const paths = repositoryPaths(root)
+  const result = [relative(root, paths.project), relative(root, paths.agents)]
+  if (changeId) {
+    result.push(
+      relative(root, path.join(paths.activeWork, changeId, 'change.md')),
+      relative(root, path.join(paths.activeWork, changeId, 'spec.md')),
+      relative(root, path.join(paths.activeWork, changeId, 'plan.md')),
+    )
+  }
+  result.push(
+    relative(root, paths.currentDecisions),
+    relative(root, paths.workingDecisions),
+    ...references.filter((item) => item.kind !== 'git').map((item) => item.path),
+  )
+  return [...new Set(result)]
 }
 
 async function addDecisionReferences(

@@ -29,6 +29,12 @@ CONTEXT.md                         可选
       change.md
       spec.md                       仅 Large Change
       plan.md
+      context.md                    可重建的 Working Context
+      constraints.yml                可重建的任务级约束
+      acceptance.yml                 Acceptance Trace 派生视图
+      protocol-gates.yml             Protocol Gate 报告
+      project-gates.yml              Project Gate 报告
+      admission.yml                  Candidate Admission 报告
       evidence.yml                  机器证据权威
       evidence/records/*.yml        追加式执行记录
       evidence.md                   人类可读摘要
@@ -68,6 +74,20 @@ Markdown 保存叙事知识，YAML 保存机器状态。空的可选目录不创
 
 Consistency 结果是候选 Review 信号。响应机制、权限机制、命名规则和实际仓库区域与 Plan 不一致时，可以报告 `CONSISTENCY_DRIFT`、`PARALLEL_MECHANISM`、`NAMING_DRIFT` 或 `BLAST_RADIUS_EXPANDED`；只有人工接受或修订批准意图后，才能决定是否改变实现。
 
+## 工程约束与新鲜度
+
+Standard/Large Change 的 `constraints.yml`、`context.md`、`acceptance.yml` 和 Gate 报告都是派生视图，可以删除后从当前 Authority 重建。约束解析优先级为：
+
+```text
+Decision > explicit Authority > approved Contract > Project Map > representative code > inference
+```
+
+每个约束保存 `source`、`scope`、`evidence` 和输入指纹。代表性代码只能产生 `REFERENCE`/`SOFT`，推断不能伪装成 `HARD`；同一事实的硬冲突产生 `CONFLICT`，在人工解决前不得执行。派生视图使用 `CURRENT`、`STALE`、`UNKNOWN`、`MISSING` 或 `CONFLICT` 表达新鲜度，不能依靠手工“已失效”标记代替输入指纹。
+
+## 门禁与准入
+
+Protocol Gate 是协议硬门禁，Project Gate 默认是评审 warning。任何晋升为硬门禁的 Project Gate 都必须同时保存：`authoritative source`、`deterministic predicate`、`falsifying case`、`negative regression` 和 `remediation`，并选择受支持的确定性 `check`。当前 `check` 覆盖整体一致性、响应、权限、命名和范围膨胀；已晋升定义会在 Project Gate 评估和 Goal postflight 中实际执行。每个硬 Gate 都必须有 valid → PASS、故意违反 → FAIL、恢复 → PASS 的负向回归。Candidate Admission 在硬门禁、Acceptance Trace、Evidence 和 freshness 未满足时返回 `NOT_READY`，不会替人工批准或接受 Review。
+
 ## Decision 生命周期
 
 Decision 从 `working` 移到 `current` 或 `declined`。当结论变化时，不能静默改写 current Decision；新 Decision 通过 `supersedes` 记录继承关系，旧 Decision 通过 `supersededBy` 指向新 Decision。
@@ -82,9 +102,11 @@ Decision 从 `working` 移到 `current` 或 `declined`。当结论变化时，�
 
 `BLOCKED` / `NOT_RUN`（旧版为 `UNVERIFIED`）、未解决冲突、缺失权威路径、未关闭的阻塞性评审问题和范围漂移都会阻止无条件完成声明。
 
-Evidence v2 的门禁先从批准的 Change/Spec 提取验收项，再要求 `evidence.yml` 的 id 集合与其完全一致；引用的每条记录必须存在、属于同一 Change，`PASS` 必须有 `PASS` 记录。命令记录不可使用 shell 字符串，输出受大小限制并保存哈希，Git 快照用于发现证据之后的工作树变化。本地测试不能静默替代真实模型、跨平台、CI、外部服务或生产结果。
+Evidence v2 的门禁先从批准的 Change/Spec 提取验收项，再要求 `evidence.yml` 的 id 集合与其完全一致；验收 ID 支持 `AC-01` 和 `AC-6.1` 这类分层写法，解析和 Schema 必须保留完整后缀。引用的每条记录必须存在、属于同一 Change，`PASS` 必须有 `PASS` 记录。命令记录不可使用 shell 字符串，输出受大小限制并保存哈希，Git 快照用于发现证据之后的工作树变化。本地测试不能静默替代真实模型、跨平台、CI、外部服务或生产结果。
 
 `evo finish --apply` 归档后必须生成 `completion.yml`。当前事实目标由 Plan 的 `currentTruthTargets` 声明；目标缺失会阻止 Finish，旧版没有该字段的 Change 会保留兼容警告。完成但未绑定 Git 提交的 Change 状态为 `READY_TO_COMMIT`，不是已提交，也不是发布完成。
+
+Git commit 是 chronology，不是第二套 EVO 状态数据库。`evo commit` 默认只生成 checkpoint 预览；创建 commit 必须明确 `--apply` 并逐项选择路径，push 还需要明确 `--push` 授权。Checkpoint commit 不能创造 `COMPLETED`，`evo-finish` 也不隐含 commit 或 push。
 
 只有当 `review.md` 同时记录 `status: APPROVED`、`humanAcceptance: true` 和 `acceptedLimitations: true` 时，人工才能把 `BLOCKED` / `NOT_RUN` 或旧版外部 `UNVERIFIED` 作为已知限制接受。Finish 会保留限制记录；它们不会被改写成 `PASS`，也不等价于真实环境已经验证。
 

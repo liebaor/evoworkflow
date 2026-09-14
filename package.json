@@ -7,6 +7,10 @@
   "bin": {
     "evo": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "templates"
+  ],
   "engines": {
     "node": ">=22",
     "pnpm": ">=11"
@@ -20,15 +24,19 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run smoke:cli && pnpm run validate:skills && pnpm run check:schemas && pnpm run eval:hardening",
+    "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run smoke:cli && pnpm run validate:skills && pnpm run check:schemas && pnpm run eval:phase2 && pnpm run eval:phase3 && pnpm run eval:hardening && pnpm run smoke:package",
     "check:schemas": "tsx scripts/check-schemas.ts",
     "dev": "tsx src/index.ts",
     "evo": "tsx src/index.ts",
     "eval:ruoyi": "tsx scripts/phase2-ruoyi-smoke.ts",
     "eval:hardening": "tsx scripts/hardening-evals.ts",
     "eval:phase2": "tsx scripts/phase2-evals.ts",
+    "eval:phase3": "tsx scripts/phase3-evals.ts",
+    "eval:ruoyi:phase3": "tsx scripts/phase3-ruoyi-smoke.ts",
+    "eval:ruoyi:phase3:behavioral": "tsx scripts/phase3-ruoyi-behavioral.ts",
     "generate:schemas": "tsx scripts/generate-schemas.ts",
     "smoke:cli": "tsx scripts/smoke-cli.ts",
+    "smoke:package": "tsx scripts/package-smoke.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit",

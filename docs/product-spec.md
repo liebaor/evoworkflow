@@ -1,4 +1,4 @@
-# evoworkflow v0.2 产品规格
+# evoworkflow v0.3 产品规格
 
 ## 定义
 
@@ -56,11 +56,21 @@ Agent 调查事实并执行已授权工作。
 20. Evidence v2 能够用精确验收集合、追加式记录、命令输出哈希和 Git 快照支撑 Finish；旧仓库可以保守迁移而不覆盖历史 Markdown。
 21. Finish 能生成独立的 completion handoff，区分“流程已归档”和“源代码已绑定 Git 提交”。
 22. 多仓库 Change Set 能聚合子仓库完成凭证和共享契约哈希，但不替子仓库执行提交或发布。
+23. Standard/Large Change 能从 Decision、Authority、批准 Contract、Project Map、参考代码和显式推断重建任务级 Resolved Constraints，并保留 source/scope/evidence/type。
+24. Derived Context、Constraints、Acceptance Trace 和 Evidence 能通过输入 fingerprint 区分 `CURRENT`、`STALE`、`UNKNOWN`、`MISSING` 和 `CONFLICT`，不依赖第二套手工失效状态。
+25. Protocol Gate、Project Gate 和 Candidate Admission 能把硬协议条件与评审 warning 分开；硬 Gate 晋升必须有 Authority、确定性 predicate、falsifying case、negative regression 和 remediation。
+26. Goal 能按 fresh Context、Constraints、preflight、bounded execution、focused verification 和 postflight 顺序执行，并在成功时停在 `READY_FOR_REVIEW`。
+27. Acceptance Trace 能把每个 Acceptance 连接到 implementation surface、verification、Evidence 和 freshness；Worker 不能把自己的工作标记为 `ACCEPTED`。
+28. `evo-commit` 能生成引用 Change/Slice/Evidence/Decision/Next 的 Git chronology checkpoint；创建 commit 和 push 都需要显式授权，不能创造 `COMPLETED`。
+29. Phase 2/3 deterministic eval、固定 revision 的 RuoYi clean-archive field eval、CI 和 packed-artifact clean-install smoke 能独立报告 `DETERMINISTIC_PASS` 与 `UNVERIFIED` 边界。
+30. `evo recover` 和 `evo doctor` 能报告约束、门禁、新鲜度、Acceptance Trace、checkpoint chronology、重复 Finding 和未知运行入口。
 
-## v0.2 仍不做什么
+## v0.3 仍不做什么
 
 - 自动选择或切换框架、响应协议、权限机制或重大架构。
-- 真实 RuoYi 启动、MySQL、浏览器、Agent、部署或生产回滚。
+- 自动产品、架构、安全或破坏性数据 Decision。
+- 多 Agent 并行 swarm、generic Agent Runtime、自动 Finish、merge、release、deploy 或 force-push。
+- 真实 RuoYi 启动、MySQL、浏览器和真实 Agent 行为不会被静态/确定性 evaluator 冒充为已验证；这些结果必须单独提供证据。
 
 ## 工程默认值
 

@@ -30,9 +30,9 @@ DRAFT -> APPROVED -> RUNNING -> READY_FOR_REVIEW
 
 ## 顺序执行
 
-Runner 一次只执行一个满足依赖的 Slice。只有 Agent 返回结构化完成结果且每个已批准验证命令都成功退出时，Slice 才 PASS。结果、变更路径、验证输出摘要、尝试次数、时间戳和阻塞原因会在每个 Slice 后持久化。`state.yml` 镜像 Goal Slice 状态和当前 Slice，因此即使执行在 Agent 调用之间中断，新会话也能恢复；Goal YAML 仍是主要权威。
+Runner 一次只执行一个满足依赖的 Slice。每次调用前重建 fresh Working Context、Resolved Constraints 并执行 preflight；只有 Agent 返回结构化完成结果且每个已批准验证命令都成功退出时，Slice 才通过执行验证。之后记录 post-execution project gate 信号，但启发式项目信号默认不升级为硬失败。结果、变更路径、验证输出摘要、尝试次数、时间戳、指纹、门禁和阻塞原因会在每个 Slice 后持久化。`state.yml` 镜像 Goal Slice 状态和当前 Slice，因此即使执行在 Agent 调用之间中断，新会话也能恢复；Goal YAML 仍是主要权威。
 
-Slice 阻塞时，依赖它的 Slice 保持 pending；独立 Slice 可以继续。重复失败达到配置上限后停止。
+Slice 阻塞时，依赖它的 Slice 保持 pending；独立 Slice 可以继续。约束冲突、硬门禁失败、freshness 失效或重复失败达到配置上限后停止。成功的 Goal 状态是 `READY_FOR_REVIEW`，不是 `DONE` 或 `ACCEPTED`。
 
 ## 强制停止条件
 
@@ -41,6 +41,8 @@ Slice 阻塞时，依赖它的 Slice 保持 pending；独立 Slice 可以继续�
 - 安全或授权 Decision；
 - 破坏性数据操作；
 - 意外依赖或范围扩大；
-- 实现或验证重复失败。
+- 实现或验证重复失败；
+- stale approval、未知/冲突约束或硬 Gate 失败；
+- failure budget 耗尽。
 
 Runner 永远不会改需求、批准 Decision、扩大范围、commit、merge、deploy 或完成 Change。

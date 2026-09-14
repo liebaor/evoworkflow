@@ -55,7 +55,7 @@ try {
   assertIncludes(evidenceCheck, 'Valid: yes')
 
   const help = await run(['--help'])
-  for (const command of ['approve', 'check', 'context', 'doctor', 'finish', 'init', 'migrate', 'recover', 'status', 'evidence', 'completion', 'change-set']) assertIncludes(help, command)
+  for (const command of ['admission', 'approve', 'check', 'commit', 'constraints', 'context', 'doctor', 'finish', 'gate', 'init', 'migrate', 'recover', 'status', 'evidence', 'completion', 'change-set']) assertIncludes(help, command)
   const goalHelp = await run(['goal', '--help'])
   for (const command of ['approve', 'cancel', 'create', 'inspect', 'resume', 'run']) assertIncludes(goalHelp, command)
 } finally {
@@ -85,6 +85,12 @@ async function expectMissing(target: string): Promise<void> {
 async function prepareFiveSliceGoal(root: string): Promise<void> {
   const changeRoot = path.join(root, '.evo', 'work', 'active', 'smoke-change')
   await mkdir(changeRoot, {recursive: true})
+  await writeFile(path.join(root, 'package.json'), '{"name":"smoke-repository","version":"1.0.0","engines":{"node":">=22"},"scripts":{"test":"vitest","dev":"node app.js"}}\n', 'utf8')
+  await mkdir(path.join(root, 'docs'), {recursive: true})
+  await writeFile(path.join(root, 'docs', 'architecture.md'), '# Architecture\n', 'utf8')
+  await mkdir(path.join(root, '.github', 'workflows'), {recursive: true})
+  await writeFile(path.join(root, '.github', 'workflows', 'ci.yml'), 'name: ci\n', 'utf8')
+  await writeFile(path.join(root, 'pom.xml'), '<project><properties><java.version>17</java.version><spring-security.version>6.0.0</spring-security.version></properties></project>\n', 'utf8')
   await writeFile(path.join(changeRoot, 'change.md'), '---\nid: smoke-change\nweight: STANDARD\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Smoke Change\n\nExercise the built Goal entry path.\n', 'utf8')
   const planSlices = Array.from({length: 5}, (_, index) => `### S${index + 1} — Smoke Slice ${index + 1}\n\nPersist one bounded checkpoint.`).join('\n\n')
   await writeFile(path.join(changeRoot, 'plan.md'), `---\nchange: smoke-change\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Plan\n\n${planSlices}\n`, 'utf8')

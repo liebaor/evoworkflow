@@ -25,6 +25,7 @@ export function repositoryPaths(root: string) {
     goals: path.join(evo, 'goals'),
     activeGoals: path.join(evo, 'goals', 'active'),
     completedGoals: path.join(evo, 'goals', 'completed'),
+    gates: path.join(evo, 'gates'),
     postmortems: path.join(evo, 'postmortems'),
   }
 }

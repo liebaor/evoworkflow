@@ -59,7 +59,11 @@
           "UNEXPECTED_DEPENDENCY",
           "SCOPE_EXPANSION",
           "REPEATED_FAILURE",
-          "TRANSIENT_FAILURE"
+          "TRANSIENT_FAILURE",
+          "STALE_APPROVAL",
+          "CONSTRAINT_CONFLICT",
+          "HARD_GATE_FAILURE",
+          "FAILURE_BUDGET_EXHAUSTED"
         ]
       }
     },
@@ -204,7 +208,11 @@
                             "UNEXPECTED_DEPENDENCY",
                             "SCOPE_EXPANSION",
                             "REPEATED_FAILURE",
-                            "TRANSIENT_FAILURE"
+                            "TRANSIENT_FAILURE",
+                            "STALE_APPROVAL",
+                            "CONSTRAINT_CONFLICT",
+                            "HARD_GATE_FAILURE",
+                            "FAILURE_BUDGET_EXHAUSTED"
                           ]
                         },
                         {
@@ -286,6 +294,228 @@
                     ],
                     "additionalProperties": false
                   }
+                },
+                "invocationId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "workingContextFingerprint": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "constraintsFingerprint": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "preflight": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^G-[A-Za-z0-9][A-Za-z0-9_-]*$"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "PROTOCOL",
+                          "PROJECT"
+                        ]
+                      },
+                      "enforcement": {
+                        "type": "string",
+                        "enum": [
+                          "HARD",
+                          "WARNING"
+                        ]
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "PASS",
+                          "FAIL",
+                          "BLOCKED",
+                          "NOT_RUN",
+                          "WARN"
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "detail": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "authority": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "predicate": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "falsifyingCase": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "negativeRegression": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "remediation": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "evidence": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "evaluatedAt": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "kind",
+                      "enforcement",
+                      "status",
+                      "title",
+                      "detail",
+                      "authority",
+                      "predicate",
+                      "falsifyingCase",
+                      "negativeRegression",
+                      "remediation",
+                      "evidence",
+                      "evaluatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "postflight": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^G-[A-Za-z0-9][A-Za-z0-9_-]*$"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "PROTOCOL",
+                          "PROJECT"
+                        ]
+                      },
+                      "enforcement": {
+                        "type": "string",
+                        "enum": [
+                          "HARD",
+                          "WARNING"
+                        ]
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "PASS",
+                          "FAIL",
+                          "BLOCKED",
+                          "NOT_RUN",
+                          "WARN"
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "detail": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "authority": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "predicate": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "falsifyingCase": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "negativeRegression": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "remediation": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "evidence": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "evaluatedAt": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "kind",
+                      "enforcement",
+                      "status",
+                      "title",
+                      "detail",
+                      "authority",
+                      "predicate",
+                      "falsifyingCase",
+                      "negativeRegression",
+                      "remediation",
+                      "evidence",
+                      "evaluatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
                 }
               },
               "required": [
@@ -326,7 +556,11 @@
                   "UNEXPECTED_DEPENDENCY",
                   "SCOPE_EXPANSION",
                   "REPEATED_FAILURE",
-                  "TRANSIENT_FAILURE"
+                  "TRANSIENT_FAILURE",
+                  "STALE_APPROVAL",
+                  "CONSTRAINT_CONFLICT",
+                  "HARD_GATE_FAILURE",
+                  "FAILURE_BUDGET_EXHAUSTED"
                 ]
               },
               {
@@ -412,6 +646,17 @@
         "additionalProperties": false
       }
     },
+    "failureBudget": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "failuresUsed": {
+      "default": 0,
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
     "createdAt": {
       "type": "string",
       "minLength": 1
@@ -435,6 +680,7 @@
     "approval",
     "runEpoch",
     "resumes",
+    "failuresUsed",
     "createdAt",
     "updatedAt"
   ],
