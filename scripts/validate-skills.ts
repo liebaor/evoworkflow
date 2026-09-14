@@ -5,6 +5,8 @@ import {fileURLToPath} from 'node:url'
 import {parse} from 'yaml'
 import {z} from 'zod'
 
+import {buildSkillManifest, readSkillManifest} from '../src/repository/skill-manifest.js'
+
 const skillsRoot = fileURLToPath(new URL('../skills/', import.meta.url))
 const expected = new Set([
   'ask-evo',
@@ -28,7 +30,7 @@ const expected = new Set([
   'evo-to-spec',
   'evo-verify',
 ])
-const frontmatterSchema = z.object({name: z.string().min(1).max(63), description: z.string().min(20).max(500)})
+const frontmatterSchema = z.object({name: z.string().min(1).max(63), description: z.string().min(20).max(500)}).strict()
 const directories = (await readdir(skillsRoot, {withFileTypes: true}))
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
@@ -61,9 +63,21 @@ for (const name of directories) {
       if (!body.includes(heading)) errors.push(`${name}: missing ${heading}`)
     }
     if (/\{\{[^}]+\}\}|\b(?:TODO|TBD)\b/u.test(source)) errors.push(`${name}: contains an unfinished scaffold marker`)
+    if (/(?:^|\s)\/evo(?:-[a-z0-9-]+)?\b/iu.test(body)) errors.push(`${name}: assumes a vendor slash-command invocation; use repository-neutral Skill wording`)
+    if (/\b(?:claude|codex|opencode)\s+(?:tool|slash|command)\b/iu.test(body)) errors.push(`${name}: assumes a vendor-specific command or tool`)
+    if (/^\s*(?:codex|claude|opencode)\s*:/imu.test(source)) errors.push(`${name}: uses vendor-specific frontmatter`)
   } catch (error) {
     errors.push(`${name}: cannot read SKILL.md: ${error instanceof Error ? error.message : String(error)}`)
   }
+}
+
+try {
+  const root = path.dirname(skillsRoot)
+  const expectedManifest = await buildSkillManifest(root)
+  const actualManifest = await readSkillManifest(root)
+  if (JSON.stringify(actualManifest) !== JSON.stringify(expectedManifest)) errors.push('skills/manifest.json: generated content is stale; run pnpm run generate:skill-manifest')
+} catch (error) {
+  errors.push(`skills/manifest.json: ${error instanceof Error ? error.message : String(error)}`)
 }
 
 if (errors.length > 0) {

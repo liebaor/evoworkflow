@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "evoVersion": "0.4.0",
+  "skills": [
+    {
+      "name": "ask-evo",
+      "category": "router",
+      "sha256": "17ad8033df70764ff748383aaf744d275b72587e3b90d1a155bf150548a74cc6"
+    },
+    {
+      "name": "ask-evo-architect",
+      "category": "discovery",
+      "sha256": "d8e65ed4d433bf0902a4ab3e823f12f1f25bf32be9483f985d4d1ba2e553a1c8"
+    },
+    {
+      "name": "ask-evo-pm",
+      "category": "discovery",
+      "sha256": "9ad04ca6ea2169dc86b57f5b191a7c23fe8a31f57b706f88228e877a2d01f930"
+    },
+    {
+      "name": "evo-bug",
+      "category": "resilience",
+      "sha256": "6fad2034355213d35dd3df15d2f9c834486f2f196b33e4b7d40a6f4f4643c920"
+    },
+    {
+      "name": "evo-change",
+      "category": "planning",
+      "sha256": "f1bcc8c12a8431ef65778204bbba12b2beaa315b9b97c2790d38b43867f836ef"
+    },
+    {
+      "name": "evo-commit",
+      "category": "delivery",
+      "sha256": "fd673c3ed6b2c527b3331d8359e5f14607dcb68c2eb388ab41a8dc8e2297e8b0"
+    },
+    {
+      "name": "evo-doctor",
+      "category": "workflow",
+      "sha256": "cfaf147a59fe98bd726995e74e7ae65aa2139402a1403da05e959ec158892a5a"
+    },
+    {
+      "name": "evo-engineering",
+      "category": "workflow",
+      "sha256": "f3eb27561f052113b14a7b03d39a95e9df7ffc8628ec956b92aa8bf05ec5093e"
+    },
+    {
+      "name": "evo-finish",
+      "category": "delivery",
+      "sha256": "8eb7164242738ce3cb42989aeff6ea99f1e73b708c7180323543d71378b33fdc"
+    },
+    {
+      "name": "evo-goal",
+      "category": "planning",
+      "sha256": "c09dec47966230dced7c826dd35ad83f362291ea3ea3f1694e6d08128ec02275"
+    },
+    {
+      "name": "evo-grill-with-docs",
+      "category": "planning",
+      "sha256": "c7854e45ca9340e8b5ceaea41f92a1109ad58680e56645a2c7a6e0673cfd164c"
+    },
+    {
+      "name": "evo-implement",
+      "category": "execution",
+      "sha256": "4a9b55d87c1feb510c0cd0f67e958643e3dc3edcc57f38bf880cda48f908e98d"
+    },
+    {
+      "name": "evo-init",
+      "category": "workflow",
+      "sha256": "40f2ba9521b77fad3307a8a50b3cb91c32301d6989f815690048c342f35c88dd"
+    },
+    {
+      "name": "evo-plan",
+      "category": "planning",
+      "sha256": "7c4c10bfa1ae6f62093b5947e1878c240e9f449bd08751505d34f76be0735a76"
+    },
+    {
+      "name": "evo-recover",
+      "category": "workflow",
+      "sha256": "cec9cd971d2f9b682f5cb622949b3d3e225c61ad486140584d655472f01d5998"
+    },
+    {
+      "name": "evo-review",
+      "category": "delivery",
+      "sha256": "0887314fd8d43e58cba15a8b9e73ebcfa53ccf31d6a51a8be43ed4a6c4b9a0f0"
+    },
+    {
+      "name": "evo-solution-discovery",
+      "category": "planning",
+      "sha256": "1909d94861da80075eb280dad5b4edd1c68542a10fa936177151c80dc923d744"
+    },
+    {
+      "name": "evo-status",
+      "category": "workflow",
+      "sha256": "263d41822ed2847d273acb945b0615c4ca0bff0874ff5fb2a9bee9ea740d45a5"
+    },
+    {
+      "name": "evo-to-spec",
+      "category": "planning",
+      "sha256": "0203a969d889d0e7a2eda39da36c279505257d0d1d9fdc46d99a54ab1be7c7f3"
+    },
+    {
+      "name": "evo-verify",
+      "category": "delivery",
+      "sha256": "a4e868e89d533d638b91798d02ae7b1116af51064dc5819756b3b21000047e34"
+    }
+  ]
+}

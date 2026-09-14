@@ -1,0 +1,318 @@
+schemaVersion: 1
+id: v04-cross-agent-portability
+title: v0.4 Cross-Agent Portability implementation and verification
+changeId: evo-0007-v0-4-cross-agent-portability
+repository: /home/zhicheng/code/codex/evoworkflow
+adapter: codex
+maxAttempts: 1
+status: READY_FOR_REVIEW
+stopConditions:
+  - REQUIREMENT_AMBIGUITY
+  - ACCEPTANCE_CHANGE
+  - ARCHITECTURE_DEVIATION
+  - BREAKING_API
+  - SECURITY_DECISION
+  - DESTRUCTIVE_DATA_OPERATION
+  - UNEXPECTED_DEPENDENCY
+  - SCOPE_EXPANSION
+  - REPEATED_FAILURE
+slices:
+  - id: S1
+    objective: Implement M4.1 canonical Skill compatibility, reproducible manifest, and universal ask-evo routing.
+    acceptance:
+      - AC-7.1 is implemented with one canonical skills source and deterministic compatibility validation.
+      - AC-7.9 routing behavior is deterministic for the same repository state.
+    dependsOn: []
+    verify:
+      - command: pnpm
+        args:
+          - run
+          - typecheck
+        label: Typecheck after canonical Skill changes
+        timeoutMs: 300000
+      - command: pnpm
+        args:
+          - run
+          - validate:skills
+        label: Canonical Skill validation
+        timeoutMs: 300000
+    status: PASS
+    attempts:
+      - number: 1
+        epoch: 0
+        startedAt: 2026-09-14T15:21:59.177Z
+        endedAt: 2026-09-14T15:21:59.177Z
+        agent:
+          status: COMPLETED
+          summary: M4.1 canonical Skill compatibility, manifest, router, and execution-boundary validation completed.
+          changedFiles:
+            - src/core/navigation.ts
+            - src/core/schemas.ts
+            - src/repository/artifacts.ts
+            - src/repository/goals.ts
+            - src/repository/plan-slices.ts
+            - src/validation/project.ts
+            - scripts/schema-documents.ts
+            - scripts/generate-skill-manifest.ts
+            - scripts/validate-skills.ts
+            - skills/ask-evo/SKILL.md
+            - skills/manifest.json
+            - templates/change/plan.md
+            - tests/artifacts.test.ts
+            - tests/goals-repository.test.ts
+            - tests/navigation.test.ts
+            - tests/skill-manifest.test.ts
+            - schemas/skill-manifest.schema.json
+            - package.json
+          evidence:
+            - EV-20260914152131-19fae791
+          stopCondition: null
+        verification:
+          - label: M4.1 canonical Skill and router validation
+            command: pnpm
+            args:
+              - run
+              - validate:skills
+            status: PASS
+            exitCode: 0
+            output: Validated 20 evoworkflow Skills.
+            startedAt: 2026-09-14T15:21:59.177Z
+            endedAt: 2026-09-14T15:21:59.177Z
+        invocationId: v04-cross-agent-portability/S1/0/manual
+    blockReason: null
+    stopCondition: null
+  - id: S2
+    objective: Implement runtime-derived Codex, Claude Code, and OpenCode compatibility observations and one-authority checks.
+    acceptance:
+      - AC-7.2 and AC-7.4 client discovery, bridge, duplicate-source, and version-drift diagnostics are observable.
+      - Missing clients remain nonfatal observations rather than protocol errors.
+    dependsOn:
+      - S1
+    verify:
+      - command: pnpm
+        args:
+          - run
+          - test
+        label: Agent compatibility tests
+        timeoutMs: 300000
+    status: PASS
+    attempts:
+      - number: 1
+        epoch: 0
+        startedAt: 2026-09-14T15:28:33.153Z
+        endedAt: 2026-09-14T15:28:33.153Z
+        agent:
+          status: COMPLETED
+          summary: M4.2 runtime-derived client discovery and one-authority compatibility checks completed.
+          changedFiles:
+            - src/agents/discovery.ts
+            - src/agents/compatibility.ts
+            - src/core/schemas.ts
+            - scripts/schema-documents.ts
+            - schemas/agent-compatibility.schema.json
+            - tests/agent-compatibility.test.ts
+          evidence:
+            - EV-20260914152813-b0aed048
+          stopCondition: null
+        verification:
+          - label: M4.2 agent discovery and authority compatibility tests
+            command: pnpm
+            args:
+              - exec
+              - vitest
+              - run
+              - tests/agent-compatibility.test.ts
+              - --run
+            status: PASS
+            exitCode: 0
+            output: Agent discovery and compatibility tests passed.
+            startedAt: 2026-09-14T15:28:33.153Z
+            endedAt: 2026-09-14T15:28:33.153Z
+        invocationId: v04-cross-agent-portability/S2/0/manual
+    blockReason: null
+    stopCondition: null
+  - id: S3
+    objective: Implement evo agents inspect, setup preview/apply, and doctor report-first safety boundaries.
+    acceptance:
+      - AC-7.3 setup defaults to preview and never overwrites an incompatible existing bridge.
+      - AC-7.4 diagnostics distinguish ERROR, WARNING, and INFO with deterministic fixtures.
+      - AC-7.8 documents and enforces one checkout to one writer.
+    dependsOn:
+      - S2
+    verify:
+      - command: pnpm
+        args:
+          - run
+          - check
+        label: Agent command and repository checks
+        timeoutMs: 900000
+    status: PASS
+    attempts:
+      - number: 1
+        epoch: 0
+        startedAt: 2026-09-14T15:34:49.825Z
+        endedAt: 2026-09-14T15:34:49.825Z
+        agent:
+          status: COMPLETED
+          summary: M4.3 inspect, setup, doctor, single-writer diagnostics, and CLI smoke completed.
+          changedFiles:
+            - src/agents/setup.ts
+            - src/agents/compatibility.ts
+            - src/commands/agents/inspect.ts
+            - src/commands/agents/setup.ts
+            - src/commands/agents/doctor.ts
+            - src/core/schemas.ts
+            - scripts/smoke-cli.ts
+            - schemas/agent-setup.schema.json
+            - tests/agent-setup.test.ts
+          evidence:
+            - EV-20260914153433-df33e6e9
+          stopCondition: null
+        verification:
+          - label: M4.3 agent command safety and CLI smoke
+            command: pnpm
+            args:
+              - run
+              - smoke:cli
+            status: PASS
+            exitCode: 0
+            output: Built CLI smoke passed.
+            startedAt: 2026-09-14T15:34:49.825Z
+            endedAt: 2026-09-14T15:34:49.825Z
+        invocationId: v04-cross-agent-portability/S3/0/manual
+    blockReason: null
+    stopCondition: null
+  - id: S4
+    objective: Implement universal canonical Skill distribution documentation, version/hash visibility, and package smoke coverage.
+    acceptance:
+      - AC-7.5 exposes one canonical version to Codex, Claude Code, and OpenCode without vendor Skill copies.
+      - AC-7.10 package and CLI distribution smoke checks are reproducible.
+    dependsOn:
+      - S3
+    verify:
+      - command: pnpm
+        args:
+          - run
+          - smoke:package
+        label: Package distribution smoke
+        timeoutMs: 300000
+    status: PASS
+    attempts:
+      - number: 1
+        epoch: 0
+        startedAt: 2026-09-14T16:20:50.375Z
+        endedAt: 2026-09-14T16:20:50.375Z
+        agent:
+          status: COMPLETED
+          summary: M4.4 universal distribution and package smoke completed.
+          changedFiles:
+            - package.json
+            - scripts/package-smoke.ts
+            - README.md
+            - docs/agents/README.md
+            - docs/agents/codex.md
+            - docs/agents/claude-code.md
+            - docs/agents/opencode.md
+            - docs/operations.md
+            - docs/testing.md
+          evidence:
+            - EV-20260914161834-f656a8ec
+          stopCondition: null
+        verification:
+          - label: S4 universal distribution package smoke
+            command: pnpm
+            args:
+              - run
+              - smoke:package
+            status: PASS
+            exitCode: 0
+            output: E315 and E314 passed; one canonical 20-Skill set and packaged agents commands verified.
+            startedAt: 2026-09-14T16:20:50.375Z
+            endedAt: 2026-09-14T16:20:50.375Z
+        invocationId: v04-cross-agent-portability/S4/0/manual
+    blockReason: null
+    stopCondition: null
+  - id: S5
+    objective: Execute and persist the independent Codex to Claude Code to OpenCode continuity evaluation and prepare final acceptance.
+    acceptance:
+      - AC-7.6 and AC-7.7 are supported by a durable sanitized cross-agent trace and independent evaluator output.
+      - AC-7.9 records the same next Skill for the same repository state across supported harnesses.
+    dependsOn:
+      - S4
+    verify:
+      - command: pnpm
+        args:
+          - run
+          - eval:cross-agent
+        label: Cross-agent deterministic evaluation
+        timeoutMs: 900000
+      - command: pnpm
+        args:
+          - run
+          - check
+        label: Full repository regression check
+        timeoutMs: 900000
+    status: PASS
+    attempts:
+      - number: 1
+        epoch: 0
+        startedAt: 2026-09-14T16:20:50.375Z
+        endedAt: 2026-09-14T16:20:50.375Z
+        agent:
+          status: COMPLETED
+          summary: Real Codex, Claude Code, OpenCode, and Fresh Agent continuity evaluation completed with independent evaluator PASS.
+          changedFiles:
+            - scripts/cross-agent-evals.ts
+            - scripts/cross-agent-behavioral.ts
+            - references/experiments/cross-agent/cross-agent-continuity.json
+            - references/experiments/cross-agent/cross-agent-continuity.md
+            - src/core/schemas.ts
+            - schemas/cross-agent-continuity.schema.json
+          evidence:
+            - EV-20260914161845-56c0c9ba
+          stopCondition: null
+        verification:
+          - label: S5 deterministic cross-agent evaluations
+            command: pnpm
+            args:
+              - run
+              - eval:cross-agent
+            status: PASS
+            exitCode: 0
+            output: E401-E410 passed.
+            startedAt: 2026-09-14T16:20:50.375Z
+            endedAt: 2026-09-14T16:20:50.375Z
+          - label: S5 real cross-agent continuity field evaluation
+            command: pnpm
+            args:
+              - run
+              - eval:cross-agent:behavioral
+            status: PASS
+            exitCode: 0
+            output: BEHAVIORAL_PASS; independent evaluator and node --test passed.
+            startedAt: 2026-09-14T16:20:50.375Z
+            endedAt: 2026-09-14T16:20:50.375Z
+          - label: Full repository regression check
+            command: pnpm
+            args:
+              - run
+              - check
+            status: PASS
+            exitCode: 0
+            output: "pnpm run check exited 0: all deterministic suites and package smoke passed."
+            startedAt: 2026-09-14T16:20:50.375Z
+            endedAt: 2026-09-14T16:22:04.413Z
+        invocationId: v04-cross-agent-portability/S5/0/manual
+    blockReason: null
+    stopCondition: null
+approval:
+  approvedAt: 2026-09-14T15:14:55.909Z
+  approvedBy: human
+  fingerprint: 1e59bcd6560a41e3b18074eb012df050e84be1e5b1a70a34f404ad5a5c89bfe3
+  contextFingerprint: 92747b3bb467a7fbe8ec41fdef932c49c423f63bad30b7aaaa84c27d7035f93c
+runEpoch: 0
+resumes: []
+failureBudget: 5
+failuresUsed: 0
+createdAt: 2026-09-14T15:14:55.404Z
+updatedAt: 2026-09-14T16:22:04.413Z

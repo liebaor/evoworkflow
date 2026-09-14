@@ -1,0 +1,276 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evoworkflow.dev/schema/cross-agent-continuity-v1.json",
+  "title": "evoworkflow Cross-Agent Continuity v1",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "generatedAt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "BEHAVIORAL_PASS",
+        "BEHAVIORAL_FAIL",
+        "UNVERIFIED"
+      ]
+    },
+    "baselineRevision": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "finalRevision": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "harnessSequence": {
+      "minItems": 4,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "codex",
+          "claude-code",
+          "opencode",
+          "fresh-agent"
+        ]
+      }
+    },
+    "invocationBoundary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sessions": {
+      "minItems": 4,
+      "maxItems": 4,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          },
+          "client": {
+            "type": "string",
+            "enum": [
+              "codex",
+              "claude-code",
+              "opencode",
+              "fresh-agent"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNVERIFIED",
+              "NOT_RUN"
+            ]
+          },
+          "invocation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "taskPackage": {
+            "type": "string",
+            "minLength": 1
+          },
+          "changedPaths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "verification": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "client",
+          "status",
+          "invocation",
+          "taskPackage",
+          "changedPaths",
+          "verification",
+          "summary",
+          "error"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "changedPaths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recovery": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNVERIFIED",
+            "NOT_RUN"
+          ]
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nextAction": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "status",
+        "objective",
+        "nextAction",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "evaluator": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNVERIFIED",
+            "NOT_RUN"
+          ]
+        },
+        "checks": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^EVAL-[A-Z0-9][A-Z0-9-]*$"
+              },
+              "category": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "UNVERIFIED",
+                  "NOT_RUN"
+                ]
+              },
+              "detail": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "category",
+              "status",
+              "detail"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "testCommand": {
+          "type": "string",
+          "minLength": 1
+        },
+        "testStatus": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNVERIFIED",
+            "NOT_RUN"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "checks",
+        "testCommand",
+        "testStatus"
+      ],
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "artifactSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "repository",
+    "status",
+    "baselineRevision",
+    "finalRevision",
+    "harnessSequence",
+    "invocationBoundary",
+    "sessions",
+    "changedPaths",
+    "recovery",
+    "evaluator",
+    "limitations",
+    "artifactSha256"
+  ],
+  "additionalProperties": false
+}

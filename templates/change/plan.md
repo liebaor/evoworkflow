@@ -9,11 +9,10 @@ currentTruthTargets: []
 
 ## Reuse analysis / 复用分析
 
-## Primary and affected modules / 主模块与受影响模块
+## Execution Slices / 执行切片
 
-## Expected blast radius / 预计影响范围
-
-## Vertical Slices / 垂直 Slice
+Declare the only machine-addressable execution Slice headings here. Narrative
+sections elsewhere in the Plan must not be used as Slice checkpoints.
 
 ### S1 — User-visible behavior
 
@@ -22,6 +21,15 @@ currentTruthTargets: []
 - Expected paths / 预期路径：
 - Verification / 验证：
 - Dependencies / 依赖：
+
+## Primary and affected modules / 主模块与受影响模块
+
+## Expected blast radius / 预计影响范围
+
+## Vertical Slices / 垂直 Slice
+
+The detailed execution Slice definitions are maintained in the `Execution
+Slices` section above.
 
 ## Unaffected behavior / 不受影响的行为
 

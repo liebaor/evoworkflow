@@ -3,6 +3,7 @@ import path from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
 
 import {createGoal, approveActiveGoal, resumeGoal} from '../src/repository/goals.js'
+import {approveArtifact} from '../src/repository/artifacts.js'
 import {writeYaml} from '../src/repository/io.js'
 import {activeGoalPath} from '../src/repository/managed.js'
 import {repositoryPaths} from '../src/repository/paths.js'
@@ -114,6 +115,44 @@ describe('persisted Goal lifecycle', () => {
     })
 
     await expect(approveActiveGoal(root, 'nightly')).rejects.toThrow('outside the approved Plan')
+  })
+
+  it('validates Goal Slices against the explicit execution section only', async () => {
+    const root = await temporaryRepository('goal-explicit-plan-slices')
+    await initializeRepository(root)
+    const changeRoot = await createActiveChange(root)
+    await writeFile(path.join(changeRoot, 'plan.md'), `---
+change: change-one
+status: AWAITING_APPROVAL
+approval: null
+---
+
+# Plan
+
+## Execution Slices
+
+### S1 — Canonical behavior
+
+## M4.3 — Setup and Doctor
+
+### ERROR
+### Session A — Codex
+`, 'utf8')
+    await createGoal(root, 'nightly', {
+      title: 'Explicit execution slices',
+      changeId: 'change-one',
+      adapter: 'codex',
+      slices: [{
+        id: 'S1',
+        objective: 'Deliver canonical behavior',
+        acceptance: ['Canonical behavior is observable'],
+        dependsOn: [],
+        verify: [{label: 'check', command: process.execPath, args: ['-e', 'process.exit(0)'], timeoutMs: 10_000}],
+      }],
+    })
+
+    await approveArtifact(root, 'change-one', 'plan', 'test human')
+    await expect(approveActiveGoal(root, 'nightly')).resolves.toEqual(expect.objectContaining({status: 'APPROVED'}))
   })
 
   it('detects drift between active Goal checkpoints and the State projection', async () => {

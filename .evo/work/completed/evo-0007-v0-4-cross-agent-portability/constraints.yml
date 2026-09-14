@@ -1,0 +1,640 @@
+schemaVersion: 1
+change: evo-0007-v0-4-cross-agent-portability
+generatedAt: 2026-09-14T16:22:22.011Z
+inputFingerprint: aef8e5d1f6e6affd0a9f72242afc46c7751c0c317f6b958fa2692b3627699a44
+inputs:
+  - .evo/decisions/current
+  - .evo/decisions/current/d-0001-human-controlled-phases.md
+  - .evo/decisions/current/d-0002-bounded-goal-execution.md
+  - .evo/decisions/working
+  - .evo/project.md
+  - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+  - .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md
+  - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+  - AGENTS.md
+  - README.md
+  - docs/architecture.md
+  - docs/operations.md
+  - docs/testing.md
+  - scripts/cross-agent-behavioral.ts
+  - scripts/phase2-evals.ts
+  - scripts/phase3-development-continuity.ts
+  - scripts/phase3-evals.ts
+  - scripts/phase3-ruoyi-behavioral.ts
+  - src/commands/init.ts
+  - src/core/goal.ts
+  - src/repository/consistency.ts
+  - src/repository/init.ts
+  - src/repository/scanner.ts
+freshness: CURRENT
+constraints:
+  - id: C-3f820c7559223099
+    type: HARD
+    topic: ac-7.1
+    statement: "**AC-7.1 Canonical Skills**：所有 EVO Skills 通过跨 Harness compatible validation；Repository 只维护一个 canonical `skills/` source。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 3f820c75592230992c6fc481310cfb81bcc300efe8015b45f37bf2a397d404aa
+  - id: C-aec89f625b327f9a
+    type: HARD
+    topic: ac-7.10
+    statement: "**AC-7.10 Distribution Quality**：Node 22/24 默认 CI、Phase 2/3 regressions、v0.4 deterministic eval、CLI/package smoke 全部 PASS；真实 cross-agent behavioral eval 单独保存并可复查。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: aec89f625b327f9a749d1b3c26cb483c00e2d1348899a804ffde5fc1a9d46e0c
+  - id: C-548ea247d11aa5fc
+    type: HARD
+    topic: ac-7.2
+    statement: "**AC-7.2 One Authority**：Codex/OpenCode 使用 `AGENTS.md`；Claude 仅通过薄 `CLAUDE.md -> @AGENTS.md` bridge；不存在复制的 Standing Rules Authority。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 548ea247d11aa5fccef025ad945c9ef91137c49acf5ec215dd5087d810c6f791
+  - id: C-33e06dc3b2f298a8
+    type: HARD
+    topic: ac-7.3
+    statement: "**AC-7.3 Setup Safety**：`evo agents setup` 默认只读 preview；`--apply` 只创建安全 adapter，不覆盖已有用户配置，冲突必须回到人工处理。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 33e06dc3b2f298a873cb9603be11aae52b75998bcb91990a7bb8dd0329059a45
+  - id: C-6d61c15b981ffa7e
+    type: HARD
+    topic: ac-7.4
+    statement: "**AC-7.4 Doctor**：`evo agents doctor` 能检测 invalid/missing skill、duplicate source、version drift、instruction bridge、CLI/client availability，并正确区分 ERROR/WARNING/INFO。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 6d61c15b981ffa7ee1a020de90419184969d8e1962dc3da02eb01a6491469b73
+  - id: C-7dd7ff6d2673c409
+    type: HARD
+    topic: ac-7.5
+    statement: "**AC-7.5 Universal Distribution**：同一版本 canonical EVO Skills 能被 Codex、Claude Code、OpenCode 正确发现，无需维护三套 Skill 内容。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 7dd7ff6d2673c409b4e4d6668b6dbda54dd19a62dbe07ed3e3191c2d07d8fff7
+  - id: C-c0cb10b790f373a9
+    type: HARD
+    topic: ac-7.6
+    statement: "**AC-7.6 Cross-Agent Recover**：Agent B 不读取 Agent A Chat，也能从 Repository 恢复 objective、state、constraints、evidence、chronology 和 next action。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: c0cb10b790f373a922cbd7d28370ae44f9f29aa76669a1988d8e74f6a89273c9
+  - id: C-2f210f5fc7adb75a
+    type: HARD
+    topic: ac-7.7
+    statement: "**AC-7.7 Cross-Agent Engineering Consistency**：真实 Codex -> Claude -> OpenCode 连续开发后，独立 evaluator 证明目标 Repository engineering language 没有显著 drift，并保留真实 build/test/evidence 边界。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 2f210f5fc7adb75ac2b9be4f985b2b3cfade962d0d0f5651f250b632793a040f
+  - id: C-3c3422a43ea64400
+    type: HARD
+    topic: ac-7.8
+    statement: "**AC-7.8 Safe Concurrency Boundary**：Skills、Docs、Doctor 明确 one checkout -> one writer；v0.4 不宣称支持共享 working tree 并发写入。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 3c3422a43ea64400c7cfde4671bf31b55c917b55da459540799e107a0416f93d
+  - id: C-9c51a7d15b74c40d
+    type: HARD
+    topic: ac-7.9
+    statement: "**AC-7.9 Router Consistency**：同一 Repository State 下，Codex/Claude/OpenCode 的 `ask-evo` 都路由到同一个 next Skill；自由语言可以不同。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 9c51a7d15b74c40dc5c6be55c22ddc2d9c8168c582d75f7c04bca6a4570128b9
+  - id: C-3046bbf15d118e14
+    type: REFERENCE
+    topic: architecture
+    statement: Use docs/architecture.md as the primary authority for architecture.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/project.md
+      - docs/architecture.md
+    fingerprint: 3046bbf15d118e144e6f749c3ae51ba57917288a0f5b65d46a07d3d6b016a7a6
+  - id: C-e565193ca2ce0bd2
+    type: REFERENCE
+    topic: consistency
+    statement: Follow the existing pattern at src/repository/consistency.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/repository/consistency.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - src/repository/consistency.ts
+    fingerprint: e565193ca2ce0bd2ea0cd340ceda97378e5d5ea418ec73fe7266756ca519dca9
+  - id: C-de6acb94d372aab4
+    type: REFERENCE
+    topic: cross-agent-behavioral
+    statement: Follow the existing pattern at scripts/cross-agent-behavioral.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/cross-agent-behavioral.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - scripts/cross-agent-behavioral.ts
+    fingerprint: de6acb94d372aab4edc724c8ece59819889237113b46c70a5db860b3b26fea1d
+  - id: C-728ead5d2685c0ba
+    type: REFERENCE
+    topic: goal
+    statement: Follow the existing pattern at src/core/goal.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/core/goal.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - src/core/goal.ts
+    fingerprint: 728ead5d2685c0bae5a5d88e539a3a861f0d7cd9486eb8ba064a92db4775af13
+  - id: C-017c85b3b4d0fb26
+    type: REFERENCE
+    topic: init
+    statement: Follow the existing pattern at src/repository/init.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/repository/init.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - src/repository/init.ts
+    fingerprint: 017c85b3b4d0fb2663a4936a6ce4829e1f47b1b3f5a514c57dcefa5aef2806d3
+  - id: C-61587ae439df4427
+    type: REFERENCE
+    topic: init
+    statement: Follow the existing pattern at src/commands/init.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/commands/init.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - src/commands/init.ts
+    fingerprint: 61587ae439df44277feec0382dc505f7bfc173f8685d8515f50c41957a4aab04
+  - id: C-6bdfa31493e231fb
+    type: REFERENCE
+    topic: operations
+    statement: Use docs/operations.md as the primary authority for operations.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/project.md
+      - docs/operations.md
+    fingerprint: 6bdfa31493e231fb7ab266e42de6886bedb00c733a4fcf714a08720c51755c11
+  - id: C-9203b6b2a47be7e9
+    type: REFERENCE
+    topic: phase2-evals
+    statement: Follow the existing pattern at scripts/phase2-evals.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase2-evals.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - scripts/phase2-evals.ts
+    fingerprint: 9203b6b2a47be7e987ecd52fdb03bca238f6930d646facf07db8e1f6934a5ad8
+  - id: C-b39c0f54ff1843ee
+    type: REFERENCE
+    topic: phase3-development-continuity
+    statement: Follow the existing pattern at scripts/phase3-development-continuity.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase3-development-continuity.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - scripts/phase3-development-continuity.ts
+    fingerprint: b39c0f54ff1843eeaedffd571610d134f6ec8ba154106b214b5d2ba5cb021ccf
+  - id: C-d376b1cd5ecbd4a9
+    type: REFERENCE
+    topic: phase3-evals
+    statement: Follow the existing pattern at scripts/phase3-evals.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase3-evals.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - scripts/phase3-evals.ts
+    fingerprint: d376b1cd5ecbd4a9806a83332c04329e09aa0b7a2ad5ae2f83535c0f8fb3053a
+  - id: C-bbae5ef469ed8979
+    type: REFERENCE
+    topic: phase3-ruoyi-behavioral
+    statement: Follow the existing pattern at scripts/phase3-ruoyi-behavioral.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase3-ruoyi-behavioral.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - scripts/phase3-ruoyi-behavioral.ts
+    fingerprint: bbae5ef469ed897945485d15486aa1791d1e7980b954de3441c1b86c5ae5ecb7
+  - id: C-e0047ad27227bf22
+    type: REFERENCE
+    topic: project-overview
+    statement: Use README.md as the primary authority for project-overview.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/project.md
+      - README.md
+    fingerprint: e0047ad27227bf22d74bbc710cd81f5e98dbb71613716bc4aaf100ddc758a29d
+  - id: C-55cdc3e5adc305dc
+    type: HARD
+    topic: repository-rule-1e2c584d8ef8
+    statement: 初始化不破坏数据并且幂等；不覆盖已有项目指令和权威文档。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 55cdc3e5adc305dcb9e315e29d3918fb02bb02f63eb15f57f669b27b9bafdef1
+  - id: C-0d46ac71731bfae4
+    type: HARD
+    topic: repository-rule-246e6f7e720e
+    statement: Standard 和 Large 工作只能执行 `.evo/state.yml` 或活动 Goal 持久化的 `currentSlice`，不能根据文档顺序猜测。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 0d46ac71731bfae471428b1ee29234cbf30fb5eda43b2b20e8e66ffda3253b56
+  - id: C-565966002d55f698
+    type: HARD
+    topic: repository-rule-456dee1924e9
+    statement: "`src/commands/`：oclif 命令入口。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 565966002d55f698f7730d7d2f03009a6e11d6da6129f321d7e3ba2f276836bb
+  - id: C-67cfea961b858f84
+    type: HARD
+    topic: repository-rule-57d7c4cfac2f
+    statement: Goal 只接受已批准且没有歧义的 Slice；遇到问题会停止，成功结束于 `READY_FOR_REVIEW`，永远不是 `DONE`。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 67cfea961b858f843150c4a81b14bd6a06dab4fea8ec3da41737198ed33edf2a
+  - id: C-eef4840b9cf6664b
+    type: HARD
+    topic: repository-rule-6288d20e2c19
+    statement: "`src/validation/`：确定性项目检查和 Doctor 诊断。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: eef4840b9cf6664b6d83e3cec64a0b62c61ad6eeab88f25d97a10174b3339a1e
+  - id: C-5f72d9d0cc8b62b2
+    type: HARD
+    topic: repository-rule-66c0215a1296
+    statement: "`src/agents/`：Agent Adapter 约定和本地 CLI Adapter。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 5f72d9d0cc8b62b2d14514b57241b8433f0a663b9141bd71005ca026de8095db
+  - id: C-b0f44dfbb4515ae4
+    type: HARD
+    topic: repository-rule-6c70ae2a824e
+    statement: "`skills/`：面向结果的 Agent Skill；保持 `SKILL.md` 简洁，把条件性内容放到 references。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: b0f44dfbb4515ae40b7974a618aec0c81517f50f26a46a46e37190408bbf4ecd
+  - id: C-f1dd3634a38ed12d
+    type: HARD
+    topic: repository-rule-7e9b3c7eee42
+    statement: 当前文档描述当前行为；历史进入 Git、Decision、Postmortem 和已完成 Change 证据。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: f1dd3634a38ed12d1cfc3b97b3e98ea3b29702bcc151b6fc2cecd146c2e94bf4
+  - id: C-a87367ac974cc9e8
+    type: HARD
+    topic: repository-rule-a243de00346a
+    statement: "`src/repository/`：文件协议、仓库发现、初始化和模板。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: a87367ac974cc9e8a0cca4409430d2ade774eb093ef26a38b46d6e33a4f744fc
+  - id: C-a66f2f80720b2d12
+    type: HARD
+    topic: repository-rule-b3e31fe97a11
+    statement: "`schemas/`：Zod 权威生成的 JSON Schema 投影。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: a66f2f80720b2d1254ce52d7d8ee9a5ca5b59c67e5ae554467258dda8e9b6d36
+  - id: C-fb5c70ec1efb5863
+    type: HARD
+    topic: repository-rule-b51cd1e7b3b2
+    statement: 保持协议文档、Zod Schema、生成的 Schema、模板、CLI、Skill 和测试一致。新增行为必须有可观察测试。保留用户已有改动，除非用户明确要求，不要 commit。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: fb5c70ec1efb586338da05c2aac42f4a41a379af97b62b4bfbc6a6996ad2cf12
+  - id: C-87c5c342525e7077
+    type: HARD
+    topic: repository-rule-bd03ec5a8ee7
+    statement: "`src/core/`：Schema、状态转换、批准指纹、导航和 Goal 执行。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 87c5c342525e7077a7274d916036ce66ec5f88ff5d26deeaedba43d51f05e5b5
+  - id: C-2a9dc7b2d4a8083f
+    type: HARD
+    topic: repository-rule-c2fb2b9efa59
+    statement: 长期知识必须进入仓库。一个事实只能有一个主权威，其他文档链接到它。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 2a9dc7b2d4a8083f6fcfea806bf83645f9dd34084a2ca1b4c9d6254502531eec
+  - id: C-ff3664144ed0a512
+    type: HARD
+    topic: repository-rule-c40adf673f2f
+    statement: 人工拥有产品决策、批准、阶段转换、风险接受和副作用授权。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: ff3664144ed0a5125108fdf23275c761a41d6c9bda217876fc4bd8ac0ebb84a2
+  - id: C-07e5cef2cbcc6517
+    type: HARD
+    topic: repository-rule-ca907645a04a
+    statement: 没有命令或 Skill 会自动完成 Change、commit、merge、deploy 或扩大范围。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 07e5cef2cbcc6517c84d66c7fabacb4e0d8e996ca4c9fe5e40f3de5d0208fa41
+  - id: C-3b38d5f1e52b2c92
+    type: HARD
+    topic: repository-rule-cca1d02923c5
+    statement: "`templates/`：安装到受管理仓库的文件。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 3b38d5f1e52b2c92f3429d42e999749dca44604f37b3e1101733082dfbeae098
+  - id: C-937cbfa3e4e7f24d
+    type: HARD
+    topic: repository-rule-e0297f21bd90
+    statement: 除非已有批准 Decision，否则已有仓库模式和成熟能力优先于新抽象。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 937cbfa3e4e7f24df19b3f71ff7ca616fb5dfd6325f3416f7d051e01aeb74c06
+  - id: C-112a46892681b530
+    type: HARD
+    topic: repository-rule-e03ee8b7c39a
+    statement: "`src/repository/evidence.ts`：验收项精确映射、追加式证据记录和迁移兼容。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 112a46892681b530734ef6d9cd18277c00a62ba4ba87ff7df8b9f927997cf060
+  - id: C-cb16b7f4ec49beef
+    type: HARD
+    topic: repository-rule-f34daa02d5c9
+    statement: Evidence v2 记录 `PASS`、`FAIL`、`BLOCKED` 或 `NOT_RUN`；旧版 `UNVERIFIED` 仅在迁移期间兼容。声明不是证据。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: cb16b7f4ec49beeff02ad4e765bbef1354a762aa97d2e3f7cf7dddb1a762e99f
+  - id: C-c574206ddb7b391c
+    type: HARD
+    topic: repository-rule-f9c8feb2fcf6
+    statement: Agent 调查仓库事实，只执行当前已授权的工作。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: c574206ddb7b391ca92eb5912d35df5da8fc10b6d74a4ce78d00dc9c1be22f3e
+  - id: C-7a99e7ff119ae6c2
+    type: HARD
+    topic: repository-rule-fec3e143258c
+    statement: 批准绑定精确内容；实质编辑会使批准失效。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 7a99e7ff119ae6c261e219510231e4ec22becf7a53692434449c3c53376167c0
+  - id: C-b5b1ea8d51d6eca8
+    type: REFERENCE
+    topic: scanner
+    statement: Follow the existing pattern at src/repository/scanner.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/repository/scanner.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - src/repository/scanner.ts
+    fingerprint: b5b1ea8d51d6eca827b5a48260794dd0804b2db7d64cf69e794d59f3e57bd9f5
+  - id: C-e20255b408e9f1ea
+    type: HARD
+    topic: scope/1d6d36719980
+    statement: 不复制 `AGENTS.md` 为三份 Repository Rules。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: e20255b408e9f1eadf018f71e40cdb28101802883b1a3d0f89866635ede52673
+  - id: C-e305ab5c91cdfbd8
+    type: HARD
+    topic: scope/440e2dc85874
+    statement: 不自动产品/架构/安全 Decision，不自动 Finish/merge/release/deploy。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: e305ab5c91cdfbd85be4b94e300372d779ccfb89fec1ebe4f06532d9899658b0
+  - id: C-294f03ac9b38a7ed
+    type: HARD
+    topic: scope/65f446c32c0d
+    statement: 不维护 `skills-codex/`、`skills-claude/`、`skills-opencode/`。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 294f03ac9b38a7eda2fe20a8870562c0d35d6b61becb1ae7cd2a0e1aa52b0b26
+  - id: C-e9ccd25e39b400b6
+    type: HARD
+    topic: scope/70853db38679
+    statement: 不自研通用 Agent Runtime、context compression、tool search、subagent scheduler。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: e9ccd25e39b400b690a47dc984c699ff91581e1aa4fa107ac39f0043b1e312fc
+  - id: C-29b2448f4c67577b
+    type: HARD
+    topic: scope/9d25184999de
+    statement: 不新增 Agent-specific project memory 作为工程 Authority。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 29b2448f4c67577bd7367e22cb24bf91239703fdbefd8c3b1c83ffd1990b9914
+  - id: C-a522f4e8c5368202
+    type: HARD
+    topic: scope/9df8cf26eea0
+    statement: 不把 installed-agent facts 持久化进 `.evo/state.yml`。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: a522f4e8c5368202f9cbbb2de2cad402a752f1b5da49fd814c79b256b323bd1f
+  - id: C-93fc0884cfd6a126
+    type: HARD
+    topic: scope/non-goal/171e4e5083e8
+    statement: 不做 cloud control plane、central DB、Vector DB/RAG、Web UI。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 93fc0884cfd6a126f1e42faefa6bdc3e49223702cd4815cd8fb6c7616da75aa5
+  - id: C-48bb2814ff6359f8
+    type: HARD
+    topic: scope/non-goal/a47d2776bc37
+    statement: 不做 multi-agent swarm 或同 checkout 并发 mutation。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: 48bb2814ff6359f89c1ce22c9eb9698d8c11dc7860ee6cd60c77dbb612234b66
+  - id: C-d08fa20d854679d4
+    type: HARD
+    topic: scope/non-goal/f6df2154f72a
+    statement: 不做 Agent 排名系统。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    fingerprint: d08fa20d854679d4bfca6334654715cfb5be6c0693c413698901f41b755109a5
+  - id: C-6291c90f7dfeb375
+    type: REFERENCE
+    topic: standing-rules
+    statement: Use AGENTS.md as the primary authority for standing-rules.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/project.md
+      - AGENTS.md
+    fingerprint: 6291c90f7dfeb3758bb0e02863c06d4238b6d04ead9f12e7eb67eddf9bc859e3
+  - id: C-dcc52ef8add7d75b
+    type: REFERENCE
+    topic: testing
+    statement: Use docs/testing.md as the primary authority for testing.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - .evo/project.md
+      - docs/testing.md
+    fingerprint: dcc52ef8add7d75bf9e51057bccb25a89aa5c9907472cbc4c06c47ef7579f77c

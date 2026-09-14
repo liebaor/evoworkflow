@@ -1,0 +1,57 @@
+schemaVersion: 2
+change: evo-0007-v0-4-cross-agent-portability
+updatedAt: 2026-09-14T16:18:45.432Z
+acceptance:
+  - id: AC-7.1
+    status: PASS
+    evidenceRefs:
+      - EV-20260914152131-19fae791
+    limitations: []
+  - id: AC-7.10
+    status: PASS
+    evidenceRefs:
+      - EV-20260914161834-f656a8ec
+    limitations: []
+  - id: AC-7.2
+    status: PASS
+    evidenceRefs:
+      - EV-20260914152813-b0aed048
+    limitations: []
+  - id: AC-7.3
+    status: PASS
+    evidenceRefs:
+      - EV-20260914153433-df33e6e9
+    limitations: []
+  - id: AC-7.4
+    status: PASS
+    evidenceRefs:
+      - EV-20260914152813-b0aed048
+    limitations: []
+  - id: AC-7.5
+    status: PASS
+    evidenceRefs:
+      - EV-20260914161834-f656a8ec
+    limitations: []
+  - id: AC-7.6
+    status: PASS
+    evidenceRefs:
+      - EV-20260914161845-56c0c9ba
+    limitations: []
+  - id: AC-7.7
+    status: PASS
+    evidenceRefs:
+      - EV-20260914161845-56c0c9ba
+    limitations: []
+  - id: AC-7.8
+    status: PASS
+    evidenceRefs:
+      - EV-20260914153433-df33e6e9
+    limitations: []
+  - id: AC-7.9
+    status: PASS
+    evidenceRefs:
+      - EV-20260914152131-19fae791
+      - EV-20260914161845-56c0c9ba
+    limitations: []
+inputFingerprint: f83d5c87a798e3f9b08a09684a702dc022ad25c3dae407c693a9ef7fc7e7f812
+freshness: CURRENT

@@ -33,6 +33,145 @@ export type RepositorySchemaVersion = z.infer<typeof RepositorySchemaVersionSche
 export const ChangeWeightSchema = z.enum(['SMALL', 'STANDARD', 'LARGE'])
 export type ChangeWeight = z.infer<typeof ChangeWeightSchema>
 
+export const SkillCategorySchema = z.enum(['router', 'discovery', 'planning', 'execution', 'verification', 'delivery', 'resilience', 'workflow'])
+export type SkillCategory = z.infer<typeof SkillCategorySchema>
+
+export const SkillManifestEntrySchema = z.object({
+  name: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+  category: SkillCategorySchema,
+  sha256: z.string().regex(/^[a-f0-9]{64}$/),
+})
+export type SkillManifestEntry = z.infer<typeof SkillManifestEntrySchema>
+
+export const SkillManifestSchema = z.object({
+  schemaVersion: z.literal(1),
+  evoVersion: z.string().regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/),
+  skills: z.array(SkillManifestEntrySchema),
+}).superRefine((value, context) => {
+  const names = new Set<string>()
+  for (const [index, skill] of value.skills.entries()) {
+    if (names.has(skill.name)) context.addIssue({code: 'custom', message: `Duplicate Skill name ${skill.name}.`, path: ['skills', index, 'name']})
+    names.add(skill.name)
+  }
+})
+export type SkillManifest = z.infer<typeof SkillManifestSchema>
+
+export const AgentClientSchema = z.enum(['codex', 'claude-code', 'opencode'])
+export type AgentClient = z.infer<typeof AgentClientSchema>
+
+export const AgentExecutableStatusSchema = z.enum(['FOUND', 'MISSING'])
+export type AgentExecutableStatus = z.infer<typeof AgentExecutableStatusSchema>
+
+export const AgentClientObservationSchema = z.object({
+  client: AgentClientSchema,
+  executable: AgentExecutableStatusSchema,
+  version: z.string().min(1).nullable(),
+  instructionSources: z.array(z.string()),
+  skillSources: z.array(z.string()),
+})
+export type AgentClientObservation = z.infer<typeof AgentClientObservationSchema>
+
+export const AgentDiagnosticSeveritySchema = z.enum(['ERROR', 'WARNING', 'INFO'])
+export type AgentDiagnosticSeverity = z.infer<typeof AgentDiagnosticSeveritySchema>
+
+export const AgentDiagnosticSchema = z.object({
+  code: z.string().regex(/^[A-Z][A-Z0-9_]+$/),
+  severity: AgentDiagnosticSeveritySchema,
+  client: AgentClientSchema.nullable(),
+  path: z.string().nullable(),
+  message: z.string().min(1),
+})
+export type AgentDiagnostic = z.infer<typeof AgentDiagnosticSchema>
+
+export const SkillManifestRelationSchema = z.object({
+  status: z.enum(['CURRENT', 'MISSING', 'STALE', 'INVALID']),
+  expectedVersion: z.string().min(1).nullable(),
+  actualVersion: z.string().min(1).nullable(),
+  driftedSkills: z.array(z.string()),
+})
+export type SkillManifestRelation = z.infer<typeof SkillManifestRelationSchema>
+
+export const AgentCompatibilityReportSchema = z.object({
+  schemaVersion: z.literal(1),
+  generatedAt: z.string().min(1),
+  repository: z.string().min(1),
+  canonicalInstruction: z.string().nullable(),
+  clients: z.array(AgentClientObservationSchema),
+  manifest: SkillManifestRelationSchema,
+  duplicateSkillIds: z.array(z.string()),
+  diagnostics: z.array(AgentDiagnosticSchema),
+  recommendedNextAction: z.string().min(1),
+})
+export type AgentCompatibilityReport = z.infer<typeof AgentCompatibilityReportSchema>
+
+export const AgentSetupActionSchema = z.enum(['CREATE_CLAUDE_BRIDGE', 'ALREADY_CONFIGURED', 'NEEDS_HUMAN_MERGE', 'BLOCKED'])
+export type AgentSetupAction = z.infer<typeof AgentSetupActionSchema>
+
+export const AgentSetupReportSchema = z.object({
+  schemaVersion: z.literal(1),
+  generatedAt: z.string().min(1),
+  repository: z.string().min(1),
+  mode: z.enum(['PREVIEW', 'APPLIED']),
+  action: AgentSetupActionSchema,
+  path: z.string().nullable(),
+  content: z.string().nullable(),
+  reason: z.string().min(1),
+  installGuidance: z.string().min(1),
+})
+export type AgentSetupReport = z.infer<typeof AgentSetupReportSchema>
+
+export const CrossAgentOutcomeSchema = z.enum(['PASS', 'FAIL', 'UNVERIFIED', 'NOT_RUN'])
+export type CrossAgentOutcome = z.infer<typeof CrossAgentOutcomeSchema>
+
+export const CrossAgentSessionSchema = z.object({
+  id: z.enum(['A', 'B', 'C', 'D']),
+  client: z.enum(['codex', 'claude-code', 'opencode', 'fresh-agent']),
+  status: CrossAgentOutcomeSchema,
+  invocation: z.string().min(1),
+  taskPackage: z.string().min(1),
+  changedPaths: z.array(z.string()),
+  verification: z.array(z.string()),
+  summary: z.string().min(1),
+  error: z.string().nullable(),
+})
+export type CrossAgentSession = z.infer<typeof CrossAgentSessionSchema>
+
+export const CrossAgentEvaluatorCheckSchema = z.object({
+  id: z.string().regex(/^EVAL-[A-Z0-9][A-Z0-9-]*$/),
+  category: z.string().min(1),
+  status: CrossAgentOutcomeSchema,
+  detail: z.string().min(1),
+})
+export type CrossAgentEvaluatorCheck = z.infer<typeof CrossAgentEvaluatorCheckSchema>
+
+export const CrossAgentContinuityTraceSchema = z.object({
+  schemaVersion: z.literal(1),
+  generatedAt: z.string().min(1),
+  repository: z.string().min(1),
+  status: z.enum(['BEHAVIORAL_PASS', 'BEHAVIORAL_FAIL', 'UNVERIFIED']),
+  baselineRevision: z.string().regex(/^[a-f0-9]{40}$/),
+  finalRevision: z.string().regex(/^[a-f0-9]{40}$/).nullable(),
+  harnessSequence: z.array(z.enum(['codex', 'claude-code', 'opencode', 'fresh-agent'])).min(4),
+  invocationBoundary: z.string().min(1),
+  sessions: z.array(CrossAgentSessionSchema).length(4),
+  changedPaths: z.array(z.string()),
+  recovery: z.object({
+    status: CrossAgentOutcomeSchema,
+    objective: z.string().min(1),
+    nextAction: z.string().min(1),
+    source: z.string().min(1),
+  }),
+  evaluator: z.object({
+    status: CrossAgentOutcomeSchema,
+    checks: z.array(CrossAgentEvaluatorCheckSchema).min(1),
+    testCommand: z.string().min(1),
+    testStatus: CrossAgentOutcomeSchema,
+  }),
+  limitations: z.array(z.string()),
+  artifactSha256: z.string().regex(/^[a-f0-9]{64}$/),
+})
+export type CrossAgentContinuityTrace = z.infer<typeof CrossAgentContinuityTraceSchema>
+
 export const EvidenceStatusSchema = z.enum(['PASS', 'FAIL', 'UNVERIFIED'])
 export type EvidenceStatus = z.infer<typeof EvidenceStatusSchema>
 

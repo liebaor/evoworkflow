@@ -5,6 +5,7 @@ import path from 'node:path'
 import {promisify} from 'node:util'
 
 import {pathExists} from '../src/repository/io.js'
+import {buildSkillManifest} from '../src/repository/skill-manifest.js'
 
 const execFile = promisify(execFileCallback)
 const packageRoot = path.resolve('.')
@@ -20,6 +21,7 @@ try {
   await execFile('pnpm', ['pack', '--pack-destination', packDirectory], {cwd: packageRoot, timeout: 120_000, maxBuffer: 2_000_000})
   const tarball = (await readdir(packDirectory)).find((name) => name.endsWith('.tgz'))
   if (!tarball) throw new Error('pnpm pack produced no .tgz artifact.')
+  await assertPackedDistribution(path.join(packDirectory, tarball))
   await execFile('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--no-package-lock', path.join(packDirectory, tarball)], {cwd: consumerRoot, timeout: 180_000, maxBuffer: 4_000_000})
   const cli = path.join(consumerRoot, 'node_modules', '@evoworkflow', 'cli', 'dist', 'index.js')
   if (!(await pathExists(cli))) throw new Error(`Packed CLI entry is missing: ${cli}`)
@@ -40,4 +42,23 @@ try {
 async function runCli(cli: string, args: readonly string[], cwd: string): Promise<void> {
   const result = await execFile(process.execPath, [cli, ...args], {cwd, timeout: 60_000, maxBuffer: 4_000_000})
   if (!String(result.stdout).trim()) throw new Error(`CLI command produced no output: evo ${args.join(' ')}`)
+}
+
+async function assertPackedDistribution(tarball: string): Promise<void> {
+  const result = await execFile('tar', ['-tzf', tarball], {timeout: 60_000, maxBuffer: 4_000_000})
+  const entries = new Set(result.stdout.split(/\r?\n/u).map((entry) => entry.replace(/^package\//u, '')).filter((entry) => entry.length > 0))
+  const manifest = await buildSkillManifest(packageRoot)
+  const required = [
+    'dist/index.js',
+    'dist/commands/agents/inspect.js',
+    'dist/commands/agents/setup.js',
+    'dist/commands/agents/doctor.js',
+    'skills/manifest.json',
+    ...manifest.skills.map((skill) => `skills/${skill.name}/SKILL.md`),
+  ]
+  const missing = required.filter((entry) => !entries.has(entry))
+  if (missing.length > 0) throw new Error(`Packed artifact is missing required universal distribution entries: ${missing.join(', ')}`)
+  const vendorCopies = [...entries].filter((entry) => /^(?:skills-(?:codex|claude|opencode)|(?:CODEX|OPENCODE)\.md$)/u.test(entry))
+  if (vendorCopies.length > 0) throw new Error(`Packed artifact contains vendor-specific Skill/authority copies: ${vendorCopies.join(', ')}`)
+  process.stdout.write(`PASS E315: packed artifact contains one canonical Skill set (${manifest.skills.length} Skills) and agent commands. / 打包产物包含一份 canonical Skill 集合和 Agent 命令。\n`)
 }
