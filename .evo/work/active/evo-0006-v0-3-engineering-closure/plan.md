@@ -3,615 +3,548 @@ change: evo-0006-v0-3-engineering-closure
 status: AWAITING_APPROVAL
 approval: null
 currentTruthTargets:
-  - path: src/core/schemas.ts
-    action: UPDATE
-    reason: Phase 3 machine-state contracts and compatibility fields.
-  - path: src/core/goal.ts
-    action: UPDATE
-    reason: Bounded per-Slice execution and READY_FOR_REVIEW boundary.
-  - path: src/repository/working-context.ts
-    action: UPDATE
-    reason: Fresh context and resolved-constraint routing.
-  - path: src/repository/constraints.ts
-    action: CREATE
-    reason: Rebuildable task-level engineering constraints.
-  - path: src/repository/freshness.ts
-    action: CREATE
-    reason: Derived-artifact input fingerprint and freshness checks.
-  - path: src/repository/acceptance-trace.ts
-    action: CREATE
-    reason: Acceptance to implementation, verification, and evidence mapping.
-  - path: src/validation/gates.ts
-    action: CREATE
-    reason: Protocol/project gates and candidate admission.
-  - path: src/repository/delivery.ts
-    action: CREATE
-    reason: Read-only and explicitly authorized Git chronology delivery.
-  - path: src/commands/commit.ts
-    action: CREATE
-    reason: evo-commit CLI boundary.
-  - path: src/repository/recovery.ts
-    action: UPDATE
-    reason: Fresh-session constraint, gate, freshness, and chronology handoff.
   - path: src/validation/doctor.ts
     action: UPDATE
-    reason: Report-first Phase 3 repository diagnostics.
+    reason: Detect implementation-ahead-of-approval without adding a new workflow state.
+  - path: src/repository/recovery.ts
+    action: UPDATE
+    reason: Explain out-of-band implementation recovery and preserve chronology.
+  - path: src/validation/gates.ts
+    action: UPDATE
+    reason: Keep project hard-gate promotion bound to registered deterministic checks and regressions.
+  - path: scripts/phase3-development-continuity.ts
+    action: CREATE
+    reason: Real code-changing long-horizon Brownfield continuity evaluation.
+  - path: references/experiments/phase3/development-continuity.json
+    action: CREATE
+    reason: Durable sanitized machine-readable behavioral trace.
+  - path: references/experiments/phase3/development-continuity.md
+    action: CREATE
+    reason: Human-readable summary that points to the raw trace and evidence boundaries.
   - path: scripts/phase3-evals.ts
-    action: CREATE
-    reason: Deterministic Phase 3 evaluation suite.
-  - path: scripts/phase3-ruoyi-smoke.ts
-    action: CREATE
-    reason: Clean-revision real RuoYi field evaluation.
-  - path: scripts/phase3-ruoyi-behavioral.ts
-    action: CREATE
-    reason: Real-Agent behavioral baseline and positive cross-framework evaluation.
-  - path: scripts/package-smoke.ts
-    action: CREATE
-    reason: Packed-artifact clean-install black-box smoke.
+    action: UPDATE
+    reason: Regression coverage for dogfood deviation detection and project-gate promotion safety.
+  - path: tests/goal-orchestration.test.ts
+    action: UPDATE
+    reason: Preserve bounded worker/review boundary if recovery diagnostics touch orchestration state.
+  - path: tests/gates.test.ts
+    action: UPDATE
+    reason: Verify only registered deterministic project checks can be promoted HARD.
+  - path: package.json
+    action: UPDATE
+    reason: Align final repository version with v0.3.0 before final acceptance.
+  - path: README.md
+    action: UPDATE
+    reason: Describe final v0.3 verified boundary and remaining explicit limitations.
+  - path: docs/testing.md
+    action: UPDATE
+    reason: Document long-horizon continuity eval and durable trace rules.
+  - path: docs/workflow-protocol.md
+    action: UPDATE
+    reason: Document implementation-ahead-of-approval recovery without retroactive authorization.
+  - path: docs/operations.md
+    action: UPDATE
+    reason: Document final Approval → Admission → Review → Finish → Delivery sequence.
 ---
 
-# Implementation plan / 实施计划
+# Phase 3 final closure plan / 三期最终收尾开发方案
 
-## 1. Reuse analysis / 复用分析
+## 0. Executive decision / 最终决策
 
-Phase 3 不重建 v0.2 已经存在的机制，而是先验证其真实 Agent 行为，再把已经证明有价值的能力收敛成稳定工程闭环。
+Phase 3 已经 Feature Complete。此 Plan 不再增加产品功能，而是把 v0.3 从“实现完成”推进到“工程证明完成”。
 
-优先复用：
+最终只做四件事：
 
-- `scanRepository` 与 `.evo/project.md`：Repository Grounding 与 Authority Map。
-- `buildWorkingContext`：任务上下文路由入口。
-- `analyzeRepositoryConsistency`：启发式 drift signal；不把统计推断直接升级为 hard fail。
-- Approval fingerprint、Evidence v2、Convergence：人工批准、证据和 Finish 的确定性基础。
-- Goal state/checkpoint、AgentAdapter：顺序 bounded execution 基础。
-- Doctor/Check：知识与协议健康检查入口。
-- Phase 2 eval harness、RuoYi/FastAPI fixtures：回归与跨框架验证基础。
-- `evo-finish`：继续负责 Engineering Completion；不吸收 Git commit/push 职责。
+1. **诚实恢复**：识别 EVO 自己出现的 implementation-ahead-of-approval，不新增状态机、不伪造历史批准。
+2. **补强真实证明**：新增一个真正修改产品代码的 long-horizon Development Continuity Eval。
+3. **固化反馈回路**：把行为 trace 持久化为 Evidence artifact，并把 Project HARD Gate 保持在可执行、可回归的保守边界。
+4. **用 EVO 完成 EVO**：exact approval → fresh artifacts/evidence → candidate admission → independent review → human acceptance → finish → final delivery → merge。
 
-## 2. Architectural rule / 三期架构规则
-
-Phase 3 统一采用五层架构：
-
-1. Repository Intelligence — What is true?
-2. Engineering Contract — What are we changing and what constraints apply?
-3. Deterministic Control — What is mechanically allowed and proven?
-4. Execution Backend — Let the agent work.
-5. Evaluation & Learning — Did it work and what should the repository learn?
-
-主链：
-
-`Repository → Working Context → Resolved Constraints → Change/Plan → Approval → Bounded Execution → Focused Verification → Acceptance Traceability → Candidate Admission → Independent Review → Human Acceptance → evo-finish → evo-commit/Push → Finding → Eval → Rule/Gate`
-
-关键原则：
-
-- Harness Is a Dependency, Not the Product.
-- Eval Before Enforcement.
-- Derived State Is Disposable.
-- Worker Cannot Accept Its Own Work.
-- Contract Strict, Method Flexible.
-
-## Vertical Slice checkpoints / 垂直 Slice 检查点
-
-### S1 — M3.1 Behavior Baseline & Field Evaluation
-
-建立真实 Brownfield 与跨框架行为基线，并区分确定性、行为性和运行时未知结果。
-
-### S2 — M3.2 Resolved Engineering Constraints
-
-解析带 source/scope/evidence/fingerprint 的任务级约束，处理冲突和新鲜度。
-
-### S3 — M3.3 Deterministic Control & Git Chronology
-
-落地 Protocol/Project Gate、Acceptance Trace、Candidate Admission 和 evo-commit 交付边界。
-
-### S4 — M3.4 Bounded Execution Integration
-
-将 fresh context、constraints、preflight、focused verification、postflight 和 checkpoint 接入 Goal。
-
-### S5 — M3.5 Change Resilience & Knowledge Learning
-
-验证 Delta/Bug/Recovery 的 freshness 与 Evidence 边界，并保留 Finding 晋升的人工控制。
-
-### S6 — M3.6 Doctor, Package Black-box & Release Readiness
-
-完成 Doctor、Phase 3 eval、RuoYi clean-revision 场景和 packed artifact 黑盒路径。
-
-## 3. Expected blast radius / 预计影响范围
-
-Primary：
-
-- `src/repository/working-context.ts`
-- 新增 resolved constraints / freshness 相关 deterministic primitives
-- `src/repository/consistency.ts`
-- validation/gate/admission 模块
-- `src/core/goal.ts`
-- `src/repository/goal-execution.ts`
-- Evidence / acceptance traceability
-- 新增 commit/delivery rendering primitive
-- Phase 3 eval scripts
-
-Affected：
-
-- CLI commands
-- core schemas / generated schemas
-- Skills（新增 `evo-commit`，必要时修订 verify/review/goal/recover）
-- README、Architecture、Testing、Operations
-- CI/package metadata
-
-Unaffected：
-
-- 用户项目的自动产品/架构/安全 Decision
-- 自动 merge/release/deploy/Finish
-- 通用 Agent Harness runtime
-- Multi-Agent parallel swarm
-
-持久化结构优先保持 schemaVersion 2 向后兼容；需要破坏性结构变化时必须提供显式 migration preview。
+完成这些以后，停止 Phase 3；任何新能力进入未来 Change，不继续塞进 v0.3。
 
 ---
 
-# M3.1 — Behavior Baseline & Field Evaluation
+# 1. Why this is the final plan / 为什么这是最终方案
+
+## 1.1 OpenAI Harness Engineering
+
+OpenAI 2026-02-11 的 Harness Engineering 经验强调：
+
+- Humans steer, agents execute；
+- Repository/环境必须成为 Agent 可读的系统事实源；
+- 工程师应设计 intent、feedback loop、tests 和 guardrails；
+- 机械 enforce architecture/invariants，而不是微操实现过程；
+- Agent autonomy 应建立在 testing、validation、review、feedback、recovery 之后。
+
+EVO 当前 Constraints/Freshness/Gates/Acceptance/Goal/Recovery 的方向是正确的；收尾不应再扩流程，而应证明这条反馈链真正闭合。
+
+## 1.2 OpenAI self-improving agents
+
+OpenAI 2026-05-27 的 self-improving tax agents 实践给出的关键循环是：
+
+`Production Trace → Human/Expert Correction → Finding → Eval → Scoped Engineering Task → Regression → Better Product`
+
+因此本次不把一次 finding 直接升级成新规则或新状态；先把 EVO 自己的流程偏差变成可观察 diagnostic，把 real development behavior 变成可重放 Eval，再决定是否长期机械化。
+
+## 1.3 Long-horizon work
+
+OpenAI 2026-06-25 对 Agent 工作模式的总结指出，工作单元已经从短对话转向 delegated long-horizon task。EVO 最重要的证明不是“Codex 能写一次 CRUD”，而是：
+
+- Session 断开后能恢复；
+- Requirement Delta 后旧证明会正确失效；
+- Bug 后能留下 regression；
+- Fresh Agent 只依赖 Repository/EVO/Git 就能继续；
+- 新代码仍延续同一个项目的工程语言。
+
+因此最终 Field Eval 必须是连续开发，而不是单次生成 demo。
+
+## 1.4 OpenAI Agents API
+
+OpenAI 2026-09-10 的 Agents API 把 context management、long-running session、tool orchestration、subagent mechanics 和 sandbox 等通用 Harness 能力交给持续演进的 Codex harness。
+
+所以本 Plan 明确禁止 EVO 在收尾阶段自研：
+
+- generic agent loop；
+- context compaction；
+- tool search；
+- subagent scheduler；
+- cloud sandbox/control plane。
+
+EVO 的差异化继续是 Repository Intelligence、Engineering Contract、Deterministic Control、Evidence、Acceptance、Knowledge Evolution。
+
+---
+
+# 2. Current verified baseline / 当前已验证基线
+
+以下能力视为已经实现，不重新开发：
+
+- Repository Grounding / Working Context；
+- Resolved Constraints：HARD / SOFT / REFERENCE / UNKNOWN / CONFLICT；
+- input fingerprint / CURRENT / STALE / MISSING / UNKNOWN / CONFLICT；
+- Protocol Gates / Project Signals；
+- Acceptance Traceability；
+- Candidate Admission；
+- bounded Goal + fresh preflight + focused verification + postflight + failure budget；
+- Worker success = READY_FOR_REVIEW；
+- `evo-recover` / `evo-doctor`；
+- Evidence v2；
+- `evo-finish` / `evo-commit` 分离；
+- E301-E315 deterministic suite；
+- Node 22/24 default CI；
+- packed-artifact clean-install smoke；
+- RuoYi/FastAPI real-Agent Repository Understanding baseline。
+
+这些不是本 Plan 的开发目标；本 Plan 只修闭环缺口。
+
+---
+
+# 3. F1 — Dogfood deviation detection & honest reconciliation
 
 ## Objective
 
-先建立 v0.2 在真实 Coding Agent 与真实 Repository 上的行为基线，再决定哪些规则值得机械化。
+处理当前真实 finding：Phase 3 实现已经存在，但 Change/Plan 仍未批准。
 
-## Required outcomes
+不能通过新增一个复杂 workflow state 或直接改 `.evo/state.yml` 来“修平历史”。系统要做的是检测事实、阻止错误 Finish，并给出可执行恢复路径。
 
-### Real Brownfield scenario
+## 3.1 No new workflow enum
 
-固定真实 RuoYi backend/frontend revision，在隔离副本执行：
+明确不新增：
 
-1. `evo init`
-2. Feature A：典型 CRUD/业务能力
-3. Feature B：包含 permission/data-scope/pagination/response/export 等已有机制
-4. Requirement Delta：修改一个明确业务边界
-5. Bug：必须包含 reproduction、failing evidence、root cause、regression
-6. 关闭 Session
-7. Fresh Agent / Fresh Context
-8. `evo recover`
-9. Feature C：与 A/B 同领域但新任务
-10. Review A vs C 的工程一致性
+- `RECOVERY_REQUIRED`
+- `IMPLEMENTED_OUTSIDE_PROTOCOL`
+- 其他仅为这次收尾服务的状态枚举。
 
-比较至少：Naming、API、Response、Permission、DataScope、Service/Mapper、Logging、Frontend API/Page、Domain Vocabulary、Testing。
+原因：当前已有 `AWAITING_APPROVAL`、Approval Gate、Freshness、Admission 和 Finish boundary，已经足够表达“现在不能继续收口”。
 
-### Cross-framework positive consistency
+新增的应该是 **diagnostic/finding**，不是新的状态机。
 
-使用真实或固定可复现的 FastAPI + React/Ant Design Pro 项目，验证：
+## 3.2 Detection
 
-- 不出现 RuoYi 机制泄漏；
-- Agent 能主动延续目标项目自己的 router/schema/service/exception/response/test 风格；
-- Actual Repository 高于通用知识与 framework stereotype。
+增加稳定 diagnostic code，例如：
 
-## Evidence model
+`IMPLEMENTATION_AHEAD_OF_APPROVAL`
 
-结果必须区分：
+触发条件使用可观察 Repository 事实，至少覆盖：
+
+- active Change 或 Plan 没有 current approval；并且
+- 同一 Change 已经存在实现型迹象之一：
+  - Evidence record 的 `git.changedPaths` 包含 `.evo/` / docs 之外的 source/test/script/schema/package path；
+  - Goal attempt 记录了产品/工程文件 changedFiles；
+  - 最近相关 Git chronology 含 `EVO-Change: <id>` checkpoint，且 checkpoint 明确发生在未批准阶段。
+
+不要求猜测人类主观意图。
+
+## 3.3 Behavior
+
+- Doctor：报告 finding，说明历史事实和恢复方法；report-first，不自动写状态。
+- Recover：在 blockers/next action 中明确说明“implementation exists before current approval”。
+- Goal/Admission/Finish：继续使用已有 approval/current gates 阻止未批准候选；不新增重复 gate。
+- Approval 后 diagnostic 可以解除当前 blocker，但 Git/Evidence chronology 保留过去发生过的偏差。
+
+## 3.4 Reconciliation semantics
+
+Human 现在执行 approval 的语义是：
+
+> “我审阅并批准当前 exact Change/Plan，允许从这个已存在的 implementation candidate 开始重新验证并完成收口。”
+
+它**不是**：
+
+> “过去的实现当时已经获得批准。”
+
+最终 Review/Delivery 的 Limitations/Engineering Notes 保留这条历史事实。
+
+## Tickets
+
+- EVO3-F101 Doctor diagnostic
+- EVO3-F102 Recovery explanation/next action
+- EVO3-F103 Regression fixture: unapproved + implementation evidence → finding
+- EVO3-F104 Regression fixture: current approval + rebuilt current artifacts → no active blocker
+
+## Verification
+
+- 不手改 state；
+- 未批准时 Candidate Admission 仍不能通过；
+- 诊断只基于可观察事实；
+- 批准后必须重新 build derived state/evidence，不能因为 approval 本身自动变 PASS。
+
+---
+
+# 4. F2 — Long-horizon Development Continuity Eval
+
+## Objective
+
+补足当前最大证据缺口：现有 behavioral baseline 证明 Agent “看懂并描述项目模式”，但没有证明 Agent 真正修改产品代码后仍能长期保持一致。
+
+新增 evaluator：
+
+`scripts/phase3-development-continuity.ts`
+
+它与现有 `phase3-ruoyi-behavioral.ts` 并存：
+
+- 旧 evaluator = Repository Understanding Behavioral Eval；
+- 新 evaluator = Real Development Continuity Eval。
+
+## 4.1 Fixed inputs
+
+- 固定 RuoYi backend revision；
+- 固定 RuoYi frontend revision；
+- clean temporary clone/archive；
+- evaluator 自己的 dedicated database/runtime（如果运行 runtime）；
+- 原始 checkout 只读；
+- 每次运行记录 exact revisions、Agent config、command、timestamps。
+
+## 4.2 Scenario
+
+使用一个小而真实、能体现 RuoYi 工程惯例的 Supplier/Inventory 类能力。具体业务命名可以在实现 evaluator 时微调，但场景结构固定：
+
+### Session A — Initial feature
+
+真正修改产品源码，完成一个 bounded vertical slice，例如 Supplier Category / Inventory Rule 的 CRUD 主路径。
+
+要求延续真实 Repository：
+
+- Controller naming / annotations；
+- AjaxResult/TableDataInfo 等 response/pagination；
+- permission；
+- Service/Mapper/XML；
+- logging/export pattern；
+- Vue API/page pattern；
+- domain vocabulary；
+- tests/build path。
+
+完成后在临时 repo 创建 checkpoint commit。
+
+### Session B — Requirement Delta
+
+修改一个已实现业务边界，例如：
+
+- threshold inclusive → exclusive；或
+- supplier status 从简单 enabled 变为 review/approved boundary。
+
+必须验证：
+
+- Change/Plan/Constraints/Evidence freshness 正确变化；
+- 只修改受影响 surface；
+- 不重写无关实现；
+- 新行为有 focused regression。
+
+### Session C — Bug / Regression
+
+对一个 permission/DataScope/boundary bug 建立：
+
+`failing reproduction → root cause → bounded fix → regression`
+
+真实入口无法安全运行时允许 `UNVERIFIED`，但 build/test/source evidence 必须独立存在。
+
+### Session D — Fresh Agent continuation
+
+关闭旧 Agent invocation；新 Agent 不获得旧聊天。
+
+只允许读取：
+
+- Repository；
+- `.evo/` current authorities/state；
+- Git chronology；
+- current Change/Decision/Evidence。
+
+执行 `evo recover` 后实现 follow-up feature，例如 export / additional endpoint / UI behavior。
+
+最终比较 Initial vs Fresh Feature 的工程一致性。
+
+## 4.3 Expected Change Boundary
+
+Evaluator 在 Agent 运行前声明允许的 path patterns，例如：
+
+- bounded Java module/controller/service/mapper/XML；
+- bounded frontend API/page；
+- dedicated SQL migration/test fixture；
+- `.evo/` work/evidence artifacts。
+
+Independent verifier 必须检查：
+
+`actual changed paths ⊆ expected change boundary`
+
+出现无解释的 auth/core/framework/global config 扩散时 FAIL 或 route to human。
+
+## 4.4 Independent verification
+
+至少包括：
+
+- backend compile/package；
+- frontend build；
+- focused tests / deterministic source assertions；
+- permission/response/DataScope/naming/reference checks；
+- Git diff / change-boundary check；
+- fresh-session recovery assertions；
+- A 与 D 的 cross-feature consistency comparison。
+
+如果 dedicated runtime 可安全启动，再记录：
+
+- MySQL/Redis/Spring Boot；
+- target API calls；
+- optional browser/UI。
+
+Runtime/UI 没跑必须保持 `UNVERIFIED`，不影响 build-level behavioral conclusion，但会成为 Limitations。
+
+## 4.5 Result vocabulary
+
+严格区分：
 
 - `DETERMINISTIC_PASS`
 - `BEHAVIORAL_PASS`
 - `BEHAVIORAL_FAIL`
-- `UNVERIFIED`
+- `BUILD_PASS` / `BUILD_FAIL`
+- `RUNTIME_PASS` / `RUNTIME_FAIL` / `UNVERIFIED`
+- `SOURCE_BOUNDARY_PASS` / `SOURCE_BOUNDARY_FAIL`
 
-模型自报完成不算 Evidence。
+Agent 自己说“done”永远不构成独立 PASS。
 
 ## Tickets
 
-- EVO3-001 Real RuoYi field fixture
-- EVO3-002 Feature A behavioral scenario
-- EVO3-003 Feature B behavioral scenario
-- EVO3-004 Requirement Delta scenario
-- EVO3-005 Bug/regression scenario
-- EVO3-006 Fresh-session Feature C
-- EVO3-007 Cross-feature consistency evaluator
-- EVO3-008 FastAPI positive convention scenario
-
-## Verification
-
-- 固定 revision / clean temporary copies
-- 可复查 prompts、adapter、results、Git diff 和 evidence output
-- 不能把 runtime 未执行路径写成 PASS
+- EVO3-F201 Continuity evaluator skeleton
+- EVO3-F202 Initial code-changing feature
+- EVO3-F203 Requirement Delta session
+- EVO3-F204 Bug failing/regression session
+- EVO3-F205 Fresh Agent continuation
+- EVO3-F206 Expected-change-boundary verifier
+- EVO3-F207 Cross-feature consistency evaluator
+- EVO3-F208 Optional isolated runtime verification
 
 ## Stop conditions
 
-- 只能通过硬编码 fixture 名称得到好结果；
-- 无法固定输入 revision；
-- Agent evaluation 无法区分 self-report 与 observable evidence。
+- 需要修改原始 input checkout；
+- 需要真实生产凭证/数据；
+- 只能通过 hard-coded final answer 而非 Repository behavior 得到 PASS；
+- Agent 修改 expected boundary 之外的关键系统且没有 human Decision；
+- evaluator 把 `UNVERIFIED` 自动提升成 PASS。
 
 ---
 
-# M3.2 — Resolved Engineering Constraints
+# 5. F3 — Durable behavioral trace
 
 ## Objective
 
-为每个 Standard/Large Change 构建一份最小、可追溯、可删除并重新生成的任务级 Engineering Constraints 派生视图。
+把核心 behavior evidence 从临时路径提升为 Repository 可复查的 production-like trace。
 
-## Core model
+## 5.1 Raw trace
 
-`ResolvedConstraint` 建议字段：
+最终成功 run 生成脱敏 JSON：
 
-- `id`
-- `type`: HARD | SOFT | REFERENCE | UNKNOWN | CONFLICT
-- `topic`
-- `statement`
-- `source`
-- `scope`
-- `evidence[]`
-- `fingerprint`
-- `confidence`（仅 SOFT/inference 可用）
+`references/experiments/phase3/development-continuity.json`
 
-## Source priority
+至少保存：
 
-`Explicit Decision > Explicit Project Authority > Approved Contract > Project Map > Representative Code > Inference`
+- evaluator schema version；
+- fixed revisions；
+- session/scenario ids；
+- objectives/acceptance；
+- Agent observable status；
+- verification results；
+- actual changed paths；
+- expected boundary；
+- build/runtime statuses；
+- recovery output summary；
+- fresh-session indicator；
+- cross-feature comparison；
+- limitations；
+- generated timestamp。
 
-## Rules
+不保存：
 
-- HARD 必须有明确 Authority；不能用模糊 confidence 冒充 hard rule。
-- Representative code 产生 SOFT/REFERENCE，不直接产生 HARD。
-- 同一事实 Authority 冲突时输出 CONFLICT 并停止 hard enforcement。
-- 只保存引用和解析结果，不复制完整 Authority 内容。
-- Working Context 输出 relevant constraints、unknowns、conflicts 和 references。
+- secrets/tokens/passwords；
+-完整 chain-of-thought；
+- 无必要的超长 stdout；
+- 临时数据库凭证。
 
-## Freshness
+## 5.2 Human-readable summary
 
-Constraints fingerprint 至少绑定：
+保存：
 
-- active Change/Spec fingerprint
-- relevant Decision fingerprints
-- relevant Authority fingerprints
-- Working Context inputs
+`references/experiments/phase3/development-continuity.md`
 
-任一关键输入变化后旧 constraints 为 STALE。
+只总结结论、环境、边界、limitations，并链接 JSON；不复制整份 raw trace。
+
+## 5.3 Evidence binding
+
+通过 Evidence v2 把 JSON/必要 summary 作为 artifact 记录：
+
+- repository-relative path；
+- SHA-256；
+- fixed revisions；
+- acceptance ids；
+- git snapshot；
+- result status。
+
+临时 `/tmp/...` 可以作为执行中间产物，但不能是唯一长期证据。
 
 ## Tickets
 
-- EVO3-101 ResolvedConstraint schema
-- EVO3-102 Authority resolver
-- EVO3-103 Decision resolver
-- EVO3-104 Reference-pattern resolver
-- EVO3-105 Conflict model
-- EVO3-106 Constraint fingerprint
-- EVO3-107 Working Context integration
-
-## Verification
-
-- Unit tests：priority、conflict、hard/soft boundary、freshness
-- RuoYi 与 FastAPI fixture eval
-- Derived constraints 删除后可 deterministically rebuild
+- EVO3-F301 JSON sanitizer/schema
+- EVO3-F302 durable raw result
+- EVO3-F303 evidence artifact binding
+- EVO3-F304 artifact hash regression
 
 ---
 
-# M3.3 — Deterministic Control & Git Chronology
+# 6. F4 — Conservative Project HARD Gate boundary
 
 ## Objective
 
-将真正确定的工程承诺做成 executable control，并增加独立 Git Delivery 层。
+不把三期收尾变成规则引擎项目，只修“prose 声明可以被误认为 regression proof”的边界。
 
-## 3.3.1 Gate model
+## 6.1 Default
 
-### Protocol Gates — 默认 Hard Fail
+- generated consistency/naming/architecture signals = WARNING；
+- no heuristic auto-promotion；
+- Human 仍可决定是否接受 warning 或修改项目 Authority。
 
-第一批：
+## 6.2 HARD promotion
 
-- Approval fingerprint current
-- Active/current Slice matches persisted state
-- Required Evidence exists and is current
-- Decision lifecycle/supersession valid
-- Acceptance coverage complete before admission/finish
-- Required convergence/current-truth obligations satisfied before Finish
+v0.3 只允许现有受控 `ProjectGateCheck` 枚举/registered deterministic checker 晋升 HARD。
 
-### Project Gates — 默认 Report Only
+增加一个极薄 registry，例如概念上：
 
-命名、架构相似性、项目 pattern 等默认只产生 warning。
+`ProjectGateCheck -> { deterministic: true, regressionId: 'E306-response-drift' }`
 
-只有满足以下五个条件才能晋升 HARD：
+`evaluateGatePromotion` 除现有五项外必须确认：
 
-1. Authoritative Source
-2. Deterministic Predicate
-3. Falsifying Case
-4. Negative Regression Test
-5. Remediation
+- check 在 registry 中；
+- checker 是 deterministic；
+- regressionId 对应默认 CI 中实际执行的 regression/eval。
 
-每个新增 hard gate 必须测试：valid → PASS；deliberate violation → FAIL；restore → PASS。
+`negativeRegression` prose 继续作为解释/导航，但不能独立证明可机械 enforce。
 
-## 3.3.2 Acceptance Traceability
+## 6.3 No gate DSL
 
-建立：
+v0.3 明确不支持：
 
-`Acceptance → Implementation Surface → Verification → Evidence → Current/Stale Status`
+- arbitrary predicate expression；
+- user-supplied executable gate code；
+- project gate plugin marketplace；
+- framework-specific rule packs。
 
-目的：避免 “tests green = requirement complete”。
-
-## 3.3.3 Candidate Admission
-
-在 Review 前执行 deterministic admission：
-
-- Hard Acceptance 是否都有 current Evidence
-- Hard Gates 是否通过
-- 是否有 UNKNOWN blocker
-- Approval 是否 stale
-- 是否存在无法解释的 scope expansion
-- 是否存在 self-proving-only evidence
-
-输出：`REVIEW_ADMITTED` 或 `NOT_READY`。
-
-## 3.3.4 evo-commit
-
-`evo-commit` 属于 Delivery，不属于 Finish。
-
-职责：
-
-1. Identify checkpoint（Change/Slice/Final delivery）
-2. Inspect actual Git diff
-3. Read existing EVO facts
-4. Render structured commit message
-5. Commit
-6. Explicitly authorized optional push
-
-Commit message：
-
-- subject: Conventional Commit-style engineering outcome
-- Context
-- Completed
-- Engineering Notes
-- Verification
-- Limitations
-- Next
-- trailers: EVO-Change / EVO-Slice / EVO-Phase / EVO-Evidence / EVO-Decision / EVO-Next
-
-原则：`Commit describes state. It does not create state.`
-
-禁止 evo-commit：
-
-- 宣布 Acceptance
-- Promote Decisions
-- Finish Change
-- merge/release/deploy/force-push
-- 新建 `.evo/commit-history/`
+这些需要独立 Future Change。
 
 ## Tickets
 
-- EVO3-201 Protocol Gate interface
-- EVO3-202 Approval gate
-- EVO3-203 Slice/state gate
-- EVO3-204 Evidence-current gate
-- EVO3-205 Acceptance traceability
-- EVO3-206 Candidate Admission
-- EVO3-207 Project gate promotion model
-- EVO3-208 `evo-commit` skill
-- EVO3-209 commit message renderer
-- EVO3-210 optional explicit push delivery
+- EVO3-F401 Built-in project-check registry
+- EVO3-F402 Promotion validation
+- EVO3-F403 valid → deliberate violation → restore regressions
+- EVO3-F404 Docs: WARNING-first semantics
 
 ---
 
-# M3.4 — Bounded Execution Integration
+# 7. F5 — Final self-dogfood closure
 
-## Objective
+这是 v0.3 真正的最终验收，不是新的功能开发。
 
-让 Goal 成为 Engineering Orchestrator，而不是另一个 Generic Agent Runtime。
+## Step 1 — Freeze
 
-## Execution boundary
+- 停止新增功能；
+- 当前 branch 保持 `phase3/v0.3-engineering-closure`；
+- 不 merge main；
+- 不手改 COMPLETED。
 
-EVO 控制：intent、authority、constraints、scope、stop conditions、evidence、state transition。
+## Step 2 — Review final contract
 
-Agent Harness 控制：reasoning、tool usage、context compression、generic agent loop、subagents/runtime mechanics。
+Human 审阅此 Change 和本 Plan 的 exact 内容。
 
-## Per-slice lifecycle
+确认重点：
 
-1. Load approved Change/Spec/Plan and current Slice
-2. Build fresh Working Context
-3. Resolve current Engineering Constraints
-4. Run Protocol preflight gates
-5. Send bounded task package to ExecutionBackend
-6. Run configured focused verification
-7. Run consistency signals + post-execution gates
-8. Record Evidence/checkpoint
-9. Decide next Slice or STOP
+- 当前 implementation-ahead-of-approval 被诚实记录；
+- approval 不是 retroactive authorization；
+- long-horizon eval 的范围可接受；
+- 不扩 Generic Harness。
 
-ExecutionBackend 与 EvaluatorBackend 应允许复用同一 adapter，但必须使用独立 invocation/fresh context。
+## Step 3 — Exact approval
 
-Worker success state 为 `READY_FOR_REVIEW`，不能写 ACCEPTED 或自动 Finish。
+执行现有批准机制：
 
-## Stop conditions
+- approve current Change；
+- approve current Plan；
+- 如存在 Spec 且参与当前 contract，也批准 exact Spec。
 
-- new requirement ambiguity
-- architecture/product/security Decision
-- destructive migration
-- breaking public contract
-- major unapproved dependency
-- HARD/CONFLICT constraint requiring human choice
-- stale approval/context
-- repeated adapter or verification failure
-- failure budget exhausted
+任何之后的 substantive contract edit 都让 approval stale，必须重新批准。
 
-## Tickets
+## Step 4 — Implement only F1-F4
 
-- EVO3-301 ExecutionBackend contract
-- EVO3-302 Evaluator isolation
-- EVO3-303 Goal preflight
-- EVO3-304 Per-slice context refresh
-- EVO3-305 Focused verification runner
-- EVO3-306 Post-execution gate
-- EVO3-307 Failure budget
-- EVO3-308 READY_FOR_REVIEW transition
+按顺序：
 
----
+`F1 deviation diagnostic → F2 continuity eval → F3 durable trace → F4 gate hardening`
 
-# M3.5 — Change Resilience & Knowledge Learning
+每个步骤：
 
-## Objective
+- narrow tests first；
+- relevant eval；
+- checkpoint commit；
+- 不提前 Finish。
 
-让 Requirement Change、Bug、Recovery 与长期知识晋升共享同一套 freshness/evidence/control 模型。
+## Step 5 — Align v0.3 metadata
 
-## Artifact freshness graph
+在最终 evidence 前：
 
-优先 fingerprint，不新增大量手工 `invalidated=true` 状态。
+- `package.json` version → `0.3.0`；
+- README/capability matrix 描述当前真实 verified boundary；
+- `private: true` 可保留，除非单独决定发布 npm；
+- 不因为 version 变更宣称 release 已发生。
 
-示例：
+## Step 6 — Rebuild derived state
 
-Requirement changes → Change fingerprint changes → affected Plan approval / Working Context / Constraints / Evidence / Goal checkpoint become STALE according to their input dependencies。
+基于最终代码重新生成/检查：
 
-未受影响 Evidence 如果 input fingerprint 仍匹配可以保留。
+- Working Context；
+- Resolved Constraints；
+- Freshness；
+- Acceptance Trace；
+- Protocol Gates；
+- Project Gate report；
+- Evidence reconciliation。
 
-## Requirement Delta
+所有旧 Evidence 都必须通过 input fingerprint 证明仍 current；否则重跑受影响 Evidence。
 
-继续：OLD / NEW / RETAIN / MODIFY / REMOVE / ADD。
+## Step 7 — Full verification
 
-Delta 后需要明确 affected acceptance/slices/contracts/data/API/docs，并重新计算 freshness。
-
-## Bug
-
-继续：
-
-`REPRODUCE → FAILING EVIDENCE → ROOT CAUSE → FIX → REGRESSION → REAL ENTRY PATH → LEARNING`
-
-不可验证真实入口继续保持 NOT_RUN/BLOCKED/UNVERIFIED，不得用静态 fixture 冒充。
-
-## Knowledge promotion
-
-`Observation → Finding → Repeated Finding → Eval → Rule/Decision → Mechanical Guardrail`
-
-单次 Review/Bug finding 不自动写入 AGENTS/conventions，也不自动生成 Gate。
-
-## Recover
-
-Fresh session recovery 增加：
-
-- constraint freshness/conflicts
-- gate status
-- approval freshness
-- current Evidence
-- current Slice
-- recent relevant EVO commit chronology
-- one recommended next human-controlled action
-
-继续保持 report-only，不自动恢复 Goal。
-
-## Tickets
-
-- EVO3-401 Artifact freshness graph
-- EVO3-402 Delta freshness propagation
-- EVO3-403 Evidence preservation rules
-- EVO3-404 Bug evidence binding
-- EVO3-405 Finding model
-- EVO3-406 Eval promotion model
-- EVO3-407 Recover integration
-
----
-
-# M3.6 — Doctor, Package Black-box & Release Readiness
-
-## Objective
-
-让 v0.3 能从真实打包产物安装、运行、诊断，并明确已验证与未验证能力。
-
-## Doctor — report first
-
-检查：
-
-- duplicate/conflicting authority
-- stale/zombie work
-- stale Working Context / Constraints
-- stale approvals
-- orphan/stale Evidence
-- invalid gate source
-- unresolved conflicts
-- broken Decision supersession
-- repeated findings that may deserve eval/promotion
-
-不自动做大规模 refactor 或 architecture migration。
-
-## Package black-box
-
-必须执行：
-
-`pnpm pack → clean temp directory → install packed artifact → evo --help → evo init → evo check → evo context → evo recover`
-
-核心 Evidence 测试用户真正安装到的 artifact，不只测试源码入口。
-
-## CI
-
-默认 `pnpm run check` 最终包含：
-
-- typecheck
-- unit/integration tests
-- build
-- CLI smoke
-- skill validation
-- schema validation
-- Phase 2 deterministic eval
-- Phase 3 deterministic eval
-- package smoke
-
-真实 Agent behavioral eval 单独运行和保存结果；在重复性、成本、稳定性被证明前不作为普通 PR hard gate。
-
-## Tickets
-
-- EVO3-501 Doctor stale-state checks
-- EVO3-502 Doctor knowledge checks
-- EVO3-503 package smoke
-- EVO3-504 clean-install CLI smoke
-- EVO3-505 Phase 3 eval CI
-- EVO3-506 Operations guide
-- EVO3-507 v0.3 capability matrix
-- EVO3-508 Release readiness
-
----
-
-# Phase 3 core evals
-
-- E301 Existing Pattern Continuation
-- E302 Fresh Session Feature
-- E303 Requirement Delta Invalidation
-- E304 Bug Regression
-- E305 Hard Gate Negative Regression
-- E306 Soft Signal Must Not Hard Fail
-- E307 Acceptance Traceability
-- E308 Stale Evidence Detection
-- E309 Stale Context/Constraints Detection
-- E310 Worker Cannot Self-Accept
-- E311 Checkpoint Commit
-- E312 Final Delivery Commit
-- E313 Cross-framework Positive Consistency
-- E314 Package Black-box
-- E315 Goal Stop on Human Decision
-
----
-
-# Implementation order
-
-`M3.1 → M3.2 → M3.3 → M3.4 → M3.5 → M3.6`
-
-Reason：先建立真实 Behavior Baseline，再解析约束，再把已经证明稳定的规则机械化；之后才增加 Goal 自主性。最后处理跨变更学习、诊断、分发与发布。
-
-# P0
-
-- Behavioral baseline
-- Resolved Constraints
-- Artifact fingerprint/freshness
-- Protocol Gates
-- Acceptance Traceability
-- Candidate Admission
-- `evo-commit`
-- Bounded Goal integration
-- Delta freshness
-- Bug regression
-- Fresh-session Recover
-- Phase 3 deterministic eval
-- Package black-box
-
-# P1
-
-- Advanced Doctor
-- Project Gate promotion
-- Additional Agent Adapters
-- More behavioral scenarios
-- Finding analytics
-
-# Verification strategy
-
-Focused：每个 Ticket/Slice 对应最窄 unit/integration/eval。
-
-Milestone admission：每个 milestone 完成后运行受影响模块检查、Phase 3 relevant eval，并使用 `evo-commit` 创建 checkpoint。
-
-Repository-wide before Finish：
+Repository-wide 必须运行：
 
 - `pnpm run typecheck`
 - `pnpm run test`
@@ -621,48 +554,235 @@ Repository-wide before Finish：
 - `pnpm run check:schemas`
 - `pnpm run eval:phase2`
 - `pnpm run eval:phase3`
-- package black-box smoke
+- `pnpm run eval:hardening`
+- `pnpm run smoke:package`
+- final Development Continuity Eval
 
-# Migration
+GitHub CI：Node 22 + Node 24 必须成功。
 
-优先兼容 schemaVersion 2。若必须新增不兼容状态：
+## Step 8 — Candidate Admission
 
-1. explicit migration plan
-2. preview before write
-3. deterministic migration tests
-4. rollback guidance
+运行 Candidate Admission。
 
-禁止 CLI 未预览静默重写用户 managed repository。
+必须满足：
 
-# Rollback
+- exact approvals CURRENT；
+- hard Protocol Gates PASS；
+- allowed Project HARD Gates PASS；
+- Acceptance Trace complete；
+- Evidence current；
+- derived freshness CURRENT；
+- no unresolved UNKNOWN/CONFLICT blocker。
 
-- 每个 milestone 保持独立可回退。
-- Project Gates 在晋升前使用 report-only。
-- 新 Goal integration 必须允许禁用而不破坏手动 Change 流程。
-- Behavioral eval 不作为普通 CI gate，直到可靠性有证据。
+目标：`REVIEW_ADMITTED`。
 
-# Stop conditions
+## Step 9 — Independent fresh-context Review
 
-- 需要把启发式 inference 当作 hard fact。
-- 需要复制现有 Authority 建第二套 conventions encyclopedia。
-- 需要自己实现通用 Harness runtime 才能继续。
-- 需要自动做产品、架构、安全、破坏性数据 Decision。
-- 需要并行 Agent 才能完成 v0.3。
-- 破坏 v0.2 repository 且没有明确 migration。
-- Eval 只能通过测试 fixture 专用硬编码成立。
+Reviewer 不读取实现 Agent 的旧聊天，仅使用 Repository/EVO/Evidence/Git chronology。
 
-# Definition of Done
+Review 至少检查：
 
-Phase 3 结束时必须证明：
+1. Intent/Acceptance：是否真的完成 AC-F1~AC-F8；
+2. Repository Fit：是否破坏一期/二期原则；
+3. Scope/Risk：F1-F4 是否越界、是否引入新 Harness/状态机/规则 DSL；
+4. Evidence：long-horizon eval 是否真的改代码、build/test、fresh session、change boundary；
+5. Distribution：packed artifact 与 Node matrix；
+6. Known limitations：runtime/UI 未验证是否诚实保留。
 
-- Fresh Agent 无旧 Chat 仍能恢复 objective/constraints/decisions/evidence/next action。
-- 跨 Session 新 Feature 保持目标 Repository 自己的工程语言。
-- HARD 与 SOFT/REFERENCE/UNKNOWN/CONFLICT 边界可解释且可测试。
-- 所有 hard gate 有 negative regression。
-- Worker 只能 READY_FOR_REVIEW，不能 self-accept。
-- Requirement Delta 后 stale/current 状态正确传播。
-- Bug 有 failing evidence + root cause + regression。
-- 至少一条 Finding → Eval → Rule/Decision → Gate 晋升链被真实证明。
-- `evo-finish` 与 `evo-commit` 边界保持清晰。
-- Git checkpoint 能让未来 Agent 理解阶段完成情况、Evidence、限制与 Next。
-- Packed artifact clean-install 主路径通过。
+Reviewer 只能给 Review 结论，不能代替 Human Acceptance。
+
+## Step 10 — Human Acceptance
+
+Human 明确接受：
+
+- 最终实现；
+- out-of-band history 说明；
+- behavioral/runtime limitations；
+- v0.3 Release boundary。
+
+没有 Human Acceptance，不执行 Finish。
+
+## Step 11 — evo-finish
+
+先 preview，再 `evo-finish --apply`。
+
+Finish 负责：
+
+- convergence；
+- Decision/current truth obligations；
+- archive active Change；
+- State → COMPLETED；
+- completion record。
+
+Finish 不 commit、不 push、不 merge。
+
+## Step 12 — Final delivery
+
+Finish 后使用 `evo-commit`：
+
+- checkpoint = FINAL_DELIVERY；
+- explicit paths；
+- structured Context/Completed/Verification/Limitations/Next；
+- trailers 指向 Change/Evidence/Decision；
+- push 只有显式授权才执行。
+
+## Step 13 — Merge main
+
+只有：
+
+`Finish COMPLETE + Final Delivery Commit + Remote CI PASS`
+
+三者都成立以后才 merge `phase3/v0.3-engineering-closure` → `main`。
+
+Merge 之后再次确认 main CI。
+
+---
+
+# 8. Final implementation order / 最终实施顺序
+
+`F1 → F2 → F3 → F4 → Metadata 0.3.0 → Fresh Evidence → Admission → Independent Review → Human Acceptance → Finish → Final Delivery → Main`
+
+不允许为了赶进度跳过 Admission/Review/Finish。
+
+---
+
+# 9. Priority
+
+## P0 — v0.3 Finish blockers
+
+- implementation-ahead-of-approval detection/recovery explanation；
+- real code-changing Development Continuity Eval；
+- durable behavioral trace + Evidence artifact hash；
+- conservative Project HARD promotion registry/regression binding；
+- exact approval + fresh evidence + candidate admission；
+- independent review + human acceptance；
+- package version/docs 0.3.0 alignment；
+- `evo-finish --apply`；
+- final delivery + Node 22/24 CI。
+
+## P1 — explicitly deferred
+
+- more Agent adapters；
+- more frameworks；
+- more behavioral scenarios；
+- automated finding analytics；
+- arbitrary project gate extension system；
+- multi-agent orchestration。
+
+P1 不阻塞 v0.3。
+
+---
+
+# 10. Regression/eval additions
+
+现有 E301-E315 保持。
+
+建议新增收尾编号：
+
+- **E316 Implementation Ahead of Approval**：未批准 + implementation evidence → diagnostic。
+- **E317 Reconciliation Does Not Auto-Pass**：approval 后旧 stale evidence 不会自动变 current。
+- **E318 Project HARD Registry**：未注册 heuristic check 不能晋升 HARD。
+- **E319 Durable Behavioral Artifact**：raw trace artifact 存在且 hash 可验证。
+- **E320 Development Continuity**：真实 code-changing A → Delta → Bug → Fresh C 完成，changed paths 在 expected boundary，build/test/evaluator 通过。
+
+其中 E320 是 field/behavioral eval，不进入每次普通 PR 的 hard CI，直到成本和重复性有足够证据；E316-E319 进入默认 deterministic CI。
+
+---
+
+# 11. Verification philosophy / 验证哲学
+
+继续坚持：
+
+- Verify the world, not the self-report.
+- Evidence must match the claim.
+- Test the shipping artifact.
+- Focused verification often; broader verification near Finish.
+- Real entry path 和 static/source evidence 分开报告。
+- UNVERIFIED 不是 FAIL，但绝不能伪装成 PASS。
+- Eval before enforcement。
+
+最终 continuity eval 的核心 claim 不是“RuoYi 所有功能都工作”，而是：
+
+> 在固定真实 Brownfield Repository 上，EVO 能让不同 Session 的 Agent 在真实代码修改、Requirement Delta、Bug 和恢复之后，仍受同一工程 Contract/Constraints/Evidence 控制，并继续使用该 Repository 自己的工程语言。
+
+---
+
+# 12. Migration & rollback
+
+## Migration
+
+- 优先保持 schemaVersion 2；
+- F1 diagnostic 不新增 workflow enum；
+- F4 registry 优先使用内部 TypeScript mapping，不引入新的用户持久化协议；
+- 若实际实现发现必须修改持久化 schema，立即 STOP，单独写 migration preview/tests/rollback，不在收尾中静默升级。
+
+## Rollback
+
+- F1/F4 是小范围 deterministic change，可独立回退；
+- F2/F3 主要是 evaluator/experiment artifact，不改变用户项目协议；
+- continuity eval 失败时不降低 acceptance 标准，记录 BEHAVIORAL_FAIL 并修 harness/contract 后重跑；
+- 不通过删除失败 Evidence 来获得 PASS。
+
+---
+
+# 13. Stop conditions
+
+立即停止并回到 Human Decision，如果收尾需要：
+
+- 新的产品需求；
+- 新的核心架构层；
+- 新 workflow state machine；
+- generic Agent Runtime；
+- arbitrary Gate DSL/plugin；
+- multi-agent parallel orchestration；
+- 生产凭证/危险数据操作；
+- breaking schema 无 migration；
+- 把 inference 当 hard fact；
+- 把失败/未验证结果改写成 PASS。
+
+这些都不属于 v0.3 closure。
+
+---
+
+# 14. Final Definition of Done / 最终完成定义
+
+只有以下全部成立，Phase 3 才能宣布完成：
+
+1. 当前 implementation-ahead-of-approval finding 被 EVO 自己检测并在最终 Review/chronology 中诚实记录。
+2. Human 已批准 exact final Change/Plan；没有 stale approval。
+3. 真实 code-changing long-horizon Brownfield continuity eval PASS：Feature → Delta → Bug/Regression → Fresh Recover → Follow-up Feature。
+4. Fresh Agent 不依赖旧 Chat，能从 Repository/EVO/Git 恢复 objective、constraints、evidence、next action。
+5. Actual changed paths 落在 approved/expected boundary；跨 Session 代码延续目标 Repository 的 naming/API/response/permission/data-scope/service/frontend/testing/domain language。
+6. 最终 behavioral raw trace 已脱敏持久化并由 Evidence artifact SHA-256 绑定。
+7. Project heuristic 默认 WARNING；任何 Project HARD checker 都是 registered deterministic check，并有默认 CI 中实际执行的 negative regression。
+8. Working Context、Constraints、Acceptance Trace、Evidence、Freshness 全部 current；Protocol hard gates PASS。
+9. Candidate Admission = `REVIEW_ADMITTED`。
+10. Fresh-context Independent Review 通过；Worker 没有 self-accept。
+11. Human Acceptance 已明确记录。
+12. `pnpm run check` 在 Node 22/24 CI 成功，packed-artifact clean install PASS。
+13. package/docs 对齐 v0.3.0；未发布 npm 时 `private: true` 可保留。
+14. `evo-finish --apply` 真正归档 Change 并产生 COMPLETED/completion record。
+15. final `evo-commit` 在 Finish 之后创建 Git Delivery；commit 不创建 Completion。
+16. Final remote CI PASS 后才 merge main；merge 后 main CI 再次 PASS。
+
+满足以上 16 条后，v0.3 停止开发并进入稳定使用/真实项目观察期。
+
+---
+
+# 15. After v0.3 / v0.3 之后
+
+不立即规划新的“大阶段”。先用 v0.3 在真实项目中运行，收集：
+
+`Trace → Finding → Repeated Pattern → Eval → Scoped Change`
+
+只有生产/真实项目 evidence 证明某个问题重复出现，才创建后续 Change。
+
+这保持 EVO 的长期原则：
+
+> Complexity Must Earn Its Keep.
+
+> Eval Before Enforcement.
+
+> Harness Is a Dependency, Not the Product.
+
+> Human Authority > Agent Autonomy.
