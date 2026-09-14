@@ -40,7 +40,8 @@ evoworkflow 是一套由人工驱动、AI 辅助执行、仓库持久化知识�
 - 二期 Resilience：记录 Requirement Delta、Bug 调查和中断恢复信息，保留批准失效与 `UNVERIFIED` 证据。
 - 二期评估：提供 E001-E012 确定性评估，以及只读 RuoYi Feature A/B 和 FastAPI + Ant Design Pro 跨框架检验。
 - 三期 Engineering Closure：提供可重建的 Resolved Constraints、freshness、Protocol/Project Gate、Acceptance Trace、Candidate Admission、bounded Goal preflight 和 Git chronology。
-- 三期评估：提供 E301-E315 确定性评估，以及从固定 Git revision clean archive 执行的 RuoYi backend/frontend 场景；真实 runtime、数据库、浏览器和 Agent 行为单独报告。真实 Agent 现场基线使用 `pnpm run eval:ruoyi:phase3:behavioral`，不作为普通 CI hard gate。
+- 三期 Engineering Closure：提供 E301-E319 确定性评估、implementation-ahead-of-approval diagnostic、保守的 Project HARD registry，以及从固定 Git revision clean archive 执行的真实代码变更连续性评估；E320 的真实 Agent 行为不作为普通 CI hard gate。
+- 三期的最终 verified boundary 是：`F1` 偏差诊断、`F2` Feature → Requirement Delta → Bug/Regression → Fresh Agent 的 Brownfield continuity、`F3` 脱敏 durable trace + Evidence SHA-256、`F4` deterministic Project HARD promotion。RuoYi runtime、数据库、浏览器和宿主环境缺失的 Java 17/frontend build 仍单独标记为 `UNVERIFIED`。
 - Greenfield 指导：先比较成熟方案，再决定是否需要自建基础设施。
 
 evoworkflow v0.3 仍不包含多 Agent 并行执行、云控制面板、中央数据库、自动产品或架构决策，也不会自动提交、合并、发布、部署或完成 Change。多仓库 Change Set 只是只读聚合检查；真实人工身份系统仍不在命令行测试范围内，人工批准继续由显式测试协议模拟。
@@ -104,6 +105,13 @@ pnpm run eval:ruoyi -- --backend-root /path/to/backend-archive --backend-revisio
 
 ```sh
 pnpm run eval:phase3
+pnpm run eval:phase3:continuity -- \
+  --backend-root /path/to/ruoyi-backend-git-root \
+  --backend-revision <40-char-commit> \
+  --frontend-root /path/to/ruoyi-frontend-git-root \
+  --frontend-revision <40-char-commit> \
+  --output references/experiments/phase3/development-continuity.json \
+  --summary references/experiments/phase3/development-continuity.md
 pnpm run eval:ruoyi:phase3 -- \
   --backend-root /path/to/ruoyi-backend-git-root --backend-revision <40-char-commit> \
   --frontend-root /path/to/ruoyi-frontend-git-root --frontend-revision <40-char-commit>
@@ -111,6 +119,8 @@ pnpm run smoke:package
 ```
 
 三期 RuoYi 评估会先用 `git archive` 固定指定 revision，再在临时副本中执行初始化、Feature A/B、Delta、Bug、Recovery 和 Feature C 的静态/确定性检查；不会修改输入仓库，也不会把未执行的 runtime、MySQL、浏览器或真实 Agent 结果写成 `PASS`。
+
+`eval:phase3:continuity` 使用固定 revision 的临时 Brownfield 副本，真正运行多个独立 Agent invocation 修改后端和前端源码，验证 Requirement Delta、注入 Bug 的失败回归、修复、`evo recover` 和 Fresh Agent follow-up。结果必须写入脱敏 JSON/Markdown trace；changed-path boundary、cross-feature consistency 和 runtime/build limitations 分开报告。输入 checkout 保持只读。
 
 真实 Agent 行为评估使用固定 revision 的临时组合副本，运行多个全新 Agent invocation 和一个 FastAPI/React 正向场景。Agent 只能写 `.evo/behavioral/` 评估材料；独立 verifier 检查真实源码引用、跨任务引用、Forbidden RuoYi 机制和产品源码完整性。命令需要额外提供 `--backend-root`、`--backend-revision`、`--frontend-root`、`--frontend-revision`，可用 `--output` 保存结构化结果。
 

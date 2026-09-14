@@ -45,6 +45,24 @@ export interface GatePromotionEvaluation {
   readonly reason: string
 }
 
+export interface ProjectGateRegistration {
+  readonly deterministic: true
+  readonly regressionId: string
+  readonly defaultCiCommand: string
+}
+
+/**
+ * The deliberately small v0.3 registry is the authority for HARD project checks.
+ * Heuristic checks remain usable as WARNING signals without being registered.
+ */
+export const PROJECT_GATE_REGISTRY: Readonly<Partial<Record<ProjectGateCheck, ProjectGateRegistration>>> = {
+  NO_RESPONSE_DRIFT: {
+    deterministic: true,
+    regressionId: 'E306',
+    defaultCiCommand: 'pnpm run eval:phase3',
+  },
+}
+
 export interface CandidateAdmissionOptions extends GateEvaluationOptions {
   readonly allowLegacyEvidence?: boolean
 }
@@ -133,7 +151,27 @@ export async function evaluateProjectGates(root: string, requestedChangeId?: str
     ? [makeGate('G-project-consistency', 'PROJECT', 'WARNING', 'Repository pattern consistency', 'PASS', 'No candidate consistency drift was observed.', evaluatedAt, consistency.referenceImplementations, 'Compare proposed changes with repository patterns.', 'Introduce a naming, response, permission, or blast-radius drift.', 'Review the signal and either reuse the pattern or document an approved exception.', consistency.referenceImplementations)]
     : consistency.findings.map((finding, index) => makeGate(`G-project-${finding.code.toLowerCase()}-${index + 1}`, 'PROJECT', 'WARNING', finding.code, 'WARN', finding.detail, evaluatedAt, finding.evidence, 'Evaluate the repository consistency predicate.', 'Create the deliberate pattern drift described by the finding.', finding.recommendation, finding.evidence))
   const definitions = await readProjectGateDefinitions(root)
-  const gates = [...heuristicGates, ...definitions.map((definition) => evaluateProjectGate(definition, consistency.findings, evaluatedAt))]
+  const definitionGates = definitions.flatMap((definition) => {
+    const promotion = evaluateGatePromotion(definition)
+    if (definition.enforcement === 'HARD' && !promotion.eligible) {
+      return [makeGate(
+        `G-${definition.id.toLowerCase()}-registry`,
+        'PROJECT',
+        'HARD',
+        `${definition.title} registration contract`,
+        'FAIL',
+        `HARD project gate ${definition.id} is not registered as a deterministic CI-backed check: ${promotion.reason}`,
+        evaluatedAt,
+        [definition.authority],
+        'Every HARD project gate must map to a registered deterministic checker and a default CI regression.',
+        'Persist a HARD gate whose check is not registered or whose regression is not executed by default CI.',
+        'Keep the gate at WARNING or register the deterministic checker and its CI regression before promotion.',
+        [definition.authority],
+      )]
+    }
+    return [evaluateProjectGate(definition, consistency.findings, evaluatedAt)]
+  })
+  const gates = [...heuristicGates, ...definitionGates]
   const hardStatus = aggregateStatus(gates, 'HARD')
   const report = GateReportSchema.parse({schemaVersion: 1, change: changeId, evaluatedAt, status: hardStatus === 'PASS' ? gates.some((gate) => gate.status === 'WARN') ? 'WARN' : 'PASS' : hardStatus, gates})
   if (options.persist) await writeYaml(gateReportPath(root, changeId, 'project'), report)
@@ -209,11 +247,34 @@ export async function candidateAdmission(root: string, requestedChangeId?: strin
   return result
 }
 
-/** Applies the five-part promotion contract before a project signal can become a HARD gate. */
+/** Applies the five-part contract plus the v0.3 registry before a project signal can become HARD. */
 export function evaluateGatePromotion(definition: ProjectGateDefinition): GatePromotionEvaluation {
-  const missing = requiredPromotionFields.filter((field) => definition[field].trim().length === 0)
-  if (missing.length > 0) return {eligible: false, missing, reason: `Missing ${missing.join(', ')}.`}
-  return {eligible: true, missing: [], reason: 'Authority, predicate, falsifying case, negative regression, and remediation are present.'}
+  const missing: string[] = requiredPromotionFields.filter((field) => definition[field].trim().length === 0).map(String)
+  if (definition.enforcement === 'HARD') {
+    const registration = PROJECT_GATE_REGISTRY[definition.check]
+    if (!registration) {
+      missing.push(`registry:${definition.check}`)
+      missing.push('deterministic checker')
+      missing.push('default CI regression')
+    } else {
+      if (!registration.deterministic) missing.push('deterministic checker')
+      if (registration.regressionId.trim().length === 0) missing.push('default CI regression')
+      if (registration.defaultCiCommand.trim().length === 0) missing.push('default CI command')
+    }
+  }
+  if (missing.length > 0) {
+    const registrationDetail = definition.enforcement === 'HARD' && !PROJECT_GATE_REGISTRY[definition.check]
+      ? `The ${definition.check} check has no registered deterministic checker or default CI regression.`
+      : `Missing ${missing.join(', ')}.`
+    return {eligible: false, missing, reason: registrationDetail}
+  }
+  return {
+    eligible: true,
+    missing: [],
+    reason: definition.enforcement === 'HARD'
+      ? `Authority, predicate, falsifying case, negative regression, remediation, registered deterministic checker, and CI regression ${PROJECT_GATE_REGISTRY[definition.check]?.regressionId ?? 'unknown'} are present.`
+      : 'Authority, predicate, falsifying case, negative regression, and remediation are present; WARNING does not require HARD promotion registry eligibility.',
+  }
 }
 
 /** Validates and persists a project gate definition only when its promotion contract is complete. */

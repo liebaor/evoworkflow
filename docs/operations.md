@@ -44,6 +44,8 @@ evo admission --root /path/to/project <change-id> --write
 
 `constraints --write`、`gate --write` 和 `admission --write` 只写入可删除、可重建的派生视图，不批准 Change、不解决 Decision，也不推进阶段。Protocol Gate 的冲突、未知、过期批准或缺失证据会阻止 bounded Goal；项目命名/架构信号默认保持 `WARNING`。只有保存了完整五项晋升材料并选择受支持确定性 `check` 的 Project Gate 才能使用 `HARD`；它会在 postflight 中失败关闭，普通启发式信号仍只记录 warning。
 
+三期收尾使用受控的 Project HARD registry。`authority`、`predicate`、`falsifyingCase`、`negativeRegression` 和 `remediation` 五项文字是必要解释，但文字本身不能晋升 HARD；还必须存在已注册的 deterministic checker、regression id，并由默认 CI 命令实际覆盖。没有注册 checker 的命名/架构 heuristic 始终是 `WARNING`。
+
 当 Change、Specification 或 Plan 到达 `AWAITING_APPROVAL` 时，先检查精确内容，再记录批准：
 
 ```sh
@@ -99,3 +101,22 @@ evo migrate --root /path/to/project --apply
 ```
 
 evoworkflow v0.3 不提供自动 release、deploy 或生产回滚；只读恢复报告也不代表外部运行已验证。
+
+## v0.3 最终收口
+
+最终顺序固定为：
+
+```text
+exact approval
+  -> F1/F2/F3/F4 implementation and focused verification
+  -> v0.3.0 metadata and fresh derived views/evidence
+  -> Candidate Admission = REVIEW_ADMITTED
+  -> independent fresh-context Review
+  -> explicit Human Acceptance
+  -> evo-finish --apply
+  -> evo commit --checkpoint FINAL_DELIVERY --apply --push
+  -> remote CI PASS
+  -> merge phase3/v0.3-engineering-closure into main
+```
+
+F1 发现的 implementation-ahead-of-approval 只能作为历史 finding 和恢复说明保留，不能由之后的批准追认。F2 的 continuity JSON/Markdown 是 Repository-owned trace；F3 绑定 Evidence artifact hash；F4 只允许受控 deterministic checker 晋升 Project HARD。Finish 之后才允许最终 delivery commit，远端 CI 通过之前不合并 main。

@@ -14,14 +14,17 @@ import {buildRecoveryReport} from '../src/repository/recovery.js'
 import {inspectFreshness} from '../src/repository/freshness.js'
 import {buildWorkingContext, writeWorkingContext} from '../src/repository/working-context.js'
 import {formatBugInvestigation, recordBugInvestigation} from '../src/repository/workflow-documents.js'
-import {initializeEvidence, reconcileEvidence, runEvidence} from '../src/repository/evidence.js'
+import {initializeEvidence, reconcileEvidence, recordEvidence, runEvidence} from '../src/repository/evidence.js'
 import {applyInitialization, planInitialization} from '../src/repository/init.js'
 import {createGoal, approveActiveGoal} from '../src/repository/goals.js'
 import {runStoredGoal} from '../src/repository/goal-execution.js'
 import {prepareDeliveryCheckpoint} from '../src/repository/delivery.js'
 import {pathExists, readYaml, writeYaml} from '../src/repository/io.js'
+import {formatMarkdownDocument, parseMarkdownDocument} from '../src/repository/markdown.js'
 import {repositoryPaths} from '../src/repository/paths.js'
 import {scanRepository} from '../src/repository/scanner.js'
+import {detectImplementationAheadOfApproval} from '../src/repository/deviation.js'
+import {sha256} from '../src/repository/git-snapshot.js'
 
 const execFile = promisify(execFileCallback)
 const roots: string[] = []
@@ -43,6 +46,9 @@ try {
   await evalCrossFrameworkConsistency()
   await evalPackagePrerequisite()
   await evalGoalHumanDecisionStop()
+  await evalImplementationAheadOfApproval()
+  await evalReconciliationDoesNotAutoPass()
+  await evalDurableBehavioralArtifact()
 } finally {
   await Promise.all(roots.map((root) => rm(root, {recursive: true, force: true})))
 }
@@ -160,6 +166,22 @@ async function evalSoftSignalBoundary(): Promise<void> {
   const restored = await evaluateProjectGates(root, 'phase3-change', {proposedText: 'return AjaxResult.success();'})
   ensure(restored.gates.find((gate) => gate.id === 'G-pg-response-convention')?.status === 'PASS', 'promoted project gate did not restore PASS')
   record('E306', 'DETERMINISTIC_PASS', 'Heuristic signals remain WARNING; a promoted deterministic project gate passes, fails on violation, and restores through the five-part promotion contract.')
+
+  const unregistered = ProjectGateDefinitionSchema.parse({
+    id: 'PG-naming-convention',
+    title: 'Naming convention',
+    check: 'NO_NAMING_DRIFT',
+    authority: 'src/controllers/UserController.java',
+    predicate: 'Changed controllers use the existing naming convention.',
+    falsifyingCase: 'A changed controller introduces an unrelated name.',
+    negativeRegression: 'The violating controller fixture fails the naming predicate.',
+    remediation: 'Reuse the observed naming convention or record a human Decision.',
+    enforcement: 'HARD',
+  })
+  const unregisteredPromotion = evaluateGatePromotion(unregistered)
+  ensure(!unregisteredPromotion.eligible && unregisteredPromotion.missing.some((item) => item.includes('registry')), 'unregistered heuristic check was eligible for HARD promotion')
+  await expectRejected(async () => admitProjectGate(root, unregistered), 'unregistered heuristic check was admitted as HARD')
+  record('E318', 'DETERMINISTIC_PASS', 'Only registered deterministic checks with a default CI regression can be promoted to HARD; heuristic naming remains outside the registry.')
 }
 
 async function evalAcceptanceTraceability(): Promise<void> {
@@ -295,6 +317,84 @@ async function evalGoalHumanDecisionStop(): Promise<void> {
   record('E315', 'DETERMINISTIC_PASS', 'Goal stops before worker invocation when a human Decision conflict is unresolved.')
 }
 
+async function evalImplementationAheadOfApproval(): Promise<void> {
+  const root = await preparedFixture('e316')
+  await initializeGit(root)
+  await writeFile(path.join(root, 'src', 'out-of-band.ts'), 'export const outOfBandImplementation = true\n', 'utf8')
+  await recordEvidence({
+    root,
+    changeId: 'phase3-change',
+    acceptance: ['AC-01'],
+    kind: 'unit',
+    label: 'out-of-band implementation signal',
+    status: 'PASS',
+    summary: 'The implementation file was observed after the last checkpoint.',
+    output: 'implementation signal',
+  })
+  const changePath = path.join(repositoryPaths(root).activeWork, 'phase3-change', 'change.md')
+  const planPath = path.join(repositoryPaths(root).activeWork, 'phase3-change', 'plan.md')
+  await writeFiles(root, {
+    '.evo/work/active/phase3-change/change.md': '---\nid: phase3-change\nweight: STANDARD\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Phase 3 inventory\n\nAn implementation exists before the current approval.\n',
+    '.evo/work/active/phase3-change/plan.md': '---\nchange: phase3-change\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Plan\n\n### S1 — Inventory behavior\n\nThe current implementation is awaiting approval.\n',
+  })
+  const state = await readYaml(repositoryPaths(root).state, StateSchema)
+  await writeYaml(repositoryPaths(root).state, {...state, activeChange: 'phase3-change', activeGoal: null, phase: 'PLAN', status: 'AWAITING_APPROVAL', currentSlice: null, slices: []})
+  const finding = await detectImplementationAheadOfApproval(root, 'phase3-change')
+  ensure(finding?.code === 'IMPLEMENTATION_AHEAD_OF_APPROVAL', 'implementation-ahead-of-approval was not detected')
+  ensure(finding.signals.some((signal) => signal.kind === 'EVIDENCE_RECORD' && signal.paths.includes('src/out-of-band.ts')), 'detector did not use the implementation evidence record')
+  ensure(/not retroactive authorization/u.test(finding.detail), 'deviation detail did not preserve the non-retroactive boundary')
+  ensure(await pathExists(changePath) && await pathExists(planPath), 'deviation fixture lost the unapproved authority files')
+  record('E316', 'DETERMINISTIC_PASS', 'Unapproved implementation evidence produces an explicit diagnostic and preserves the non-retroactive authorization boundary.')
+}
+
+async function evalReconciliationDoesNotAutoPass(): Promise<void> {
+  const root = await preparedFixture('e317')
+  await seedVerifiedArtifacts(root)
+  const changePath = path.join(repositoryPaths(root).activeWork, 'phase3-change', 'change.md')
+  const changed = await readFile(changePath, 'utf8') + '\nRequirement Delta remains a new input.\n'
+  await writeFile(changePath, changed, 'utf8')
+  const staleBeforeApproval = await reconcileEvidence(root, 'phase3-change')
+  ensure(staleBeforeApproval.issues.some((issue) => issue.code === 'STALE_RECORD'), 'stale evidence was not detected before reapproval')
+  const document = parseMarkdownDocument(changed, changePath)
+  document.data.status = 'AWAITING_APPROVAL'
+  document.data.approval = null
+  await writeFile(changePath, formatMarkdownDocument(document), 'utf8')
+  await approveArtifact(root, 'phase3-change', 'change', 'phase3 deterministic eval reapproval')
+  const afterApproval = await reconcileEvidence(root, 'phase3-change')
+  ensure(afterApproval.issues.some((issue) => issue.code === 'STALE_RECORD'), 'reapproval incorrectly made old evidence current')
+  ensure(!afterApproval.valid, 'stale evidence reconciliation incorrectly passed after reapproval')
+  record('E317', 'DETERMINISTIC_PASS', 'Reapproving changed authority does not auto-pass evidence produced against the previous input fingerprint.')
+}
+
+async function evalDurableBehavioralArtifact(): Promise<void> {
+  const root = await preparedFixture('e319')
+  await seedVerifiedArtifacts(root)
+  const relativeArtifact = 'references/experiments/phase3/development-continuity.json'
+  const artifactPath = path.join(root, relativeArtifact)
+  await writeFiles(root, {
+    [relativeArtifact]: JSON.stringify({schemaVersion: 1, status: 'BEHAVIORAL_PASS', target: {backendRevision: 'a'.repeat(40), frontendRevision: 'b'.repeat(40)}, sessions: [{id: 'A', verification: 'PASS'}], limitations: ['runtime UNVERIFIED']}) + '\n',
+  })
+  const parsed = JSON.parse(await readFile(artifactPath, 'utf8')) as {status?: string; target?: {backendRevision?: string; frontendRevision?: string}; limitations?: string[]}
+  ensure(parsed.status === 'BEHAVIORAL_PASS' && parsed.target?.backendRevision?.length === 40 && parsed.limitations?.includes('runtime UNVERIFIED') === true, 'durable artifact fixture did not contain the required sanitized trace fields')
+  const recordResult = await recordEvidence({
+    root,
+    changeId: 'phase3-change',
+    acceptance: ['AC-01'],
+    kind: 'other',
+    label: 'durable continuity trace artifact',
+    status: 'PASS',
+    summary: 'Sanitized continuity trace is bound as an Evidence artifact.',
+    artifacts: [relativeArtifact],
+  })
+  const artifact = recordResult.artifacts[0]
+  ensure(artifact !== undefined, 'durable trace Evidence record did not contain an artifact')
+  const copiedPath = path.join(root, artifact.path)
+  ensure((await sha256(await readFile(copiedPath))) === artifact.sha256, 'durable artifact SHA-256 did not verify')
+  await writeFile(copiedPath, 'tampered\n', 'utf8')
+  ensure((await sha256(await readFile(copiedPath))) !== artifact.sha256, 'artifact tamper regression did not change the computed hash')
+  record('E319', 'DETERMINISTIC_PASS', 'Sanitized behavioral trace is persisted as an Evidence artifact and its SHA-256 binding detects tampering.')
+}
+
 async function preparedFixture(name: string): Promise<string> {
   const root = await mkdtemp(path.join(tmpdir(), `evoworkflow-phase3-${name}-`))
   roots.push(root)
@@ -379,4 +479,13 @@ function record(id: string, status: string, detail: string): void {
 
 function ensure(condition: boolean, message: string): asserts condition {
   if (!condition) throw new Error(message)
+}
+
+async function expectRejected(operation: () => Promise<unknown>, message: string): Promise<void> {
+  try {
+    await operation()
+  } catch {
+    return
+  }
+  throw new Error(message)
 }

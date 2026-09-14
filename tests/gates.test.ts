@@ -68,6 +68,28 @@ describe('protocol and project gates', () => {
     expect(restored.gates.find((gate) => gate.id === 'G-pg-response')?.status).toBe('PASS')
   })
 
+  it('does not promote an unregistered heuristic check to HARD', async () => {
+    const definition = ProjectGateDefinitionSchema.parse({
+      id: 'PG-naming',
+      title: 'Naming convention',
+      check: 'NO_NAMING_DRIFT',
+      authority: 'src/controllers/UserController.java',
+      predicate: 'Changed controllers use the existing naming convention.',
+      falsifyingCase: 'A changed controller introduces an unrelated name.',
+      negativeRegression: 'The violating fixture fails the naming predicate.',
+      remediation: 'Reuse the existing naming convention or record a human Decision.',
+      enforcement: 'HARD',
+    })
+    const promotion = evaluateGatePromotion(definition)
+    expect(promotion.eligible).toBe(false)
+    expect(promotion.reason).toMatch(/registered deterministic checker/u)
+
+    const root = await temporaryRepository('unregistered-hard-gate')
+    await initializeRepository(root)
+    await createActiveChange(root)
+    await expect(admitProjectGate(root, definition)).rejects.toThrow(/cannot be admitted/u)
+  })
+
   it('blocks execution preflight on conflicting authority constraints', async () => {
     const root = await temporaryRepository('gate-conflict')
     await initializeRepository(root)

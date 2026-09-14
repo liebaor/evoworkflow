@@ -74,9 +74,11 @@ Resolved Constraints 是可删除、可重建的派生视图，不是新的 Auth
 
 把每个验收标准映射到实际证据。新协议使用 `evidence.yml` 作为机器权威、`evidence/records/*.yml` 保存追加式执行记录、`evidence.md` 保存人类可读摘要；状态为 `PASS`、`FAIL`、`BLOCKED` 或 `NOT_RUN`。每条记录绑定命令、退出码、输出哈希、Git 快照和可选产物哈希。Acceptance Trace 进一步连接 `Acceptance -> implementation surface -> verification -> Evidence`，并根据指纹标明 `CURRENT` 或 `STALE`。旧版 `evidence.md` 的 `UNVERIFIED` 在迁移期间只读兼容，不得当作新的证据格式继续扩展。
 
+如果活动 Change/Plan 尚未获得 current approval，但 Repository 已出现实现型 Evidence、Goal changedFiles 或带 Change trailer 的实现 checkpoint，Doctor 报告 `IMPLEMENTATION_AHEAD_OF_APPROVAL`，Recover 解释历史事实和下一步。这个 finding 不新增 workflow state；之后的 exact approval 只允许重新验证当前 candidate，不追认过去的实现。旧 Evidence 在新 Contract 下 stale 时必须重跑或明确保留为历史记录，不能通过删除失败记录获得 PASS。
+
 ### REVIEW
 
-检查规格一致性、现有模式复用、范围纪律、改动局部性、约定泄漏、不必要复杂度、Consistency 候选信号、实际与预期影响范围以及证据质量。Candidate Admission 只把满足硬 Protocol Gate、Acceptance Trace 和 freshness 条件的候选交给 Review；项目命名/架构信号默认是 `WARNING`，不能仅凭启发式统计阻断。评审报告问题，不静默修复。
+检查规格一致性、现有模式复用、范围纪律、改动局部性、约定泄漏、不必要复杂度、Consistency 候选信号、实际与预期影响范围以及证据质量。Candidate Admission 只把满足硬 Protocol Gate、Acceptance Trace 和 freshness 条件的候选交给 Review；项目命名/架构信号默认是 `WARNING`，不能仅凭启发式统计阻断。只有 registry 中的 deterministic checker 加上默认 CI regression 才能晋升 Project HARD。评审报告问题，不静默修复。
 
 ### FINISH
 
