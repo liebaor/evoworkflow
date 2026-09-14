@@ -63,8 +63,12 @@ export async function approveArtifact(
     status: 'APPROVED',
     updatedAt: now.toISOString(),
   }
-  if (kind === 'plan' && nextState.slices.length === 0) {
+  if (kind === 'plan') {
+    // Re-approving an exact Plan establishes a new execution boundary. Any
+    // checkpoints projected from a previous Plan must not survive as if they
+    // belonged to the newly approved content.
     nextState.slices = planSliceIds(document.body).map((id) => ({id, status: 'PENDING', blockReason: null}))
+    nextState.currentSlice = null
   }
   await writeYaml(repositoryPaths(root).state, nextState)
   return {changeId, kind, path: path.relative(repositoryPaths(root).root, target).split(path.sep).join('/'), approval}

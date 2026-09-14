@@ -62,6 +62,26 @@ Phase 3 已经 Feature Complete。此 Plan 不再增加产品功能，而是把 
 
 完成这些以后，停止 Phase 3；任何新能力进入未来 Change，不继续塞进 v0.3。
 
+## Machine-readable execution Slices / 机器可识别执行边界
+
+以下四个 Slice 只是把本收尾 Plan 的 F1–F4 实施边界投影给现有 Goal/state 导航；它们不新增 workflow status，也不改变最终验收合同。
+
+### F1 — Dogfood deviation detection
+
+实现并验证 implementation-ahead-of-approval finding、Recovery 说明和不追认历史的回归。
+
+### F2 — Development continuity evaluation
+
+实现并验证真实代码修改的 Feature → Delta → Bug/Regression → Fresh Recover → Follow-up Feature 连续评估。
+
+### F3 — Durable behavioral trace
+
+实现脱敏 machine-readable trace、Repository artifact、SHA-256 绑定和篡改回归。
+
+### F4 — Conservative Project HARD Gate
+
+实现受控 deterministic checker registry、HARD 晋升约束和 valid → violation → restore 回归。
+
 ---
 
 # 1. Why this is the final plan / 为什么这是最终方案
