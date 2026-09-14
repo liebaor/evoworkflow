@@ -1,0 +1,64 @@
+schemaVersion: 2
+id: EV-20260914121423-5b4b7168
+change: evo-0006-v0-3-engineering-closure
+acceptance:
+  - AC-F7
+kind: build
+label: Final local aggregate check and packed-artifact smoke on Node 24
+status: PASS
+command:
+  executable: pnpm
+  args:
+    - run
+    - check
+  cwd: /home/zhicheng/code/codex/evoworkflow
+exitCode: 0
+summary: exit=0; $ pnpm run typecheck && pnpm run test && pnpm run build && pnpm run smoke:cli && pnpm run validate:skills && pnpm run check:schemas && pnpm run eval:phase2 && pnpm run eval:phase3 && pnpm run eval:hardening && pnpm run smoke:package
+outputHash: 0764eee36dd3cfa9498d18994b9c64b1ae08aadda9ad9e6ded90d285ba0c78c4
+git:
+  branch: phase3/v0.3-engineering-closure
+  head: 5ed7e4ebb42a85cfeeb91730b222396e6a5f8041
+  treeFingerprint: bfa8b5aa89f2ad8b0eb71048eac3356ff60752b51af0c50233d5d70230b22829
+  dirty: true
+  changedPaths:
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/admission.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/context.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/acceptance.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212142-9324ad08.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212143-ff665d1e.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212145-f98b0fd6.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212913-98fe240a.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913213344-3c0fc955.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214415-93d9731e.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214639-184a3c9a.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214747-b0101de9.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913215149-462a52a5.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789387915000-0-development-continuity.json
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789387915001-1-development-continuity.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212142-9324ad08.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212143-ff665d1e.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212145-f98b0fd6.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212913-98fe240a.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913213344-3c0fc955.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214415-93d9731e.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214639-184a3c9a.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214747-b0101de9.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913215149-462a52a5.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914121146-5399bc29.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914121154-1762378c.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914121208-87b9eba0.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/project-gates.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/protocol-gates.yml
+  changedPathsFingerprint: 7c6df71b2f6443a43365d40f85b67487d3b4c4b34acde2c92aadb75cd30740eb
+  capturedAt: 2026-09-14T12:14:23.237Z
+artifacts: []
+startedAt: 2026-09-14T12:13:43.355Z
+endedAt: 2026-09-14T12:14:23.235Z
+inputFingerprint: 0a0665b6cc141eaebe5473ff19868c6eef9bd020948fc3135329b8a3578c3d23
+freshness: CURRENT

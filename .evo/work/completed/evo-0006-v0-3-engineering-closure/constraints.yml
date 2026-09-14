@@ -1,0 +1,706 @@
+schemaVersion: 1
+change: evo-0006-v0-3-engineering-closure
+generatedAt: 2026-09-14T12:24:43.912Z
+inputFingerprint: 0513e713b14e9ac6e104ff119d66a0942c7689df64c0291d09c7015d6b8dc21c
+inputs:
+  - .evo/decisions/current
+  - .evo/decisions/current/d-0001-human-controlled-phases.md
+  - .evo/decisions/current/d-0002-bounded-goal-execution.md
+  - .evo/decisions/working
+  - .evo/project.md
+  - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+  - .evo/work/active/evo-0006-v0-3-engineering-closure/plan.md
+  - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+  - AGENTS.md
+  - README.md
+  - docs/architecture.md
+  - docs/operations.md
+  - docs/testing.md
+  - scripts/phase2-evals.ts
+  - scripts/phase3-development-continuity.ts
+  - scripts/phase3-evals.ts
+  - scripts/phase3-ruoyi-behavioral.ts
+  - src/commands/init.ts
+  - src/core/goal.ts
+  - src/repository/consistency.ts
+  - src/repository/init.ts
+  - src/repository/scanner.ts
+  - src/validation/project.ts
+freshness: CURRENT
+constraints:
+  - id: C-8e0cb71223fc5067
+    type: HARD
+    topic: ac-f1
+    statement: "**AC-F1 Dogfood honesty**：EVO 能检测并报告 implementation-ahead-of-approval；恢复流程不手工伪造 COMPLETED，也不把后补 approval 描述为过去已经授权。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: 8e0cb71223fc506795e9500607e1feee5423418bae7cfc59ca6a1b6550faa7cd
+  - id: C-d9edccee4742c6e2
+    type: HARD
+    topic: ac-f2
+    statement: "**AC-F2 Real development continuity**：固定 Brownfield revision 上至少一个真实代码修改场景完成 Feature → Delta → Bug/Regression → Fresh Recover → Follow-up Feature；changed paths 落在预期边界，独立 build/test/evaluator 通过，并能比较前后 Feature 的 naming/API/permission/response/data-scope/service/frontend/testing/domain consistency。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: d9edccee4742c6e28cfae42769e09d9f42eaeac6813ab0118463846844b90630
+  - id: C-f6078775e5346993
+    type: HARD
+    topic: ac-f3
+    statement: "**AC-F3 Durable trace**：最终 continuity eval 的脱敏 machine-readable output 作为可复查 artifact 持久化，Evidence 记录 artifact path + SHA-256；临时路径不是唯一证据。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: f6078775e534699318fe294b7609004d7499c3c0b88f2a9eeaf4648415ddeb84
+  - id: C-473265fb32d5ff54
+    type: HARD
+    topic: ac-f4
+    statement: "**AC-F4 Conservative enforcement**：启发式 project signal 默认 WARNING；任何 HARD project check 都对应明确 Authority、deterministic checker、falsifying case、CI negative regression 与 remediation。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: 473265fb32d5ff54d3e4dce8822c865ea4e1c47709be8f183f22082604b2eb9a
+  - id: C-f377a5d126cc6e54
+    type: HARD
+    topic: ac-f5
+    statement: "**AC-F5 Current-state convergence**：exact Change/Plan approval current；Working Context/Constraints/Acceptance/Evidence/Freshness current；Protocol hard gates PASS；Candidate Admission 为 `REVIEW_ADMITTED`。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: f377a5d126cc6e5466c2110d3212aec0c155cb917592bf7fd2b2a8cb3376dc2f
+  - id: C-9200fb3b0e47a0c8
+    type: HARD
+    topic: ac-f6
+    statement: "**AC-F6 Independent acceptance**：Worker/Goal 最多 `READY_FOR_REVIEW`；fresh-context independent Review 通过并由 Human 明确 Acceptance 后才能 Finish。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: 9200fb3b0e47a0c8d6c8060e91cbb52d88ade29a13f614cf4fb501523c4a9167
+  - id: C-f1110d91d16e539b
+    type: HARD
+    topic: ac-f7
+    statement: "**AC-F7 Distribution**：`pnpm run check` 在 Node 22/24 CI 通过；Phase 2/3 eval、schema/skill validation、CLI smoke、packed-artifact clean-install smoke 全部 PASS；behavioral/runtime limitations 被诚实记录。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: f1110d91d16e539b75d95c88b0852f10d447cedb9addba0bf19cc98330320ef5
+  - id: C-29c091c7d9516f28
+    type: HARD
+    topic: ac-f8
+    statement: "**AC-F8 Final delivery**：`evo-finish --apply` 产生真实 COMPLETED/archive 状态；随后 final `evo-commit` 记录 chronology；v0.3.0 metadata/docs 对齐；只有这些完成后才允许 merge `main`。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: 29c091c7d9516f289cc74d07de5171d5aae35c79499d3c1b390a002f31ba82a7
+  - id: C-0c75a0ed77d36b9f
+    type: REFERENCE
+    topic: architecture
+    statement: Use docs/architecture.md as the primary authority for architecture.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/project.md
+      - docs/architecture.md
+    fingerprint: 0c75a0ed77d36b9fd95429d1ca5059e5c5f9e84e685dec03652472c4e09167e5
+  - id: C-f6f89e7907832f36
+    type: REFERENCE
+    topic: consistency
+    statement: Follow the existing pattern at src/repository/consistency.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/repository/consistency.ts
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - src/repository/consistency.ts
+    fingerprint: f6f89e7907832f366984c0a4d31eb5accf82afec0627a0b68dc49e39e079a937
+  - id: C-c5f34222c3021e91
+    type: REFERENCE
+    topic: goal
+    statement: Follow the existing pattern at src/core/goal.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/core/goal.ts
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - src/core/goal.ts
+    fingerprint: c5f34222c3021e911eb297ed628c5e6ab01b59c0e71fcdc6805fa88342bfefed
+  - id: C-3258174ac652c4ca
+    type: REFERENCE
+    topic: init
+    statement: Follow the existing pattern at src/commands/init.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/commands/init.ts
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - src/commands/init.ts
+    fingerprint: 3258174ac652c4ca2402e1e7cc5582a612aa4da96d00ff436bfd241de2a15588
+  - id: C-7b37288b9a5e507c
+    type: REFERENCE
+    topic: init
+    statement: Follow the existing pattern at src/repository/init.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/repository/init.ts
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - src/repository/init.ts
+    fingerprint: 7b37288b9a5e507c127b0b9b11ca65eed07d75afd01ea94d4d3dc90210d6e843
+  - id: C-10321aa6c5aa238c
+    type: REFERENCE
+    topic: operations
+    statement: Use docs/operations.md as the primary authority for operations.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/project.md
+      - docs/operations.md
+    fingerprint: 10321aa6c5aa238cb0fd0d3af89639127c93b46866ce0b1ba61798bcf5b5c555
+  - id: C-6c49c3ca92bb9aa1
+    type: REFERENCE
+    topic: phase2-evals
+    statement: Follow the existing pattern at scripts/phase2-evals.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase2-evals.ts
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - scripts/phase2-evals.ts
+    fingerprint: 6c49c3ca92bb9aa11df8e500b6d4d20626d07359c7988e45fc53e910bc44060d
+  - id: C-2b887e40a13c9c03
+    type: REFERENCE
+    topic: phase3-development-continuity
+    statement: Follow the existing pattern at scripts/phase3-development-continuity.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase3-development-continuity.ts
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - scripts/phase3-development-continuity.ts
+    fingerprint: 2b887e40a13c9c03749e5741b18215d0819f44fd7dc92cfd0be0e824e1bd3129
+  - id: C-9ce4c9a62c3ff90d
+    type: REFERENCE
+    topic: phase3-evals
+    statement: Follow the existing pattern at scripts/phase3-evals.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase3-evals.ts
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - scripts/phase3-evals.ts
+    fingerprint: 9ce4c9a62c3ff90dea8821688dbf26333733779e5ca423d4efe849d36eb441e3
+  - id: C-cc0c75967a957e3c
+    type: REFERENCE
+    topic: phase3-ruoyi-behavioral
+    statement: Follow the existing pattern at scripts/phase3-ruoyi-behavioral.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase3-ruoyi-behavioral.ts
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - scripts/phase3-ruoyi-behavioral.ts
+    fingerprint: cc0c75967a957e3cc16465273aeaf1b4467d2b55ae46ecda8eaf1af6d01f940d
+  - id: C-29d18a699afe84be
+    type: REFERENCE
+    topic: project
+    statement: Follow the existing pattern at src/validation/project.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/validation/project.ts
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - src/validation/project.ts
+    fingerprint: 29d18a699afe84bed52be6ef9ee066b51b054c8137e662e7b71ec233eba144a7
+  - id: C-650ff056adc22510
+    type: REFERENCE
+    topic: project-overview
+    statement: Use README.md as the primary authority for project-overview.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/project.md
+      - README.md
+    fingerprint: 650ff056adc22510e59e8c93e862913d471b4ef7b499d3dab9decdaf24122d0f
+  - id: C-55cdc3e5adc305dc
+    type: HARD
+    topic: repository-rule-1e2c584d8ef8
+    statement: 初始化不破坏数据并且幂等；不覆盖已有项目指令和权威文档。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 55cdc3e5adc305dcb9e315e29d3918fb02bb02f63eb15f57f669b27b9bafdef1
+  - id: C-0d46ac71731bfae4
+    type: HARD
+    topic: repository-rule-246e6f7e720e
+    statement: Standard 和 Large 工作只能执行 `.evo/state.yml` 或活动 Goal 持久化的 `currentSlice`，不能根据文档顺序猜测。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 0d46ac71731bfae471428b1ee29234cbf30fb5eda43b2b20e8e66ffda3253b56
+  - id: C-565966002d55f698
+    type: HARD
+    topic: repository-rule-456dee1924e9
+    statement: "`src/commands/`：oclif 命令入口。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 565966002d55f698f7730d7d2f03009a6e11d6da6129f321d7e3ba2f276836bb
+  - id: C-67cfea961b858f84
+    type: HARD
+    topic: repository-rule-57d7c4cfac2f
+    statement: Goal 只接受已批准且没有歧义的 Slice；遇到问题会停止，成功结束于 `READY_FOR_REVIEW`，永远不是 `DONE`。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 67cfea961b858f843150c4a81b14bd6a06dab4fea8ec3da41737198ed33edf2a
+  - id: C-eef4840b9cf6664b
+    type: HARD
+    topic: repository-rule-6288d20e2c19
+    statement: "`src/validation/`：确定性项目检查和 Doctor 诊断。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: eef4840b9cf6664b6d83e3cec64a0b62c61ad6eeab88f25d97a10174b3339a1e
+  - id: C-5f72d9d0cc8b62b2
+    type: HARD
+    topic: repository-rule-66c0215a1296
+    statement: "`src/agents/`：Agent Adapter 约定和本地 CLI Adapter。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 5f72d9d0cc8b62b2d14514b57241b8433f0a663b9141bd71005ca026de8095db
+  - id: C-b0f44dfbb4515ae4
+    type: HARD
+    topic: repository-rule-6c70ae2a824e
+    statement: "`skills/`：面向结果的 Agent Skill；保持 `SKILL.md` 简洁，把条件性内容放到 references。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: b0f44dfbb4515ae40b7974a618aec0c81517f50f26a46a46e37190408bbf4ecd
+  - id: C-f1dd3634a38ed12d
+    type: HARD
+    topic: repository-rule-7e9b3c7eee42
+    statement: 当前文档描述当前行为；历史进入 Git、Decision、Postmortem 和已完成 Change 证据。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: f1dd3634a38ed12d1cfc3b97b3e98ea3b29702bcc151b6fc2cecd146c2e94bf4
+  - id: C-a87367ac974cc9e8
+    type: HARD
+    topic: repository-rule-a243de00346a
+    statement: "`src/repository/`：文件协议、仓库发现、初始化和模板。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: a87367ac974cc9e8a0cca4409430d2ade774eb093ef26a38b46d6e33a4f744fc
+  - id: C-a66f2f80720b2d12
+    type: HARD
+    topic: repository-rule-b3e31fe97a11
+    statement: "`schemas/`：Zod 权威生成的 JSON Schema 投影。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: a66f2f80720b2d1254ce52d7d8ee9a5ca5b59c67e5ae554467258dda8e9b6d36
+  - id: C-fb5c70ec1efb5863
+    type: HARD
+    topic: repository-rule-b51cd1e7b3b2
+    statement: 保持协议文档、Zod Schema、生成的 Schema、模板、CLI、Skill 和测试一致。新增行为必须有可观察测试。保留用户已有改动，除非用户明确要求，不要 commit。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: fb5c70ec1efb586338da05c2aac42f4a41a379af97b62b4bfbc6a6996ad2cf12
+  - id: C-87c5c342525e7077
+    type: HARD
+    topic: repository-rule-bd03ec5a8ee7
+    statement: "`src/core/`：Schema、状态转换、批准指纹、导航和 Goal 执行。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 87c5c342525e7077a7274d916036ce66ec5f88ff5d26deeaedba43d51f05e5b5
+  - id: C-2a9dc7b2d4a8083f
+    type: HARD
+    topic: repository-rule-c2fb2b9efa59
+    statement: 长期知识必须进入仓库。一个事实只能有一个主权威，其他文档链接到它。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 2a9dc7b2d4a8083f6fcfea806bf83645f9dd34084a2ca1b4c9d6254502531eec
+  - id: C-ff3664144ed0a512
+    type: HARD
+    topic: repository-rule-c40adf673f2f
+    statement: 人工拥有产品决策、批准、阶段转换、风险接受和副作用授权。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: ff3664144ed0a5125108fdf23275c761a41d6c9bda217876fc4bd8ac0ebb84a2
+  - id: C-07e5cef2cbcc6517
+    type: HARD
+    topic: repository-rule-ca907645a04a
+    statement: 没有命令或 Skill 会自动完成 Change、commit、merge、deploy 或扩大范围。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 07e5cef2cbcc6517c84d66c7fabacb4e0d8e996ca4c9fe5e40f3de5d0208fa41
+  - id: C-3b38d5f1e52b2c92
+    type: HARD
+    topic: repository-rule-cca1d02923c5
+    statement: "`templates/`：安装到受管理仓库的文件。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 3b38d5f1e52b2c92f3429d42e999749dca44604f37b3e1101733082dfbeae098
+  - id: C-937cbfa3e4e7f24d
+    type: HARD
+    topic: repository-rule-e0297f21bd90
+    statement: 除非已有批准 Decision，否则已有仓库模式和成熟能力优先于新抽象。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 937cbfa3e4e7f24df19b3f71ff7ca616fb5dfd6325f3416f7d051e01aeb74c06
+  - id: C-112a46892681b530
+    type: HARD
+    topic: repository-rule-e03ee8b7c39a
+    statement: "`src/repository/evidence.ts`：验收项精确映射、追加式证据记录和迁移兼容。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 112a46892681b530734ef6d9cd18277c00a62ba4ba87ff7df8b9f927997cf060
+  - id: C-cb16b7f4ec49beef
+    type: HARD
+    topic: repository-rule-f34daa02d5c9
+    statement: Evidence v2 记录 `PASS`、`FAIL`、`BLOCKED` 或 `NOT_RUN`；旧版 `UNVERIFIED` 仅在迁移期间兼容。声明不是证据。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: cb16b7f4ec49beeff02ad4e765bbef1354a762aa97d2e3f7cf7dddb1a762e99f
+  - id: C-c574206ddb7b391c
+    type: HARD
+    topic: repository-rule-f9c8feb2fcf6
+    statement: Agent 调查仓库事实，只执行当前已授权的工作。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: c574206ddb7b391ca92eb5912d35df5da8fc10b6d74a4ce78d00dc9c1be22f3e
+  - id: C-7a99e7ff119ae6c2
+    type: HARD
+    topic: repository-rule-fec3e143258c
+    statement: 批准绑定精确内容；实质编辑会使批准失效。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 7a99e7ff119ae6c261e219510231e4ec22becf7a53692434449c3c53376167c0
+  - id: C-9717ae51e0cd49dc
+    type: REFERENCE
+    topic: scanner
+    statement: Follow the existing pattern at src/repository/scanner.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/repository/scanner.ts
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - src/repository/scanner.ts
+    fingerprint: 9717ae51e0cd49dc397c754c81a0979bcbaf5fff6c081d6164e10aeb55a05bfb
+  - id: C-8808b603f9484eac
+    type: HARD
+    topic: scope/13d27d5610ef
+    statement: 不用 retroactive approval 伪装历史上已经获得授权。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: 8808b603f9484eaca9fd790336c5bce5d773cc115b4bfa451a681e66ab091fba
+  - id: C-e16df0ebba84b754
+    type: HARD
+    topic: scope/233b3a60b13f
+    statement: 不自动 merge、release、deploy、force-push 或 Finish。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: e16df0ebba84b754243bcb5ccf5b144c56d5d953ce4679113e19fe5e618da0cf
+  - id: C-49468b69ea7cfcf5
+    type: HARD
+    topic: scope/2b7c4df1abc9
+    statement: 不为本次 dogfood 偏差新增一整套 workflow status/state machine。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: 49468b69ea7cfcf566e1b025bf5b137d110477df1ee34aea227999eaccde0993
+  - id: C-d197893597763969
+    type: HARD
+    topic: scope/2bf341475e9b
+    statement: "在最终交付前把 package/version/documentation 统一为 v0.3.0；若暂不发布 npm，可继续保留 `private: true`，不要为了版本号假装已发布。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: d197893597763969579fe4bafff412f5fe7fc48325aa4314851a184e5febd050
+  - id: C-a4c2df3c21649d37
+    type: HARD
+    topic: scope/6065cc60c6ee
+    statement: Candidate Admission 必须 `REVIEW_ADMITTED`。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: a4c2df3c21649d37884a0d7621eb51db6175668d5e1fd9408096c48010600abd
+  - id: C-87bc98493a984a5b
+    type: HARD
+    topic: scope/61fd43e555bb
+    statement: 运行全部默认 CI、packed-artifact smoke 和最终 continuity eval。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: 87bc98493a984a5bce7c99d0ae8df556616e012ac8ee5068f3355021c08880cb
+  - id: C-93bd6a1c6e12f08f
+    type: HARD
+    topic: scope/6dccd6357d8d
+    statement: 不新增 Multi-Agent parallel swarm。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: 93bd6a1c6e12f08fa4b2b402aa06414031866bafc627cbfe104a847b2aa51cb4
+  - id: C-7287da1f1bc77367
+    type: HARD
+    topic: scope/7150c201ea62
+    statement: 不自动做产品、架构、安全或破坏性数据 Decision。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: 7287da1f1bc77367eaec94c80ae34e52b4a9338b4b32280c2540263aeb4fb89f
+  - id: C-d26b2857071d83c2
+    type: HARD
+    topic: scope/7ed4c3784057
+    statement: Final Delivery 使用 `evo-commit`；commit/push/merge 不属于 Finish。Merge 到 `main` 只在 Finish、final delivery 与 CI 成功之后进行。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: d26b2857071d83c2126f192d855b9b4a2d5616d222c23df2f71edb062dee215f
+  - id: C-cf95ab0e0115c07c
+    type: HARD
+    topic: scope/80499ee96b11
+    statement: 不新增通用 Agent Runtime、context compression、tool search、subagent scheduler 或云控制面。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: cf95ab0e0115c07cd7f8c123c30935a801b3268b691a4a973da53ba8e79ff76b
+  - id: C-f20d9d8d9394e71b
+    type: HARD
+    topic: scope/915621fe9cee
+    statement: 重建 Working Context、Resolved Constraints、Acceptance Trace、Freshness、Protocol/Project Gate 与 Evidence。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: f20d9d8d9394e71bee4712a6b06c4c277806e7293b174a59158b24f59f0f5449
+  - id: C-f287fa4b1082700b
+    type: HARD
+    topic: scope/ba4bd27056ab
+    statement: 不再新增 Phase 3 Skill，除非现有 Skill 无法表达收口动作。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: f287fa4b1082700be2545d67ffd0abb5466a91e2ab79c0a7b0dfb48ef15b7bbe
+  - id: C-b136379614ceed1e
+    type: HARD
+    topic: scope/c2253d4a0d42
+    statement: 只有随后执行 `evo-finish --apply` 才能把 Change 归档为 COMPLETED。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: b136379614ceed1effeb38b6b0cb34b2c7a85c69369a55e0d38b8004fe842a51
+  - id: C-bb366bdc116fe6f9
+    type: HARD
+    topic: scope/c6e6cdbffc91
+    statement: Human 审阅并批准 exact current Change/Plan；批准不改写“实现先于批准”的历史事实。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: bb366bdc116fe6f990a561d30bca54c1c04932c9858dff116551ed9c55673d74
+  - id: C-85ab1693e6225042
+    type: HARD
+    topic: scope/d3d71b593993
+    statement: 不新增中央数据库、Vector DB/RAG 平台或 Web UI。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: 85ab1693e62250426656873a8411759cc14e84081574c9ec1c06d182ef9279a7
+  - id: C-dfad865d29247676
+    type: HARD
+    topic: scope/d5fd7383fe29
+    statement: 独立 fresh-context Review 后由 Human Acceptance。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: dfad865d2924767657f31f3449a9fe9ab127be932f5df78c5d37f54f3b10b52e
+  - id: C-accc34a6d7b7204d
+    type: HARD
+    topic: scope/f71891b24999
+    statement: 不实现任意 Project Gate DSL/插件系统。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    fingerprint: accc34a6d7b7204db15d17a03ae8ff2a7b00f95c5d19e5ed452d6b0e15ef5ef9
+  - id: C-a2fe5dc4929d8022
+    type: REFERENCE
+    topic: standing-rules
+    statement: Use AGENTS.md as the primary authority for standing-rules.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/project.md
+      - AGENTS.md
+    fingerprint: a2fe5dc4929d80223de12aa3ac7930796e6bffc0f3a81adc8b9ec0b2be28dec2
+  - id: C-56f068c37a2552a4
+    type: REFERENCE
+    topic: testing
+    statement: Use docs/testing.md as the primary authority for testing.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0006-v0-3-engineering-closure
+    evidence:
+      - .evo/project.md
+      - docs/testing.md
+    fingerprint: 56f068c37a2552a43a293709404fe3d360b5c1b911a1e5cc45913b2fddec24f3

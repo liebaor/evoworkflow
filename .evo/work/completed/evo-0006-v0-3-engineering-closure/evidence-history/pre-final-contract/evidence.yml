@@ -1,0 +1,98 @@
+schemaVersion: 2
+change: evo-0006-v0-3-engineering-closure
+updatedAt: 2026-09-13T21:51:49.803Z
+acceptance:
+  - id: AC-6.1
+    status: PASS
+    evidenceRefs:
+      - EV-20260913212142-9324ad08
+      - EV-20260913212913-98fe240a
+      - EV-20260913213344-3c0fc955
+      - EV-20260913214639-184a3c9a
+      - EV-20260913214747-b0101de9
+    limitations: []
+  - id: AC-6.10
+    status: PASS
+    evidenceRefs:
+      - EV-20260913212145-f98b0fd6
+      - EV-20260913212913-98fe240a
+      - EV-20260913213344-3c0fc955
+      - EV-20260913214639-184a3c9a
+      - EV-20260913214747-b0101de9
+      - EV-20260913215149-462a52a5
+    limitations: []
+  - id: AC-6.2
+    status: PASS
+    evidenceRefs:
+      - EV-20260913212143-ff665d1e
+      - EV-20260913212913-98fe240a
+      - EV-20260913213344-3c0fc955
+      - EV-20260913214639-184a3c9a
+      - EV-20260913214747-b0101de9
+    limitations: []
+  - id: AC-6.3
+    status: PASS
+    evidenceRefs:
+      - EV-20260913212143-ff665d1e
+      - EV-20260913212913-98fe240a
+      - EV-20260913213344-3c0fc955
+      - EV-20260913214639-184a3c9a
+      - EV-20260913214747-b0101de9
+    limitations: []
+  - id: AC-6.4
+    status: PASS
+    evidenceRefs:
+      - EV-20260913212143-ff665d1e
+      - EV-20260913212913-98fe240a
+      - EV-20260913213344-3c0fc955
+      - EV-20260913214639-184a3c9a
+      - EV-20260913214747-b0101de9
+    limitations: []
+  - id: AC-6.5
+    status: PASS
+    evidenceRefs:
+      - EV-20260913212143-ff665d1e
+      - EV-20260913212913-98fe240a
+      - EV-20260913213344-3c0fc955
+      - EV-20260913214639-184a3c9a
+      - EV-20260913214747-b0101de9
+    limitations: []
+  - id: AC-6.6
+    status: PASS
+    evidenceRefs:
+      - EV-20260913212143-ff665d1e
+      - EV-20260913212913-98fe240a
+      - EV-20260913213344-3c0fc955
+      - EV-20260913214639-184a3c9a
+      - EV-20260913214747-b0101de9
+    limitations: []
+  - id: AC-6.7
+    status: PASS
+    evidenceRefs:
+      - EV-20260913212143-ff665d1e
+      - EV-20260913212913-98fe240a
+      - EV-20260913213344-3c0fc955
+      - EV-20260913214639-184a3c9a
+      - EV-20260913214747-b0101de9
+    limitations: []
+  - id: AC-6.8
+    status: PASS
+    evidenceRefs:
+      - EV-20260913212143-ff665d1e
+      - EV-20260913212913-98fe240a
+      - EV-20260913213344-3c0fc955
+      - EV-20260913214415-93d9731e
+      - EV-20260913214639-184a3c9a
+      - EV-20260913214747-b0101de9
+    limitations: []
+  - id: AC-6.9
+    status: PASS
+    evidenceRefs:
+      - EV-20260913212143-ff665d1e
+      - EV-20260913212913-98fe240a
+      - EV-20260913213344-3c0fc955
+      - EV-20260913214639-184a3c9a
+      - EV-20260913214747-b0101de9
+    limitations: []
+inputFingerprint: 558a45d9b076f844f1986c35502650b488b918451cae365ce17b3ac87ffa19d8
+freshness: CURRENT

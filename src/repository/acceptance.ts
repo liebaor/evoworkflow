@@ -53,7 +53,7 @@ async function readFileIfPresent(target: string): Promise<string | null> {
 export function extractAcceptanceCriteria(source: string, sourcePath: string): AcceptanceCriterion[] {
   const found = new Map<string, AcceptanceCriterion>()
   for (const line of source.split('\n')) {
-    const ids = [...line.matchAll(/\b(AC-[A-Za-z0-9][A-Za-z0-9_-]*)\b/gu)]
+    const ids = [...line.matchAll(/\b(AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\.[A-Za-z0-9][A-Za-z0-9_-]*)*)\b/gu)]
     for (const match of ids) {
       const id = match[1]
       if (!id || found.has(id)) continue
@@ -65,7 +65,7 @@ export function extractAcceptanceCriteria(source: string, sourcePath: string): A
 }
 
 function hasCanonicalAcceptance(source: string): boolean {
-  return source.split('\n').some((line) => /^\s*(?:[-*]\s+)?(?:\*\*)?AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\*\*)?\s*:/u.test(line))
+  return source.split('\n').some((line) => /^\s*(?:[-*]\s+)?(?:\*\*)?AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\.[A-Za-z0-9][A-Za-z0-9_-]*)*(?:\*\*)?\s*:/u.test(line))
 }
 
 function criterionTitle(line: string, id: string): string {

@@ -30,6 +30,14 @@
     "docsConverged": {
       "type": "boolean"
     },
+    "deferredAcceptance": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9][A-Za-z0-9_-]*)*$"
+      }
+    },
     "acceptedLimitations": {
       "default": false,
       "type": "boolean"
@@ -41,6 +49,7 @@
     "humanAcceptance",
     "openFindings",
     "docsConverged",
+    "deferredAcceptance",
     "acceptedLimitations"
   ],
   "additionalProperties": false

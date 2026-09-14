@@ -164,6 +164,29 @@ describe('bounded Goal execution', () => {
       persistence: persisted,
     })).rejects.toThrow('changed after Goal approval')
   })
+
+  it('persists a bounded blocker when postflight evaluation itself fails', async () => {
+    const root = await temporaryRepository('postflight-failure')
+    await initializeRepository(root)
+    await createActiveChange(root)
+    const adapterConfig = testAdapterConfig()
+    const context = await changeContextFingerprint(root, 'change-one')
+    const goal = approveGoal(createTestGoal(root, 1), adapterConfig, context)
+    const result = await executeGoal(goal, {
+      adapter: new RecordingAdapter(),
+      adapterConfig,
+      config: await readConfig(root),
+      contextFingerprint: context,
+      state: await readState(root),
+      afterSlice: async () => { throw new Error('project gate evaluator failed') },
+      persistence: persistence(goal, await readState(root)),
+    })
+
+    expect(result.status).toBe('BLOCKED')
+    expect(result.slices[0]?.attempts[0]?.agent.status).toBe('COMPLETED')
+    expect(result.slices[0]?.blockReason).toContain('Postflight evaluation failed')
+    expect(result.slices[0]?.stopCondition).toBe('HARD_GATE_FAILURE')
+  })
 })
 
 function completed(): AgentRunResult {

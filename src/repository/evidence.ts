@@ -16,6 +16,7 @@ import {EvoError} from '../core/errors.js'
 import {runCommand} from '../process/command-runner.js'
 import {readAcceptanceSource} from './acceptance.js'
 import {captureGitSnapshot, sha256} from './git-snapshot.js'
+import {evidenceInputs, fingerprintInputs} from './freshness.js'
 import {pathExists, readYaml, writeYaml} from './io.js'
 import {listDirectory, readOptionalText} from './managed.js'
 import {repositoryPaths} from './paths.js'
@@ -27,7 +28,7 @@ export interface EvidenceReadResult {
 }
 
 export interface EvidenceReconciliationIssue {
-  readonly code: 'MISSING_ACCEPTANCE' | 'EXTRA_ACCEPTANCE' | 'DUPLICATE_ACCEPTANCE' | 'MISSING_RECORD' | 'UNKNOWN_RECORD' | 'STATUS_MISMATCH' | 'LEGACY_EVIDENCE'
+  readonly code: 'MISSING_ACCEPTANCE' | 'EXTRA_ACCEPTANCE' | 'DUPLICATE_ACCEPTANCE' | 'MISSING_RECORD' | 'UNKNOWN_RECORD' | 'STATUS_MISMATCH' | 'STALE_RECORD' | 'LEGACY_EVIDENCE'
   readonly message: string
 }
 
@@ -53,6 +54,7 @@ export interface RunEvidenceInput {
   readonly cwd?: string
   readonly timeoutMs?: number
   readonly artifacts?: readonly string[]
+  readonly completed?: boolean
   readonly now?: Date
 }
 
@@ -68,6 +70,7 @@ export interface RecordEvidenceInput {
   readonly exitCode?: number | null
   readonly output?: string | null
   readonly artifacts?: readonly string[]
+  readonly completed?: boolean
   readonly now?: Date
 }
 
@@ -95,11 +98,14 @@ export async function readEvidence(root: string, changeId: string, completed = f
 /** Creates a v2 evidence document with one explicit NOT_RUN entry per approved criterion. */
 export async function initializeEvidence(root: string, changeId: string, now = new Date()): Promise<EvidenceDocument> {
   const acceptance = await readAcceptanceSource(root, changeId)
+  const currentInputs = await fingerprintInputs(root, evidenceInputs(root, changeId))
   const document: EvidenceDocument = {
     schemaVersion: 2,
     change: changeId,
     updatedAt: now.toISOString(),
     acceptance: acceptance.criteria.map((criterion) => ({id: criterion.id, status: 'NOT_RUN', evidenceRefs: [], limitations: []})),
+    inputFingerprint: currentInputs.fingerprint,
+    freshness: 'CURRENT',
   }
   await writeYaml(evidenceDocumentPath(root, changeId), document)
   return document
@@ -127,6 +133,7 @@ export async function runEvidence(input: RunEvidenceInput): Promise<EvidenceReco
     exitCode: result.exitCode,
     output: result.output,
     ...(input.artifacts === undefined ? {} : {artifacts: input.artifacts}),
+    ...(input.completed === undefined ? {} : {completed: input.completed}),
     ...(input.now === undefined ? {} : {now: input.now}),
     run: result,
   })
@@ -138,7 +145,9 @@ export async function recordEvidence(input: RecordEvidenceInput & {readonly run?
   const startedAt = input.run?.startedAt ?? now.toISOString()
   const endedAt = input.run?.endedAt ?? now.toISOString()
   const git = await captureGitSnapshot(input.root, now)
-  const artifacts = await resolveArtifacts(input.root, input.changeId, input.artifacts ?? [])
+  const completed = input.completed === true
+  const currentInputs = await fingerprintInputs(input.root, evidenceInputs(input.root, input.changeId, completed))
+  const artifacts = await resolveArtifacts(input.root, input.changeId, input.artifacts ?? [], completed)
   const record: EvidenceRecord = EvidenceRecordSchema.parse({
     schemaVersion: 2,
     id: evidenceRecordId(now),
@@ -155,10 +164,12 @@ export async function recordEvidence(input: RecordEvidenceInput & {readonly run?
     artifacts,
     startedAt,
     endedAt,
+    inputFingerprint: currentInputs.fingerprint,
+    freshness: 'CURRENT',
   })
-  const target = evidenceRecordPath(input.root, input.changeId, record.id)
+  const target = evidenceRecordPath(input.root, input.changeId, record.id, completed)
   await writeYaml(target, record)
-  await linkRecordToEvidence(input.root, input.changeId, record)
+  await linkRecordToEvidence(input.root, input.changeId, record, completed)
   return record
 }
 
@@ -180,11 +191,18 @@ export async function reconcileEvidence(root: string, changeId: string, complete
   }
   for (const id of criteria) if (!seen.has(id)) issues.push({code: 'MISSING_ACCEPTANCE', message: `Acceptance ${id} has no evidence entry.`})
   const recordById = new Map(records.map((record) => [record.id, record]))
+  const currentInputs = await fingerprintInputs(root, evidenceInputs(root, changeId, completed))
+  if (read.document?.inputFingerprint && read.document.inputFingerprint !== currentInputs.fingerprint) {
+    issues.push({code: 'STALE_RECORD', message: 'Evidence document input fingerprint is stale; rerun affected evidence.'})
+  }
   for (const record of records) {
     if (record.change !== changeId) issues.push({code: 'UNKNOWN_RECORD', message: `Record ${record.id} belongs to ${record.change}, not ${changeId}.`})
     if (new Set(record.acceptance).size !== record.acceptance.length) issues.push({code: 'STATUS_MISMATCH', message: `Record ${record.id} declares a duplicate acceptance id.`})
     for (const id of record.acceptance) {
       if (!expected.has(id)) issues.push({code: 'UNKNOWN_RECORD', message: `Record ${record.id} references unknown acceptance ${id}.`})
+    }
+    if (record.inputFingerprint && record.inputFingerprint !== currentInputs.fingerprint) {
+      issues.push({code: 'STALE_RECORD', message: `Evidence record ${record.id} was produced against stale Change inputs.`})
     }
   }
   for (const item of evidence) {
@@ -239,9 +257,9 @@ export function evidenceDocumentPath(root: string, changeId: string, completed =
 }
 
 /** Returns the append-only record path for one Change. */
-export function evidenceRecordPath(root: string, changeId: string, id: string): string {
+export function evidenceRecordPath(root: string, changeId: string, id: string, completed = false): string {
   if (!/^EV-[A-Za-z0-9][A-Za-z0-9_-]*$/u.test(id)) throw new EvoError(`Invalid evidence record id: ${id}`)
-  return path.join(evidenceRecordsPath(root, changeId), `${id}.yml`)
+  return path.join(evidenceRecordsPath(root, changeId, completed), `${id}.yml`)
 }
 
 function evidenceRecordsPath(root: string, changeId: string, completed = false): string {
@@ -249,21 +267,30 @@ function evidenceRecordsPath(root: string, changeId: string, completed = false):
   return path.join(completed ? paths.completedWork : paths.activeWork, safeChange(changeId), 'evidence', 'records')
 }
 
-async function linkRecordToEvidence(root: string, changeId: string, record: EvidenceRecord): Promise<void> {
-  const read = await readEvidence(root, changeId)
-  const authority = await readAcceptanceSource(root, changeId)
+async function linkRecordToEvidence(root: string, changeId: string, record: EvidenceRecord, completed = false): Promise<void> {
+  const read = await readEvidence(root, changeId, completed)
+  const authority = await readAcceptanceSource(root, changeId, completed)
   const existing = read.document?.acceptance ?? authority.criteria.map((criterion) => ({id: criterion.id, status: 'NOT_RUN' as const, evidenceRefs: [], limitations: []}))
   const selected = new Set(record.acceptance)
   const acceptance = existing.map((item) => selected.has(item.id)
     ? {...item, status: record.status, evidenceRefs: [...new Set([...item.evidenceRefs, record.id])]}
     : item)
-  const document: EvidenceDocument = {schemaVersion: 2, change: changeId, updatedAt: new Date().toISOString(), acceptance}
-  await writeYaml(evidenceDocumentPath(root, changeId), document)
+  const currentInputs = await fingerprintInputs(root, evidenceInputs(root, changeId, completed))
+  const document: EvidenceDocument = {
+    schemaVersion: 2,
+    change: changeId,
+    updatedAt: new Date().toISOString(),
+    acceptance,
+    inputFingerprint: currentInputs.fingerprint,
+    freshness: 'CURRENT',
+  }
+  await writeYaml(evidenceDocumentPath(root, changeId, completed), document)
 }
 
-async function resolveArtifacts(root: string, changeId: string, values: readonly string[]): Promise<EvidenceArtifact[]> {
+async function resolveArtifacts(root: string, changeId: string, values: readonly string[], completed = false): Promise<EvidenceArtifact[]> {
   const result: EvidenceArtifact[] = []
-  const artifactDirectory = path.join(repositoryPaths(root).activeWork, safeChange(changeId), 'evidence', 'artifacts')
+  const work = completed ? repositoryPaths(root).completedWork : repositoryPaths(root).activeWork
+  const artifactDirectory = path.join(work, safeChange(changeId), 'evidence', 'artifacts')
   for (const [index, value] of values.entries()) {
     const target = path.resolve(root, value)
     const relativeTarget = path.relative(root, target)

@@ -16,6 +16,7 @@
 | `evo-verify` | 把验收标准映射到实际 `PASS`、`FAIL` 或 `UNVERIFIED` 证据。 |
 | `evo-review` | 检查范围、复用、实现、文档和证据质量，形成评审记录。 |
 | `evo-finish` | 在人工接受后检查收敛并归档 Change。 |
+| `evo-commit` | 生成结构化 Git checkpoint，并在明确授权后提交或推送。 |
 | `evo-change` | 记录 OLD/NEW/RETAIN/MODIFY/REMOVE/ADD，并使旧批准失效。 |
 | `evo-bug` | 记录复现、失败证据、根因、修复边界和回归证据。 |
 | `evo-goal` | 把已批准的执行工作委托给有边界的 Goal。 |

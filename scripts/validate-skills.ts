@@ -12,6 +12,7 @@ const expected = new Set([
   'ask-evo-pm',
   'evo-bug',
   'evo-change',
+  'evo-commit',
   'evo-doctor',
   'evo-engineering',
   'evo-finish',

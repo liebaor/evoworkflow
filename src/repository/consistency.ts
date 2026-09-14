@@ -59,7 +59,7 @@ const mechanismPatterns: readonly MechanismPattern[] = [
 export async function analyzeRepositoryConsistency(root: string, input: ConsistencyAnalysisInput = {}): Promise<ConsistencyReport> {
   const resolvedRoot = path.resolve(root)
   const report = await scanRepository(resolvedRoot)
-  const sourceEntries = await readEvidenceSources(resolvedRoot, report)
+  const sourceEntries = await readEvidenceSources(resolvedRoot, report, input.changedPaths ?? [])
   const observations = collectObservations(sourceEntries)
   const proposedText = input.proposedText ?? ''
   const findings: ConsistencyFinding[] = []
@@ -134,11 +134,12 @@ export function formatConsistencyReport(report: ConsistencyReport): string {
   ].join('\n')
 }
 
-async function readEvidenceSources(root: string, report: DiscoveryReport): Promise<ReadonlyMap<string, string>> {
+async function readEvidenceSources(root: string, report: DiscoveryReport, changedPaths: readonly string[]): Promise<ReadonlyMap<string, string>> {
+  const changed = new Set(changedPaths.map((item) => normalizeRelative(root, item)))
   const paths = [...new Set([
     ...report.references,
     ...report.capabilities.flatMap((item) => item.evidence),
-  ])].filter((item) => isSafeRelativePath(root, item)).slice(0, 80)
+  ])].filter((item) => isSafeRelativePath(root, item) && !changed.has(normalizeRelative(root, item))).slice(0, 80)
   const entries = await Promise.all(paths.map(async (relativePath): Promise<readonly [string, string] | null> => {
     try {
       return [relativePath, await readFile(path.join(root, relativePath), 'utf8')] as const
@@ -147,6 +148,10 @@ async function readEvidenceSources(root: string, report: DiscoveryReport): Promi
     }
   }))
   return new Map(entries.filter((item): item is readonly [string, string] => item !== null))
+}
+
+function normalizeRelative(root: string, target: string): string {
+  return path.relative(path.resolve(root), path.resolve(root, target)).split(path.sep).join('/')
 }
 
 function collectObservations(entries: ReadonlyMap<string, string>): ConsistencyObservation[] {

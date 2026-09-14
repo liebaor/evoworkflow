@@ -2,6 +2,7 @@ import {spawn} from 'node:child_process'
 import path from 'node:path'
 
 import type {AgentAdapter} from '../agents/adapter.js'
+import type {AgentRunRequest} from '../agents/adapter.js'
 import {approvalFingerprint} from './fingerprint.js'
 import {EvoError} from './errors.js'
 import {
@@ -32,6 +33,29 @@ export interface GoalExecutionOptions {
   readonly contextFingerprint: string
   readonly state: State
   readonly persistence: GoalPersistence
+  /** Prepares a fresh context and deterministic preflight for each Slice attempt. */
+  readonly beforeSlice?: (goal: Goal, slice: GoalSlice, attempt: number) => Promise<GoalSlicePreparation>
+  /** Runs independent post-execution gates after focused verification. */
+  readonly afterSlice?: (goal: Goal, slice: GoalSlice, attempt: GoalAttempt, agent: AgentRunResult, verification: readonly VerificationRun[]) => Promise<GoalSlicePostflight>
+}
+
+export interface GoalSlicePreparation {
+  readonly status: 'READY' | 'BLOCKED'
+  readonly summary?: string
+  readonly stopCondition?: Goal['stopConditions'][number]
+  readonly invocationId?: string
+  readonly workingContext?: AgentRunRequest['workingContext']
+  readonly constraints?: AgentRunRequest['constraints']
+  readonly preflight?: AgentRunRequest['preflight']
+  readonly workingContextFingerprint?: string | null
+  readonly constraintsFingerprint?: string | null
+}
+
+export interface GoalSlicePostflight {
+  readonly status: 'PASS' | 'RETRY' | 'BLOCKED'
+  readonly summary?: string
+  readonly stopCondition?: Goal['stopConditions'][number]
+  readonly postflight?: AgentRunRequest['preflight']
 }
 
 /** Validates and records explicit human approval for immutable Goal intent. */
@@ -113,21 +137,57 @@ function requireApprovedGoal(goal: Goal, adapterConfig: AgentAdapterConfig, cont
 async function executeSlice(goal: Goal, slice: GoalSlice, state: State, options: GoalExecutionOptions): Promise<void> {
   const attemptsInEpoch = (): number => slice.attempts.filter((attempt) => attempt.epoch === goal.runEpoch).length
   while (attemptsInEpoch() < goal.maxAttempts) {
+    if (goal.failureBudget !== undefined && goal.failuresUsed >= goal.failureBudget) {
+      slice.status = 'BLOCKED'
+      slice.stopCondition = 'FAILURE_BUDGET_EXHAUSTED'
+      slice.blockReason = `Goal failure budget ${goal.failureBudget} has been exhausted.`
+      await persistCheckpoint(goal, state, slice.id, options.persistence)
+      return
+    }
     slice.status = 'RUNNING'
     slice.blockReason = null
     slice.stopCondition = null
     await persistCheckpoint(goal, state, slice.id, options.persistence)
     const startedAt = new Date().toISOString()
-    let agent: AgentRunResult
+    let preparation: GoalSlicePreparation = {status: 'READY'}
     try {
-      agent = await options.adapter.run({repository: goal.repository, goal, slice, attempt: attemptsInEpoch() + 1})
+      if (options.beforeSlice) preparation = await options.beforeSlice(goal, slice, attemptsInEpoch() + 1)
     } catch (error) {
-      agent = {
+      preparation = {
         status: 'BLOCKED',
         summary: error instanceof Error ? error.message : String(error),
+        stopCondition: 'TRANSIENT_FAILURE',
+      }
+    }
+    let agent: AgentRunResult
+    if (preparation.status === 'BLOCKED') {
+      agent = {
+        status: 'BLOCKED',
+        summary: preparation.summary ?? 'Slice preflight was blocked.',
         changedFiles: [],
         evidence: [],
-        stopCondition: 'TRANSIENT_FAILURE',
+        stopCondition: preparation.stopCondition ?? 'HARD_GATE_FAILURE',
+      }
+    } else {
+      try {
+        agent = await options.adapter.run({
+          repository: goal.repository,
+          goal,
+          slice,
+          attempt: attemptsInEpoch() + 1,
+          ...(preparation.workingContext === undefined ? {} : {workingContext: preparation.workingContext}),
+          ...(preparation.constraints === undefined ? {} : {constraints: preparation.constraints}),
+          ...(preparation.preflight === undefined ? {} : {preflight: preparation.preflight}),
+          ...(preparation.invocationId === undefined ? {} : {invocationId: preparation.invocationId}),
+        })
+      } catch (error) {
+        agent = {
+          status: 'BLOCKED',
+          summary: error instanceof Error ? error.message : String(error),
+          changedFiles: [],
+          evidence: [],
+          stopCondition: 'TRANSIENT_FAILURE',
+        }
       }
     }
 
@@ -141,8 +201,24 @@ async function executeSlice(goal: Goal, slice: GoalSlice, state: State, options:
       endedAt: new Date().toISOString(),
       agent,
       verification,
+      ...(preparation.invocationId === undefined ? {} : {invocationId: preparation.invocationId}),
+      ...(preparation.workingContextFingerprint === undefined ? {} : {workingContextFingerprint: preparation.workingContextFingerprint}),
+      ...(preparation.constraintsFingerprint === undefined ? {} : {constraintsFingerprint: preparation.constraintsFingerprint}),
+      ...(preparation.preflight === undefined ? {} : {preflight: [...preparation.preflight]}),
     }
+    let postflight: GoalSlicePostflight
+    try {
+      postflight = options.afterSlice ? await options.afterSlice(goal, slice, attempt, agent, verification) : {status: 'PASS' as const}
+    } catch (error) {
+      postflight = {
+        status: 'BLOCKED',
+        summary: `Postflight evaluation failed: ${error instanceof Error ? error.message : String(error)}`,
+        stopCondition: 'HARD_GATE_FAILURE',
+      }
+    }
+    if (postflight.postflight) attempt.postflight = [...postflight.postflight]
     slice.attempts.push(attempt)
+    if (agent.status !== 'COMPLETED' || verification.some((run) => run.status !== 'PASS') || postflight.status !== 'PASS') goal.failuresUsed += 1
 
     if (agent.status === 'BLOCKED' && agent.stopCondition !== 'TRANSIENT_FAILURE') {
       slice.status = 'BLOCKED'
@@ -151,7 +227,19 @@ async function executeSlice(goal: Goal, slice: GoalSlice, state: State, options:
       await persistCheckpoint(goal, state, slice.id, options.persistence)
       return
     }
+    if (postflight.status === 'BLOCKED') {
+      slice.status = 'BLOCKED'
+      slice.blockReason = postflight.summary ?? 'Post-execution gate blocked the Slice.'
+      slice.stopCondition = postflight.stopCondition ?? 'HARD_GATE_FAILURE'
+      await persistCheckpoint(goal, state, slice.id, options.persistence)
+      return
+    }
     if (agent.status === 'COMPLETED' && verification.length > 0 && verification.every((run) => run.status === 'PASS')) {
+      if (postflight.status === 'RETRY') {
+        slice.status = 'PENDING'
+        await persistCheckpoint(goal, state, null, options.persistence)
+        continue
+      }
       slice.status = 'PASS'
       await persistCheckpoint(goal, state, null, options.persistence)
       return

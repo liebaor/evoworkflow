@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evoworkflow.dev/schema/project-gate-definition-v1.json",
+  "title": "evoworkflow Project Gate Definition v1",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^PG-[A-Za-z0-9][A-Za-z0-9_-]*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "check": {
+      "default": "NO_CONSISTENCY_FINDINGS",
+      "type": "string",
+      "enum": [
+        "NO_CONSISTENCY_FINDINGS",
+        "NO_RESPONSE_DRIFT",
+        "NO_PERMISSION_DRIFT",
+        "NO_NAMING_DRIFT",
+        "NO_BLAST_RADIUS_EXPANSION"
+      ]
+    },
+    "authority": {
+      "type": "string",
+      "minLength": 1
+    },
+    "predicate": {
+      "type": "string",
+      "minLength": 1
+    },
+    "falsifyingCase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "negativeRegression": {
+      "type": "string",
+      "minLength": 1
+    },
+    "remediation": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enforcement": {
+      "default": "WARNING",
+      "type": "string",
+      "enum": [
+        "HARD",
+        "WARNING"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "check",
+    "authority",
+    "predicate",
+    "falsifyingCase",
+    "negativeRegression",
+    "remediation",
+    "enforcement"
+  ],
+  "additionalProperties": false
+}

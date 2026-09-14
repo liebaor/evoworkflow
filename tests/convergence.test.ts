@@ -8,6 +8,7 @@ import {pathExists, writeTextAtomic, writeYaml} from '../src/repository/io.js'
 import {activeGoalPath} from '../src/repository/managed.js'
 import {repositoryPaths} from '../src/repository/paths.js'
 import {approveActiveGoal, createGoal} from '../src/repository/goals.js'
+import {initializeEvidence, runEvidence} from '../src/repository/evidence.js'
 import {cleanupTemporaryRepositories, initializeRepository, readState, temporaryRepository, writeRepositoryFiles} from './helpers.js'
 
 afterEach(cleanupTemporaryRepositories)
@@ -100,6 +101,48 @@ describe('repository convergence', () => {
 
     await expect(finishChange(root)).resolves.toEqual(expect.objectContaining({ready: true}))
     expect(await pathExists(path.join(paths.completedGoals, 'ready-goal.yml'))).toBe(true)
+  })
+
+  it('requires a converged Review before allowing explicitly deferred acceptance', async () => {
+    const root = await temporaryRepository('convergence-deferred')
+    await initializeRepository(root)
+    const paths = repositoryPaths(root)
+    await writeRepositoryFiles(root, {
+      '.evo/work/active/deferred-feature/change.md': '---\nid: deferred-feature\nweight: STANDARD\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Change\n\n- AC-01: Implemented behavior.\n- AC-02: Independent review.\n- AC-03: Final delivery after Finish.\n',
+      '.evo/work/active/deferred-feature/plan.md': '---\nchange: deferred-feature\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Plan\n\n### S1 — Complete behavior\n\n- AC-01: implementation; verify with the focused test.\n- AC-02: review; verify with the independent review.\n- AC-03: final delivery; verify with the delivery checkpoint.\n',
+    })
+    const state = await readState(root)
+    await writeYaml(paths.state, {...state, activeChange: 'deferred-feature', phase: 'VERIFY', status: 'AWAITING_APPROVAL', currentSlice: null, slices: [], updatedAt: new Date().toISOString()})
+    await approveArtifact(root, 'deferred-feature', 'change', 'test human')
+    await approveArtifact(root, 'deferred-feature', 'plan', 'test human')
+    await initializeEvidence(root, 'deferred-feature')
+    await runEvidence({
+      root,
+      changeId: 'deferred-feature',
+      acceptance: ['AC-01'],
+      kind: 'unit',
+      label: 'implemented behavior',
+      executable: process.execPath,
+      args: ['-e', 'process.exit(0)'],
+    })
+
+    await writeTextAtomic(path.join(paths.activeWork, 'deferred-feature', 'review.md'), '---\nchange: deferred-feature\nstatus: APPROVED\nhumanAcceptance: true\nopenFindings: 0\ndocsConverged: true\ndeferredAcceptance:\n  - AC-03\n---\n\n# Review\n\nThe independent review is complete.\n')
+    const beforeReviewEvidence = await checkConvergence(root)
+    expect(beforeReviewEvidence.ready).toBe(false)
+    expect(beforeReviewEvidence.items).toContainEqual(expect.objectContaining({area: 'evidence', status: 'PENDING'}))
+
+    await runEvidence({
+      root,
+      changeId: 'deferred-feature',
+      acceptance: ['AC-02'],
+      kind: 'manual',
+      label: 'independent review',
+      executable: process.execPath,
+      args: ['-e', 'process.exit(0)'],
+    })
+    const afterReviewEvidence = await checkConvergence(root)
+    expect(afterReviewEvidence.ready).toBe(true)
+    expect(afterReviewEvidence.items).toContainEqual(expect.objectContaining({area: 'evidence', status: 'APPLY', detail: expect.stringContaining('post-admission')}))
   })
 })
 

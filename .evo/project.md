@@ -77,6 +77,7 @@
 - `src/repository/recovery.ts` — read-only repository recovery report / 只读仓库恢复报告。
 - `scripts/phase2-evals.ts` — deterministic E001-E012 harness / E001-E012 确定性评估。
 - `scripts/phase2-ruoyi-smoke.ts` — fixed-archive RuoYi grounding and Feature A/B evaluator / 固定归档 RuoYi Grounding 与 Feature A/B 评估。
+- `scripts/phase3-ruoyi-behavioral.ts` — separate real-Agent RuoYi A/B/Delta/Bug/Recovery/C baseline plus FastAPI positive-consistency evaluator / 独立真实 Agent RuoYi 连续场景与 FastAPI 正向一致性评估。
 
 ## Unknowns / 未知项
 

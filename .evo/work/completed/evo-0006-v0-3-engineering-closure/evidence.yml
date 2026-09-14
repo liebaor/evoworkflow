@@ -1,0 +1,46 @@
+schemaVersion: 2
+change: evo-0006-v0-3-engineering-closure
+updatedAt: 2026-09-14T12:58:08.533Z
+acceptance:
+  - id: AC-F1
+    status: PASS
+    evidenceRefs:
+      - EV-20260914124820-d0fd0717
+    limitations: []
+  - id: AC-F2
+    status: PASS
+    evidenceRefs:
+      - EV-20260914124831-d1154046
+    limitations: []
+  - id: AC-F3
+    status: PASS
+    evidenceRefs:
+      - EV-20260914124831-d1154046
+    limitations: []
+  - id: AC-F4
+    status: PASS
+    evidenceRefs:
+      - EV-20260914124843-66cb2fe5
+    limitations: []
+  - id: AC-F5
+    status: PASS
+    evidenceRefs:
+      - EV-20260914125125-cd8067cc
+    limitations: []
+  - id: AC-F6
+    status: PASS
+    evidenceRefs:
+      - EV-20260914125808-ccfd2132
+    limitations: []
+  - id: AC-F7
+    status: PASS
+    evidenceRefs:
+      - EV-20260914124927-455bad51
+      - EV-20260914125310-e0e21c3e
+    limitations: []
+  - id: AC-F8
+    status: NOT_RUN
+    evidenceRefs: []
+    limitations: []
+inputFingerprint: d18306d4ec6ceb16a456a601d106e71365fdf597455a81188f9f4034f9094619
+freshness: CURRENT

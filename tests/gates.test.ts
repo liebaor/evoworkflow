@@ -1,0 +1,136 @@
+import {afterEach, describe, expect, it} from 'vitest'
+
+import {admitProjectGate, candidateAdmission, evaluateExecutionPreflight, evaluateProjectGates, evaluateGatePromotion} from '../src/validation/gates.js'
+import {ProjectGateDefinitionSchema} from '../src/core/schemas.js'
+import {approveArtifact} from '../src/repository/artifacts.js'
+import {cleanupTemporaryRepositories, createActiveChange, initializeRepository, temporaryRepository, writeRepositoryFiles} from './helpers.js'
+import {runEvidence} from '../src/repository/evidence.js'
+
+afterEach(cleanupTemporaryRepositories)
+
+describe('protocol and project gates', () => {
+  it('keeps heuristic project signals as warnings and requires the five promotion fields', async () => {
+    const root = await temporaryRepository('gates')
+    await initializeRepository(root)
+    await createActiveChange(root)
+    await writeRepositoryFiles(root, {
+      'src/controllers/InventoryController.java': 'class InventoryController { ApiResponse list() {} }\n',
+      'src/controllers/UserController.java': 'class UserController { AjaxResult list() {} }\n',
+    })
+    const report = await evaluateProjectGates(root, 'change-one', {changedPaths: ['src/controllers/InventoryController.java']})
+    expect(report.gates.every((gate) => gate.enforcement === 'WARNING')).toBe(true)
+
+    const definition = ProjectGateDefinitionSchema.parse({
+      id: 'PG-response',
+      title: 'Response convention',
+      authority: 'src/controllers/UserController.java',
+      predicate: 'New controllers use AjaxResult.',
+      falsifyingCase: 'A changed controller returns ApiResponse.',
+      negativeRegression: 'The violating fixture causes the predicate to fail.',
+      remediation: 'Reuse the existing response mechanism or record a Decision.',
+    })
+    expect(evaluateGatePromotion(definition).eligible).toBe(true)
+  })
+
+  it('does not admit an unfinished candidate and reports the hard reasons', async () => {
+    const root = await temporaryRepository('admission')
+    await initializeRepository(root)
+    await createActiveChange(root)
+    const admission = await candidateAdmission(root, 'change-one')
+    expect(admission.status).toBe('NOT_READY')
+    expect(admission.reasons.join('\n')).toMatch(/Evidence|Acceptance|Freshness|current-truth/u)
+  })
+
+  it('requires explicit deferred acceptance ids for post-admission obligations', async () => {
+    const root = await temporaryRepository('admission-deferred')
+    await initializeRepository(root)
+    await createActiveChange(root)
+    await writeRepositoryFiles(root, {
+      '.evo/work/active/change-one/change.md': '---\nid: change-one\nweight: STANDARD\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Change\n\n- AC-01: Implemented behavior.\n- AC-02: Final delivery after Finish.\n',
+      '.evo/work/active/change-one/plan.md': '---\nchange: change-one\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Plan\n\n### S1 — Implement behavior\n\n- AC-01: implementation in `src/feature.ts`; verify with the focused test.\n- AC-02: final delivery; verify with the delivery checkpoint.\n',
+      'src/feature.ts': 'export const feature = true\n',
+    })
+    await approveArtifact(root, 'change-one', 'change', 'test human')
+    await approveArtifact(root, 'change-one', 'plan', 'test human')
+    await runEvidence({
+      root,
+      changeId: 'change-one',
+      acceptance: ['AC-01'],
+      kind: 'unit',
+      label: 'implemented behavior',
+      executable: process.execPath,
+      args: ['-e', 'process.exit(0)'],
+    })
+
+    const pending = await candidateAdmission(root, 'change-one')
+    expect(pending.status).toBe('NOT_READY')
+    const admitted = await candidateAdmission(root, 'change-one', {deferredAcceptance: ['AC-02']})
+    expect(admitted.gates.find((gate) => gate.id === 'G-evidence-current')?.status).toBe('PASS')
+    expect(admitted.gates.find((gate) => gate.id === 'G-acceptance-coverage')?.status).toBe('PASS')
+    expect(admitted.reasons.some((reason) => reason.startsWith('AC-02:'))).toBe(false)
+    expect(admitted.deferredAcceptance).toEqual(['AC-02'])
+  })
+
+  it('executes a promoted deterministic project gate through pass, violation, and restore', async () => {
+    const root = await temporaryRepository('promoted-project-gate')
+    await initializeRepository(root)
+    await createActiveChange(root)
+    await writeRepositoryFiles(root, {
+      'src/controllers/UserController.java': 'class UserController { AjaxResult list() { return AjaxResult.success(); } }\n',
+    })
+    await admitProjectGate(root, ProjectGateDefinitionSchema.parse({
+      id: 'PG-response',
+      title: 'Response convention',
+      check: 'NO_RESPONSE_DRIFT',
+      authority: 'src/controllers/UserController.java',
+      predicate: 'Changed controllers use AjaxResult.',
+      falsifyingCase: 'A changed controller returns ApiResponse.',
+      negativeRegression: 'The violating fixture causes the predicate to fail.',
+      remediation: 'Reuse the existing response mechanism or record a Decision.',
+      enforcement: 'HARD',
+    }))
+
+    const passing = await evaluateProjectGates(root, 'change-one', {changedPaths: ['src/controllers/UserController.java'], proposedText: 'return AjaxResult.success();'})
+    expect(passing.gates.find((gate) => gate.id === 'G-pg-response')?.status).toBe('PASS')
+
+    const failing = await evaluateProjectGates(root, 'change-one', {changedPaths: ['src/controllers/InventoryController.java'], proposedText: 'return ApiResponse.success();'})
+    expect(failing.gates.find((gate) => gate.id === 'G-pg-response')).toEqual(expect.objectContaining({status: 'FAIL', enforcement: 'HARD'}))
+
+    const restored = await evaluateProjectGates(root, 'change-one', {changedPaths: ['src/controllers/InventoryController.java'], proposedText: 'return AjaxResult.success();'})
+    expect(restored.gates.find((gate) => gate.id === 'G-pg-response')?.status).toBe('PASS')
+  })
+
+  it('does not promote an unregistered heuristic check to HARD', async () => {
+    const definition = ProjectGateDefinitionSchema.parse({
+      id: 'PG-naming',
+      title: 'Naming convention',
+      check: 'NO_NAMING_DRIFT',
+      authority: 'src/controllers/UserController.java',
+      predicate: 'Changed controllers use the existing naming convention.',
+      falsifyingCase: 'A changed controller introduces an unrelated name.',
+      negativeRegression: 'The violating fixture fails the naming predicate.',
+      remediation: 'Reuse the existing naming convention or record a human Decision.',
+      enforcement: 'HARD',
+    })
+    const promotion = evaluateGatePromotion(definition)
+    expect(promotion.eligible).toBe(false)
+    expect(promotion.reason).toMatch(/registered deterministic checker/u)
+
+    const root = await temporaryRepository('unregistered-hard-gate')
+    await initializeRepository(root)
+    await createActiveChange(root)
+    await expect(admitProjectGate(root, definition)).rejects.toThrow(/cannot be admitted/u)
+  })
+
+  it('blocks execution preflight on conflicting authority constraints', async () => {
+    const root = await temporaryRepository('gate-conflict')
+    await initializeRepository(root)
+    await createActiveChange(root)
+    await writeRepositoryFiles(root, {
+      '.evo/decisions/current/d-pagination-a.md': '---\nid: d-pagination-a\nchange: change-one\nstatus: current\nsupersedes: null\nsupersededBy: null\n---\n\n## Decision\n\nUse cursor pagination.\n',
+      '.evo/decisions/current/d-pagination-b.md': '---\nid: d-pagination-b\nchange: change-one\nstatus: current\nsupersedes: null\nsupersededBy: null\n---\n\n## Decision\n\nUse offset pagination.\n',
+    })
+    const preflight = await evaluateExecutionPreflight(root, 'change-one')
+    expect(preflight.find((gate) => gate.id === 'G-constraints-resolved')?.status).toBe('BLOCKED')
+  })
+})

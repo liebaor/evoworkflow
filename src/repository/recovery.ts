@@ -2,7 +2,7 @@ import {readFile} from 'node:fs/promises'
 import path from 'node:path'
 
 import {getStatusSummary} from '../core/navigation.js'
-import {GoalSchema, type State, type WorkflowPhase, type WorkflowStatus} from '../core/schemas.js'
+import {GoalSchema, type FreshnessStatus, type GateReport, type State, type WorkflowPhase, type WorkflowStatus} from '../core/schemas.js'
 import {artifactPath, inspectArtifactApproval, parseArtifactMetadata} from './artifacts.js'
 import {buildWorkingContext, type WorkingContext} from './working-context.js'
 import {readYaml, pathExists} from './io.js'
@@ -11,10 +11,24 @@ import {parseMarkdownDocument} from './markdown.js'
 import {repositoryPaths} from './paths.js'
 import {validateProject, type ValidationIssue} from '../validation/project.js'
 import {readEvidence as readEvidenceDocument} from './evidence.js'
+import {buildAcceptanceTraceability, inspectAcceptanceTrace, type AcceptanceTraceReport} from './acceptance-trace.js'
+import {inspectConstraintsFreshness, readResolvedConstraints} from './constraints.js'
+import {inspectFreshness} from './freshness.js'
+import {evaluateProtocolGates} from '../validation/gates.js'
+import {detectImplementationAheadOfApproval, type ImplementationAheadFinding} from './deviation.js'
 
 export interface RecoveryEvidence {
   readonly path: string
   readonly statuses: readonly string[]
+}
+
+export interface RecoveryConstraintSummary {
+  readonly persisted: boolean
+  readonly status: FreshnessStatus | 'NOT_BUILT'
+  readonly fingerprint: string | null
+  readonly total: number
+  readonly conflicts: readonly string[]
+  readonly unknowns: readonly string[]
 }
 
 export interface RecoveryReport {
@@ -31,6 +45,12 @@ export interface RecoveryReport {
   readonly blocked: readonly string[]
   readonly modifiedPaths: readonly string[]
   readonly latestEvidence: readonly RecoveryEvidence[]
+  readonly constraints: RecoveryConstraintSummary
+  readonly freshness: Awaited<ReturnType<typeof inspectFreshness>> | null
+  readonly gates: GateReport | null
+  readonly acceptanceTrace: AcceptanceTraceReport['document'] | null
+  readonly checkpointChronology: readonly string[]
+  readonly implementationAheadOfApproval: ImplementationAheadFinding | null
   readonly unknowns: readonly string[]
   readonly protocolIssues: readonly ValidationIssue[]
   readonly workingContext: WorkingContext
@@ -53,6 +73,21 @@ export async function buildRecoveryReport(root: string): Promise<RecoveryReport>
   if (latestEvidence.some((item) => item.statuses.some((status) => status.includes('BLOCKED')))) blocked.push('Evidence contains BLOCKED acceptance results.')
   const summary = await safeStatusSummary(root)
   const objective = await currentObjective(paths, managed.state, workingContext)
+  const constraints = await readConstraintSummary(paths.root, managed.state.activeChange, workingContext)
+  const freshness = managed.state.activeChange ? await safeFreshness(paths.root, managed.state.activeChange) : null
+  const gates = managed.state.activeChange ? await safeProtocolGates(paths.root, managed.state.activeChange) : null
+  const acceptanceTrace = managed.state.activeChange ? (await safeAcceptanceTrace(paths.root, managed.state.activeChange))?.document ?? null : null
+  const implementationAheadOfApproval = managed.state.activeChange ? await safeImplementationAhead(paths.root, managed.state.activeChange) : null
+  const checkpointChronology = workingContext.git.recentCommits
+  if (implementationAheadOfApproval) blocked.push(implementationAheadOfApproval.detail)
+  if (freshness && freshness.status !== 'CURRENT') blocked.push(`Derived artifact freshness is ${freshness.status}.`)
+  if (constraints.status === 'CONFLICT') blocked.push('Resolved constraints contain an authority conflict.')
+  if (constraints.unknowns.length > 0) blocked.push(`Resolved constraints contain unknown blockers: ${constraints.unknowns.join(', ')}.`)
+  if (gates) {
+    for (const gate of gates.gates.filter((item) => item.enforcement === 'HARD' && !['PASS'].includes(item.status))) {
+      blocked.push(`Gate ${gate.id} is ${gate.status}: ${gate.detail}`)
+    }
+  }
   const unknowns = [...new Set([...workingContext.unknowns, ...latestEvidence.flatMap((item) => {
     if (item.statuses.includes('UNVERIFIED')) return [`${item.path} contains UNVERIFIED evidence.`]
     return item.statuses.some((status) => status.includes('NOT_RUN') || status.includes('BLOCKED')) ? [`${item.path} contains incomplete evidence.`] : []
@@ -72,10 +107,16 @@ export async function buildRecoveryReport(root: string): Promise<RecoveryReport>
     blocked: [...new Set(blocked)],
     modifiedPaths: workingContext.git.changedPaths,
     latestEvidence,
+    constraints,
+    freshness,
+    gates,
+    acceptanceTrace,
+    checkpointChronology,
+    implementationAheadOfApproval,
     unknowns,
     protocolIssues: validation.issues,
     workingContext,
-    recommendedNextAction: summary?.nextAction ?? 'evo check --root <repository>',
+    recommendedNextAction: implementationAheadOfApproval?.nextAction ?? summary?.nextAction ?? 'evo check --root <repository>',
   }
 }
 
@@ -106,6 +147,31 @@ export function formatRecoveryReport(report: RecoveryReport): string {
     '## Evidence / 证据',
     ...(report.latestEvidence.length > 0 ? report.latestEvidence.map((item) => `- \`${item.path}\`: ${item.statuses.join(', ') || 'no acceptance rows / 无验收行'}`) : ['- none / 无']),
     '',
+    '## Constraints / 工程约束',
+    `- Status / 状态：${report.constraints.status}`,
+    `- Persisted / 已持久化：${report.constraints.persisted ? 'yes / 是' : 'no / 否'}`,
+    `- Fingerprint / 指纹：${report.constraints.fingerprint ?? 'none / 无'}`,
+    `- Total / 总数：${report.constraints.total}`,
+    ...(report.constraints.conflicts.length > 0 ? report.constraints.conflicts.map((item) => `- CONFLICT: ${item}`) : ['- conflicts: none / 无冲突']),
+    ...(report.constraints.unknowns.length > 0 ? report.constraints.unknowns.map((item) => `- UNKNOWN: ${item}`) : ['- unknowns: none / 无未知']),
+    '',
+    '## Freshness / 新鲜度',
+    ...(report.freshness ? [`- Overall / 总体：${report.freshness.status}`, ...report.freshness.entries.map((entry) => `- ${entry.status} ${entry.kind}/${entry.id}: ${entry.detail}`)] : ['- not built / 尚未构建']),
+    '',
+    '## Gates / 门禁',
+    ...(report.gates ? report.gates.gates.map((gate) => `- ${gate.status} ${gate.enforcement} ${gate.id}: ${gate.detail}`) : ['- not run / 尚未运行']),
+    '',
+    '## Checkpoint chronology / 检查点历史',
+    ...(report.checkpointChronology.length > 0 ? report.checkpointChronology.map((item) => `- ${item}`) : ['- none / 无']),
+    '',
+    '## Findings / 发现',
+    ...(report.implementationAheadOfApproval
+      ? [
+        `- ${report.implementationAheadOfApproval.code}: ${report.implementationAheadOfApproval.detail}`,
+        ...report.implementationAheadOfApproval.signals.map((signal) => `- ${signal.kind} ${signal.source}: ${signal.detail}`),
+      ]
+      : ['- none / 无']),
+    '',
     '## Modified paths / 修改路径',
     ...(report.modifiedPaths.length > 0 ? report.modifiedPaths.map((item) => `- \`${item}\``) : ['- none / 无']),
     '',
@@ -117,6 +183,53 @@ export function formatRecoveryReport(report: RecoveryReport): string {
     '',
     'Recovery is read-only; the recommended action is not executed automatically. / 恢复报告只读，建议动作不会自动执行。',
   ].join('\n')
+}
+
+async function readConstraintSummary(root: string, changeId: string | null, context: WorkingContext): Promise<RecoveryConstraintSummary> {
+  if (!changeId) return {persisted: false, status: 'NOT_BUILT', fingerprint: null, total: 0, conflicts: [], unknowns: []}
+  const persisted = await inspectConstraintsFreshness(root, changeId)
+  const document = persisted ?? await readResolvedConstraints(root, changeId)
+  const values = document?.constraints ?? context.constraints ?? []
+  return {
+    persisted: document !== null,
+    status: document?.freshness ?? context.constraintsFreshness ?? 'NOT_BUILT',
+    fingerprint: document?.inputFingerprint ?? context.constraintsFingerprint ?? null,
+    total: values.length,
+    conflicts: values.filter((item) => item.type === 'CONFLICT').map((item) => `${item.topic}: ${item.statement}`),
+    unknowns: values.filter((item) => item.type === 'UNKNOWN').map((item) => `${item.topic}: ${item.statement}`),
+  }
+}
+
+async function safeFreshness(root: string, changeId: string): Promise<Awaited<ReturnType<typeof inspectFreshness>> | null> {
+  try {
+    return await inspectFreshness(root, changeId)
+  } catch {
+    return null
+  }
+}
+
+async function safeProtocolGates(root: string, changeId: string): Promise<GateReport | null> {
+  try {
+    return await evaluateProtocolGates(root, changeId)
+  } catch {
+    return null
+  }
+}
+
+async function safeAcceptanceTrace(root: string, changeId: string): Promise<AcceptanceTraceReport | null> {
+  try {
+    return await inspectAcceptanceTrace(root, changeId) ?? await buildAcceptanceTraceability(root, changeId)
+  } catch {
+    return null
+  }
+}
+
+async function safeImplementationAhead(root: string, changeId: string): Promise<ImplementationAheadFinding | null> {
+  try {
+    return await detectImplementationAheadOfApproval(root, changeId)
+  } catch {
+    return null
+  }
 }
 
 async function readApprovedArtifacts(paths: ReturnType<typeof repositoryPaths>, state: State): Promise<string[]> {

@@ -1,8 +1,8 @@
 import {stat} from 'node:fs/promises'
 import path from 'node:path'
 
-import type {Config} from '../core/schemas.js'
-import {pathExists} from '../repository/io.js'
+import {GateReportSchema, ProjectGateDefinitionSchema, type Config} from '../core/schemas.js'
+import {pathExists, readYaml} from '../repository/io.js'
 import {listDirectory, openManagedRepository, readOptionalText} from '../repository/managed.js'
 import {repositoryPaths} from '../repository/paths.js'
 import {formatValidationReport, validateProject, type ValidationIssue, type ValidationReport} from './project.js'
@@ -11,6 +11,10 @@ import {readEvidence, readEvidenceRecords, reconcileEvidence} from '../repositor
 import {captureGitSnapshot} from '../repository/git-snapshot.js'
 import {createHash} from 'node:crypto'
 import {readFile} from 'node:fs/promises'
+import {inspectAcceptanceTrace, buildAcceptanceTraceability} from '../repository/acceptance-trace.js'
+import {inspectConstraintsFreshness} from '../repository/constraints.js'
+import {inspectFreshness} from '../repository/freshness.js'
+import {detectImplementationAheadOfApproval, IMPLEMENTATION_AHEAD_OF_APPROVAL} from '../repository/deviation.js'
 
 export interface DoctorReport extends ValidationReport {
   readonly checkedAt: string
@@ -57,7 +61,14 @@ export async function runDoctor(root: string, now = new Date()): Promise<DoctorR
     if (evidence && /\bUNVERIFIED\b/u.test(evidence)) {
       issues.push(diagnostic('UNVERIFIED_ACTIVE_WORK', 'warning', `Active Change ${workId} still records UNVERIFIED evidence.`, relative(paths.root, evidencePath)))
     }
+    try {
+      const deviation = await detectImplementationAheadOfApproval(paths.root, workId)
+      if (deviation) issues.push(diagnostic(IMPLEMENTATION_AHEAD_OF_APPROVAL, 'warning', deviation.detail, relative(paths.root, path.join(paths.activeWork, workId, 'change.md'))))
+    } catch (error) {
+      issues.push(diagnostic('INVALID_IMPLEMENTATION_DEVIATION_CHECK', 'error', error instanceof Error ? error.message : String(error), relative(paths.root, path.join(paths.activeWork, workId))))
+    }
     await addEvidenceDiagnostics(issues, paths.root, workId, false)
+    await addPhase3Diagnostics(issues, paths.root, workId)
   }
 
   for (const workId of await listDirectory(paths.completedWork)) {
@@ -71,11 +82,73 @@ export async function runDoctor(root: string, now = new Date()): Promise<DoctorR
       if (truth.missing.length > 0) issues.push(diagnostic('CURRENT_TRUTH_NOT_UPDATED', 'error', `Completed Change ${workId} is missing current-truth paths: ${truth.missing.join(', ')}.`, relative(paths.root, path.join(paths.completedWork, workId, 'plan.md'))))
       if (truth.legacy) issues.push(diagnostic('LEGACY_CURRENT_TRUTH_TARGETS', 'warning', `Completed Change ${workId} has no mechanically declared current-truth targets.`, relative(paths.root, path.join(paths.completedWork, workId, 'plan.md'))))
     }
-    await addEvidenceDiagnostics(issues, paths.root, workId, true)
+  await addEvidenceDiagnostics(issues, paths.root, workId, true)
   }
 
   const sorted = sortDiagnostics(issues)
   return {valid: !sorted.some((item) => item.severity === 'error'), issues: sorted, checkedAt: now.toISOString()}
+}
+
+/** Adds report-first diagnostics for disposable Phase 3 derived views and gate sources. */
+async function addPhase3Diagnostics(issues: ValidationIssue[], root: string, changeId: string): Promise<void> {
+  const paths = repositoryPaths(root)
+  try {
+    const freshness = await inspectFreshness(root, changeId)
+    for (const entry of freshness.entries.filter((item) => item.status !== 'CURRENT')) {
+      issues.push(diagnostic(
+        entry.status === 'STALE' ? 'STALE_DERIVED_ARTIFACT' : 'MISSING_DERIVED_ARTIFACT',
+        'warning',
+        `${entry.kind}/${entry.id} is ${entry.status}: ${entry.detail}`,
+        entry.kind === 'derived' ? relative(root, path.join(paths.activeWork, changeId, `${entry.id}.yml`)) : relative(root, path.join(paths.activeWork, changeId, `${entry.id}.md`)),
+      ))
+    }
+  } catch (error) {
+    issues.push(diagnostic('INVALID_FRESHNESS_REPORT', 'error', error instanceof Error ? error.message : String(error), relative(root, path.join(paths.activeWork, changeId))))
+  }
+
+  try {
+    const constraints = await inspectConstraintsFreshness(root, changeId)
+    if (!constraints) {
+      issues.push(diagnostic('MISSING_RESOLVED_CONSTRAINTS', 'warning', `Change ${changeId} has no persisted constraints.yml; rebuild it before bounded execution.`, relative(root, path.join(paths.activeWork, changeId, 'constraints.yml'))))
+    } else {
+      if (constraints.freshness === 'CONFLICT') issues.push(diagnostic('CONSTRAINT_CONFLICT', 'error', `Change ${changeId} has conflicting HARD constraints.`, relative(root, path.join(paths.activeWork, changeId, 'constraints.yml'))))
+      if (constraints.freshness !== 'CURRENT') issues.push(diagnostic('STALE_RESOLVED_CONSTRAINTS', 'warning', `Change ${changeId} constraints are ${constraints.freshness}.`, relative(root, path.join(paths.activeWork, changeId, 'constraints.yml'))))
+      for (const item of constraints.constraints.filter((value) => value.type === 'UNKNOWN')) issues.push(diagnostic('UNKNOWN_ENGINEERING_CONSTRAINT', 'warning', `${item.topic}: ${item.statement}`, relative(root, path.join(paths.activeWork, changeId, 'constraints.yml'))))
+    }
+  } catch (error) {
+    issues.push(diagnostic('INVALID_RESOLVED_CONSTRAINTS', 'error', error instanceof Error ? error.message : String(error), relative(root, path.join(paths.activeWork, changeId, 'constraints.yml'))))
+  }
+
+  try {
+    const trace = await inspectAcceptanceTrace(root, changeId) ?? await buildAcceptanceTraceability(root, changeId)
+    for (const issue of trace.issues) {
+      issues.push(diagnostic('ACCEPTANCE_TRACE_DRIFT', 'warning', `${issue.acceptance}: ${issue.detail}`, relative(root, path.join(paths.activeWork, changeId, 'acceptance.yml'))))
+    }
+  } catch (error) {
+    issues.push(diagnostic('MISSING_ACCEPTANCE_TRACE', 'warning', error instanceof Error ? error.message : String(error), relative(root, path.join(paths.activeWork, changeId, 'acceptance.yml'))))
+  }
+
+  for (const filename of (await listDirectory(paths.gates)).filter((item) => item.endsWith('.yml'))) {
+    const target = path.join(paths.gates, filename)
+    try {
+      const definition = await readYaml(target, ProjectGateDefinitionSchema)
+      if (definition.enforcement === 'HARD' && !definition.authority.trim()) {
+        issues.push(diagnostic('INVALID_GATE_SOURCE', 'error', `Hard project gate ${definition.id} has no authoritative source.`, relative(root, target)))
+      }
+    } catch (error) {
+      issues.push(diagnostic('INVALID_GATE_SOURCE', 'error', error instanceof Error ? error.message : String(error), relative(root, target)))
+    }
+  }
+
+  for (const filename of ['protocol-gates.yml', 'project-gates.yml']) {
+    const target = path.join(paths.activeWork, changeId, filename)
+    if (!(await pathExists(target))) continue
+    try {
+      await readYaml(target, GateReportSchema)
+    } catch (error) {
+      issues.push(diagnostic('INVALID_GATE_REPORT', 'error', error instanceof Error ? error.message : String(error), relative(root, target)))
+    }
+  }
 }
 
 async function addEvidenceDiagnostics(issues: ValidationIssue[], root: string, changeId: string, completed: boolean): Promise<void> {

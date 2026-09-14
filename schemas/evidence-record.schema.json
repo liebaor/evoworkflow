@@ -21,7 +21,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "pattern": "^AC-[A-Za-z0-9][A-Za-z0-9_-]*$"
+        "pattern": "^AC-[A-Za-z0-9][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9][A-Za-z0-9_-]*)*$"
       }
     },
     "kind": {
@@ -194,6 +194,27 @@
     "endedAt": {
       "type": "string",
       "minLength": 1
+    },
+    "inputFingerprint": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "freshness": {
+      "type": "string",
+      "enum": [
+        "CURRENT",
+        "STALE",
+        "UNKNOWN",
+        "MISSING",
+        "CONFLICT"
+      ]
     }
   },
   "required": [

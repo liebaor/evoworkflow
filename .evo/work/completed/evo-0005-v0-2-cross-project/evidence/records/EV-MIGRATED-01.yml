@@ -2,13 +2,16 @@ schemaVersion: 2
 id: EV-MIGRATED-01
 change: evo-0005-v0-2-cross-project
 acceptance:
-  - AC-5
+  - AC-5.1
+  - AC-5.2
+  - AC-5.3
+  - AC-5.4
 kind: manual
 label: Imported from legacy evidence.md
 status: NOT_RUN
 command: null
 exitCode: null
-summary: Imported legacy status NOT_RUN for AC-5; original evidence.md remains preserved.
+summary: Imported legacy status NOT_RUN for AC-5.1 through AC-5.4; the record was expanded after hierarchical acceptance-id parsing was corrected, and original evidence.md remains preserved.
 outputHash: null
 git:
   branch: main

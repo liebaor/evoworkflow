@@ -76,4 +76,28 @@ describe('narrative artifact approval', () => {
       {id: 'S2', status: 'PENDING', blockReason: null},
     ])
   })
+
+  it('replaces stale Slice checkpoints when approving a changed Plan', async () => {
+    const root = await temporaryRepository('artifact-plan-reapproval')
+    await initializeRepository(root)
+    const paths = repositoryPaths(root)
+    await writeRepositoryFiles(root, {
+      '.evo/work/active/new-change/change.md': '---\nid: new-change\nweight: STANDARD\nstatus: APPROVED\napproval: null\n---\n\n# Change\n',
+      '.evo/work/active/new-change/plan.md': '---\nchange: new-change\nstatus: AWAITING_APPROVAL\napproval: null\n---\n\n# Plan\n\n### F1 — New closure boundary\n',
+    })
+    const state = await readState(root)
+    await writeYaml(paths.state, {
+      ...state,
+      activeChange: 'new-change',
+      phase: 'PLAN',
+      status: 'APPROVED',
+      currentSlice: 'S1',
+      slices: [{id: 'S1', status: 'RUNNING', blockReason: null}],
+    })
+
+    await approveArtifact(root, 'new-change', 'plan')
+
+    expect((await readState(root)).slices).toEqual([{id: 'F1', status: 'PENDING', blockReason: null}])
+    expect((await readState(root)).currentSlice).toBeNull()
+  })
 })

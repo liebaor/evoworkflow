@@ -1,0 +1,114 @@
+schemaVersion: 2
+id: EV-20260913215149-462a52a5
+change: evo-0006-v0-3-engineering-closure
+acceptance:
+  - AC-6.10
+kind: build
+label: Final Node 24 aggregate check
+status: PASS
+command:
+  executable: pnpm
+  args:
+    - run
+    - check
+  cwd: /home/zhicheng/code/codex/evoworkflow
+exitCode: 0
+summary: exit=0; $ pnpm run typecheck && pnpm run test && pnpm run build && pnpm run smoke:cli && pnpm run validate:skills && pnpm run check:schemas && pnpm run eval:phase2 && pnpm run eval:phase3 && pnpm run eval:hardening && pnpm run smoke:package
+outputHash: daca1b14f75460023b82b6c441ad1713a1bbfbb8de27a0afc96f8e052f2e1877
+git:
+  branch: phase3/v0.3-engineering-closure
+  head: 64e1e313e494d758c03e849a224ea20563e10e84
+  treeFingerprint: d90193a4e181c705f169f022fb054c6a0e9e2771610fad5d67b9504d9cec1eae
+  dirty: true
+  changedPaths:
+    - .evo/project.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/admission.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/context.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212142-9324ad08.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212143-ff665d1e.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212145-f98b0fd6.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212913-98fe240a.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913213344-3c0fc955.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214415-93d9731e.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214639-184a3c9a.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214747-b0101de9.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/plan.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/project-gates.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/protocol-gates.yml
+    - .evo/work/completed/evo-0002-v0-2-grounding/evidence.yml
+    - .evo/work/completed/evo-0002-v0-2-grounding/evidence/records/EV-MIGRATED-01.yml
+    - .evo/work/completed/evo-0003-v0-2-context-consistency/evidence.yml
+    - .evo/work/completed/evo-0003-v0-2-context-consistency/evidence/records/EV-MIGRATED-01.yml
+    - .evo/work/completed/evo-0004-v0-2-resilience/evidence.yml
+    - .evo/work/completed/evo-0004-v0-2-resilience/evidence/records/EV-MIGRATED-01.yml
+    - .evo/work/completed/evo-0005-v0-2-cross-project/evidence.yml
+    - .evo/work/completed/evo-0005-v0-2-cross-project/evidence/records/EV-MIGRATED-01.yml
+    - docs/goal-protocol.md
+    - docs/operations.md
+    - docs/product-spec.md
+    - docs/repository-protocol.md
+    - docs/testing.md
+    - docs/workflow-protocol.md
+    - package.json
+    - README.md
+    - references/experiments/2026-09-14-phase3-ruoyi-behavioral.md
+    - schemas/acceptance-trace.schema.json
+    - schemas/candidate-admission.schema.json
+    - schemas/evidence-document.schema.json
+    - schemas/evidence-record.schema.json
+    - schemas/freshness.schema.json
+    - schemas/gate-report.schema.json
+    - schemas/goal.schema.json
+    - schemas/project-gate-definition.schema.json
+    - schemas/resolved-constraints.schema.json
+    - scripts/package-smoke.ts
+    - scripts/phase3-evals.ts
+    - scripts/phase3-ruoyi-behavioral.ts
+    - scripts/phase3-ruoyi-smoke.ts
+    - scripts/schema-documents.ts
+    - scripts/smoke-cli.ts
+    - scripts/validate-skills.ts
+    - skills/README.zh-CN.md
+    - src/agents/adapter.ts
+    - src/agents/process-adapter.ts
+    - src/commands/admission.ts
+    - src/commands/commit.ts
+    - src/commands/constraints.ts
+    - src/commands/gate.ts
+    - src/core/fingerprint.ts
+    - src/core/goal.ts
+    - src/core/schemas.ts
+    - src/repository/acceptance-trace.ts
+    - src/repository/acceptance.ts
+    - src/repository/consistency.ts
+    - src/repository/constraints.ts
+    - src/repository/delivery.ts
+    - src/repository/evidence.ts
+    - src/repository/freshness.ts
+    - src/repository/goal-execution.ts
+    - src/repository/goals.ts
+    - src/repository/paths.ts
+    - src/repository/recovery.ts
+    - src/repository/working-context.ts
+    - src/validation/doctor.ts
+    - src/validation/gates.ts
+    - src/validation/project.ts
+    - tests/acceptance-trace.test.ts
+    - tests/constraints.test.ts
+    - tests/delivery.test.ts
+    - tests/freshness.test.ts
+    - tests/gates.test.ts
+    - tests/goal-orchestration.test.ts
+    - tests/goal.test.ts
+    - tests/migrations.test.ts
+  changedPathsFingerprint: 57137d58e64c903124f4943daec5f70a15b98b4ff2b395980fa1fc4fbf2ba82f
+  capturedAt: 2026-09-13T21:51:49.654Z
+artifacts: []
+startedAt: 2026-09-13T21:51:07.638Z
+endedAt: 2026-09-13T21:51:49.651Z
+inputFingerprint: 558a45d9b076f844f1986c35502650b488b918451cae365ce17b3ac87ffa19d8
+freshness: CURRENT

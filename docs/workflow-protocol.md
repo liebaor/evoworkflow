@@ -59,19 +59,34 @@ Agent 可以建议权重，但由人工确认。
 
 ### IMPLEMENT
 
-默认只执行一个已授权 Slice。实现前读取 Working Context；遇到范围扩大、验收变化、架构偏离、破坏性约定、安全 Decision、破坏性数据操作、意外依赖或重复失败时停止。
+默认只执行一个已授权 Slice。实现前为该 Slice 重建 fresh Working Context 和 Resolved Constraints，并通过 execution preflight；遇到范围扩大、验收变化、架构偏离、约束冲突、破坏性约定、安全 Decision、破坏性数据操作、意外依赖或重复失败时停止。Goal 可以编排执行，但不能成为第二套产品决策或通用 Agent Runtime。
+
+每个 bounded Slice 的顺序是：
+
+```text
+fresh Context -> Resolved Constraints -> preflight gates -> bounded execution
+  -> focused verification -> post-execution project gates -> READY_FOR_REVIEW
+```
+
+Resolved Constraints 是可删除、可重建的派生视图，不是新的 Authority。Worker 成功也只能产生 `READY_FOR_REVIEW`，不能写入 `ACCEPTED`、`COMPLETED` 或绕过独立评审。
 
 ### VERIFY
 
-把每个验收标准映射到实际证据。新协议使用 `evidence.yml` 作为机器权威、`evidence/records/*.yml` 保存追加式执行记录、`evidence.md` 保存人类可读摘要；状态为 `PASS`、`FAIL`、`BLOCKED` 或 `NOT_RUN`。每条记录绑定命令、退出码、输出哈希、Git 快照和可选产物哈希。旧版 `evidence.md` 的 `UNVERIFIED` 在迁移期间只读兼容，不得当作新的证据格式继续扩展。
+把每个验收标准映射到实际证据。新协议使用 `evidence.yml` 作为机器权威、`evidence/records/*.yml` 保存追加式执行记录、`evidence.md` 保存人类可读摘要；状态为 `PASS`、`FAIL`、`BLOCKED` 或 `NOT_RUN`。每条记录绑定命令、退出码、输出哈希、Git 快照和可选产物哈希。Acceptance Trace 进一步连接 `Acceptance -> implementation surface -> verification -> Evidence`，并根据指纹标明 `CURRENT` 或 `STALE`。旧版 `evidence.md` 的 `UNVERIFIED` 在迁移期间只读兼容，不得当作新的证据格式继续扩展。
+
+如果活动 Change/Plan 尚未获得 current approval，但 Repository 已出现实现型 Evidence、Goal changedFiles 或带 Change trailer 的实现 checkpoint，Doctor 报告 `IMPLEMENTATION_AHEAD_OF_APPROVAL`，Recover 解释历史事实和下一步。这个 finding 不新增 workflow state；之后的 exact approval 只允许重新验证当前 candidate，不追认过去的实现。旧 Evidence 在新 Contract 下 stale 时必须重跑或明确保留为历史记录，不能通过删除失败记录获得 PASS。
 
 ### REVIEW
 
-检查规格一致性、现有模式复用、范围纪律、改动局部性、约定泄漏、不必要复杂度、Consistency 候选信号、实际与预期影响范围以及证据质量。评审报告问题，不静默修复。
+检查规格一致性、现有模式复用、范围纪律、改动局部性、约定泄漏、不必要复杂度、Consistency 候选信号、实际与预期影响范围以及证据质量。Candidate Admission 只把满足硬 Protocol Gate、Acceptance Trace 和 freshness 条件的候选交给 Review；默认要求全部当前验收项有 PASS Evidence。若验收事实只能在 Admission 之后产生，调用方必须逐项声明 `deferredAcceptance`；该声明写入 Admission 报告，只有列出的项可以保持 NOT_RUN，不能把它们伪装成 PASS。项目命名/架构信号默认是 `WARNING`，不能仅凭启发式统计阻断。只有 registry 中的 deterministic checker 加上默认 CI regression 才能晋升 Project HARD。评审报告问题，不静默修复。
 
 ### FINISH
 
-人工接受后，协调已批准意图、当前 Decision、实现、测试、证据和当前文档，把活动工作移到 completed 并更新机器状态。Finish 同时写入 `completion.yml`，记录完成时间、Git 基线、工作树指纹、当前事实目标和 `READY_TO_COMMIT` / `COMMITTED` 状态。Finish 不自动 commit、merge、release 或 deploy；已有提交只能由人工或外部 Git 流程产生，再通过 `evo completion bind-commit` 绑定。
+人工接受后，协调已批准意图、当前 Decision、实现、测试、证据和当前文档，把活动工作移到 completed 并更新机器状态。若 final delivery 只能在 Finish 后产生，可在 Admission/Review 中显式声明 post-admission/post-finish acceptance；Finish 只允许该明确列表中的 NOT_RUN 项暂缓，Finish 后用 `evo evidence record --completed` 追加真实结果。Finish 同时写入 `completion.yml`，记录完成时间、Git 基线、工作树指纹、当前事实目标和 `READY_TO_COMMIT` / `COMMITTED` 状态。Finish 不自动 commit、merge、release 或 deploy；`evo-commit` 只负责结构化 Git chronology，checkpoint commit 不能创造 `COMPLETED`，push 必须有明确授权。
+
+### Gates and promotion / 门禁与晋升
+
+Protocol Gate 检查批准指纹、状态、Decision 生命周期、Acceptance 覆盖、Evidence、Resolved Constraints 和 Plan current-truth。Hard Gate 只有在 `Authoritative Source + Deterministic Predicate + Falsifying Case + Negative Regression + Remediation` 五部分齐全时才允许晋升。重复 Finding 先进入 Eval，再由人工决定是否形成 Rule/Decision；未经该链条的 naming/architecture signal 只能报告为 warning。
 
 ### Migration and Change Set / 迁移与 Change Set
 

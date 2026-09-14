@@ -1,0 +1,91 @@
+schemaVersion: 2
+id: EV-20260914125310-e0e21c3e
+change: evo-0006-v0-3-engineering-closure
+acceptance:
+  - AC-F7
+kind: build
+label: final full repository check after CLI compatibility fix
+status: PASS
+command:
+  executable: pnpm
+  args:
+    - run
+    - check
+  cwd: /home/zhicheng/code/codex/evoworkflow
+exitCode: 0
+summary: exit=0; $ pnpm run typecheck && pnpm run test && pnpm run build && pnpm run smoke:cli && pnpm run validate:skills && pnpm run check:schemas && pnpm run eval:phase2 && pnpm run eval:phase3 && pnpm run eval:hardening && pnpm run smoke:package
+outputHash: 24f95f63c3ae19696289297c6708b2990d07a5eb01e755f0d529ec7c5c8a3114
+git:
+  branch: phase3/v0.3-engineering-closure
+  head: 5ed7e4ebb42a85cfeeb91730b222396e6a5f8041
+  treeFingerprint: 3e1c541968e1e2494e00330d933c589d2752a2a401fec2c51805eac9d9d8c726
+  dirty: true
+  changedPaths:
+    - .evo/state.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/admission.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/context.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/acceptance.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915000-0-development-continuity.json
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915001-1-development-continuity.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/evidence.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121146-5399bc29.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121154-1762378c.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121208-87b9eba0.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121423-5b4b7168.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/acceptance.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212142-9324ad08.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212143-ff665d1e.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212145-f98b0fd6.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212913-98fe240a.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913213344-3c0fc955.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214415-93d9731e.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214639-184a3c9a.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214747-b0101de9.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913215149-462a52a5.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111061-0-development-continuity.json
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111063-1-development-continuity.md
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212142-9324ad08.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212143-ff665d1e.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212145-f98b0fd6.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212913-98fe240a.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913213344-3c0fc955.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214415-93d9731e.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214639-184a3c9a.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214747-b0101de9.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913215149-462a52a5.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124820-d0fd0717.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124831-d1154046.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124843-66cb2fe5.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124927-455bad51.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914125125-cd8067cc.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/project-gates.yml
+    - .evo/work/active/evo-0006-v0-3-engineering-closure/protocol-gates.yml
+    - docs/operations.md
+    - docs/repository-protocol.md
+    - docs/workflow-protocol.md
+    - README.md
+    - references/experiments/phase3/development-continuity.json
+    - schemas/candidate-admission.schema.json
+    - schemas/review-metadata.schema.json
+    - src/commands/admission.ts
+    - src/commands/evidence/record.ts
+    - src/core/convergence.ts
+    - src/core/schemas.ts
+    - src/repository/evidence.ts
+    - src/validation/gates.ts
+    - tests/convergence.test.ts
+    - tests/evidence-v2.test.ts
+    - tests/gates.test.ts
+  changedPathsFingerprint: d2e84f9afd21a2161ada82bea6785e6a1743800935a5141fc1ec134d235e65cc
+  capturedAt: 2026-09-14T12:53:10.805Z
+artifacts: []
+startedAt: 2026-09-14T12:52:25.934Z
+endedAt: 2026-09-14T12:53:10.803Z
+inputFingerprint: d18306d4ec6ceb16a456a601d106e71365fdf597455a81188f9f4034f9094619
+freshness: CURRENT

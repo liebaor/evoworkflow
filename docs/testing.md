@@ -12,10 +12,14 @@
 - S5 场景测试覆盖 Standard 生命周期、Requirement Delta、Bug 回归和中断 Goal 恢复。
 - Working Context 测试验证按 Change、能力、参考实现、测试和 Git 路径排序，默认不写入；一致性测试验证响应、权限、命名和实际区域的候选漂移。
 - Resilience 测试验证 Delta/Bug 记录只写活动工作、使状态进入 `NEEDS_INFO`，以及 `evo recover` 保留未知项并且不自动继续。
-- 二期 RuoYi Grounding 评估只读取调用方提供的固定 Git 归档，检查后端/前端的技术、区域、能力、入口和未知项；归档可以是尚未初始化的 `BROWNFIELD`，也可以是已经应用 EVO 的 `EVO_MANAGED`。它不启动 RuoYi、不连接 MySQL、不打开浏览器，也不调用 Agent。
+- 三期约束/新鲜度测试覆盖 source priority、HARD/SOFT/REFERENCE/UNKNOWN/CONFLICT、派生指纹、Acceptance Trace、Protocol/Project Gate、Candidate Admission、Goal preflight、READY_FOR_REVIEW 和结构化 Git checkpoint。
+- 二期 RuoYi Grounding 和三期 RuoYi clean-revision 评估只读取调用方提供的固定 Git revision；三期会先用 `git archive` 创建清洁临时副本，再检查后端/前端的技术、区域、能力、入口、未知项和 Feature A/B/Delta/Bug/Recovery/C 场景。它不修改输入仓库、不启动 RuoYi、不连接 MySQL、不打开浏览器，也不调用 Agent。
+- 三期真实 Agent 行为基线是独立现场评估，不属于普通 `pnpm run check`：它在固定 revision 的临时组合副本中运行多个全新 Codex invocation，要求只写 `.evo/behavioral/` 报告，再用独立进程校验真实 RuoYi 源码引用、Feature A/B/C 连续性、Requirement Delta、Bug 字段、`evo recover` 和源码未被修改。它另外运行 FastAPI + React/Ant Design Pro 正向一致性场景，并将结果保存为 `BEHAVIORAL_PASS`/失败；Agent 自报不直接计为证据。
+- 三期 Development Continuity Eval 是另一条真实代码变更证据链：它在固定 backend/frontend revision 的清洁临时组合副本中执行 Session A 初始功能、Requirement Delta、故障注入与回归修复、Fresh Agent follow-up。独立 verifier 检查实际 changed paths、RuoYi 命名/权限/响应/服务/Mapper/XML/API 语言和跨 Session 一致性；`evo recover` 必须从 Repository/EVO/Git 重建下一步。输入 checkout 不可写，trace 只保存脱敏结果。
 - 二期 `eval:phase2` 执行 E001-E012：机制漂移、权限并行、命名、Context、复用、影响范围、Bug、恢复、Small 流程、过早抽象、跨框架和实际区域扩张。
 - EVO hardening 评估执行 E013-E020：验收项精确集合、重复/额外验收、证据记录引用、证据后的工作树漂移、完成凭证、当前事实目标、v1-to-v2 迁移和多仓库 Change Set。
-- RuoYi evaluator 针对 Feature A（Supplier CRUD）和 Feature B（Inventory Alert）在临时副本中检查 `SysUserController`、DataScope、分页/响应和导出证据；FastAPI + Ant Design Pro 使用独立确定性夹具。
+- 三期评估执行 E301-E319：行为基线、Recovery、Delta/Bug freshness、硬门禁负向回归、Finding→Eval→Rule/Gate 晋升、Acceptance/Admission、Worker 边界、Git chronology、Finish 边界、跨框架和人类 Decision 冲突停止，以及 implementation-ahead、evidence reconciliation、Project HARD registry、durable artifact hash。E320 是成本较高的真实 Development Continuity field eval，不进入普通 CI hard gate。
+- RuoYi evaluator 针对 Feature A（Supplier CRUD）、Feature B（Inventory DataScope/pagination/response/export）和 Feature C 在清洁临时副本中检查 `SysUserController`、DataScope、分页/响应、导出、领域语言和跨 Session 引用；FastAPI + Ant Design Pro 使用独立确定性夹具。
 
 自动化测试不得调用真实 coding model、外部系统、部署或生产写入。此类证据必须单独标注。
 
@@ -29,6 +33,14 @@ pnpm run validate:skills
 pnpm run check
 pnpm run eval:phase2
 pnpm run eval:hardening
+pnpm run eval:phase3
+pnpm run eval:phase3:continuity -- \
+  --backend-root /path/to/ruoyi-backend-git-root \
+  --backend-revision <40-char-commit> \
+  --frontend-root /path/to/ruoyi-frontend-git-root \
+  --frontend-revision <40-char-commit> \
+  --output references/experiments/phase3/development-continuity.json \
+  --summary references/experiments/phase3/development-continuity.md
 
 # Evidence v2
 pnpm evo evidence reconcile --root /path/to/project --change <change-id>
@@ -41,15 +53,35 @@ pnpm evo migrate --root /path/to/project --apply
 pnpm evo completion inspect --root /path/to/project <change-id>
 pnpm evo completion bind-commit --root /path/to/project <change-id>
 
-# 二期只读评估；使用固定 Git 提交和只读归档。
+# 二期只读评估；使用固定输入 checkout。
 pnpm run eval:ruoyi -- \
   --backend-root /path/to/ruoyi-backend-archive \
   --backend-revision <40-char-commit> \
   --frontend-root /path/to/ruoyi-vue3-archive \
   --frontend-revision <40-char-commit>
+
+# 三期 RuoYi 现场评估；必须提供两个 Git root 和完整 40 字符 revision。
+pnpm run eval:ruoyi:phase3 -- \
+  --backend-root /path/to/ruoyi-backend-git-root \
+  --backend-revision <40-char-commit> \
+  --frontend-root /path/to/ruoyi-frontend-git-root \
+  --frontend-revision <40-char-commit>
+
+# 三期真实 Agent 行为基线；成本/稳定性未证明前不作为普通 CI hard gate。
+pnpm run eval:ruoyi:phase3:behavioral -- \
+  --backend-root /path/to/ruoyi-backend-git-root \
+  --backend-revision <40-char-commit> \
+  --frontend-root /path/to/ruoyi-frontend-git-root \
+  --frontend-revision <40-char-commit> \
+  --output /tmp/evoworkflow-phase3-ruoyi-behavioral.json
+
+# 真实打包产物的 clean-install 黑盒。
+pnpm run smoke:package
 ```
 
 `pnpm run check` 是本地聚合检查。CI 在最低支持 Node 主版本和开发 Node 主版本上运行它。
+
+Development Continuity 的结果不能把环境限制提升为成功：`BEHAVIORAL_PASS` 只表示真实代码变更、独立 verifier、recovery 和 changed-boundary 目标通过；RuoYi runtime、MySQL/Redis、浏览器，以及因宿主 Java/依赖环境未执行的 backend/frontend build 必须保留为 `UNVERIFIED`。最终 trace 通过 Evidence artifact 记录 SHA-256，篡改后的 artifact 不得继续支持原结论。
 
 ## 证据规则
 

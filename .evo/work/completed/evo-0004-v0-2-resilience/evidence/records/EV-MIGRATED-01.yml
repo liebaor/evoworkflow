@@ -2,13 +2,17 @@ schemaVersion: 2
 id: EV-MIGRATED-01
 change: evo-0004-v0-2-resilience
 acceptance:
-  - AC-4
+  - AC-4.1
+  - AC-4.2
+  - AC-4.3
+  - AC-4.4
+  - AC-4.5
 kind: manual
 label: Imported from legacy evidence.md
 status: NOT_RUN
 command: null
 exitCode: null
-summary: Imported legacy status NOT_RUN for AC-4; original evidence.md remains preserved.
+summary: Imported legacy status NOT_RUN for AC-4.1 through AC-4.5; the record was expanded after hierarchical acceptance-id parsing was corrected, and original evidence.md remains preserved.
 outputHash: null
 git:
   branch: main

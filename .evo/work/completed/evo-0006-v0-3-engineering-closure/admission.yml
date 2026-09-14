@@ -1,0 +1,817 @@
+schemaVersion: 1
+change: evo-0006-v0-3-engineering-closure
+evaluatedAt: 2026-09-14T12:55:33.016Z
+status: REVIEW_ADMITTED
+deferredAcceptance:
+  - AC-F5
+  - AC-F6
+  - AC-F8
+reasons: []
+gates:
+  - id: G-protocol-valid
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Repository protocol is valid
+    detail: All deterministic repository checks pass.
+    authority: null
+    predicate: Run deterministic repository validation.
+    falsifyingCase: Introduce a deliberate protocol violation.
+    negativeRegression: "A deliberate violation of: Introduce a deliberate protocol violation."
+    remediation: Add or repair the owning repository artifact.
+    evidence:
+      - validateProject
+    evaluatedAt: 2026-09-14T12:55:33.138Z
+  - id: G-approval-current
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Approval fingerprints are current
+    detail: All required narrative artifacts have current approval.
+    authority: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    predicate: Compare each artifact approval fingerprint with current content.
+    falsifyingCase: Edit or remove an approval record after approval.
+    negativeRegression: "A deliberate violation of: Edit or remove an approval record after approval."
+    remediation: Return the artifact to AWAITING_APPROVAL and approve its exact current content.
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/plan.md
+    evaluatedAt: 2026-09-14T12:55:33.138Z
+  - id: G-state-slice-current
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Persisted Slice state is aligned
+    detail: State and active Goal checkpoints are aligned or not yet active.
+    authority: null
+    predicate: Compare active Goal checkpoints with state.yml.
+    falsifyingCase: Change a persisted currentSlice or Slice status without updating its authority.
+    negativeRegression: "A deliberate violation of: Change a persisted currentSlice or Slice status without updating its authority."
+    remediation: Reconcile state.yml with the active Goal checkpoint.
+    evidence: []
+    evaluatedAt: 2026-09-14T12:55:33.138Z
+  - id: G-decision-lifecycle
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Decision lifecycle is valid
+    detail: Decision links and lifecycle directories are valid.
+    authority: null
+    predicate: Validate Decision ids, lifecycle status, and supersession links.
+    falsifyingCase: Break a Decision link or create a supersession cycle.
+    negativeRegression: "A deliberate violation of: Break a Decision link or create a supersession cycle."
+    remediation: Repair the owning Decision metadata and lifecycle link.
+    evidence: []
+    evaluatedAt: 2026-09-14T12:55:33.138Z
+  - id: G-acceptance-coverage
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Acceptance traceability is complete
+    detail: "Every required-for-admission acceptance criterion maps to current implementation, verification, and evidence; deferred post-admission criteria: AC-F5, AC-F6, AC-F8."
+    authority: null
+    predicate: Build a complete Acceptance → Surface → Verification → Evidence mapping.
+    falsifyingCase: Remove one required mapping or current evidence record.
+    negativeRegression: "A deliberate violation of: Remove one required mapping or current evidence record."
+    remediation: Update the owning trace or rerun evidence.
+    evidence:
+      - acceptance.yml
+      - change.md
+      - plan.md
+    evaluatedAt: 2026-09-14T12:55:33.138Z
+  - id: G-evidence-current
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Required Evidence is current
+    detail: "Every required-for-admission acceptance item has current PASS evidence; deferred post-admission criteria: AC-F5, AC-F6, AC-F8."
+    authority: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    predicate: Reconcile acceptance ids, records, statuses, and input fingerprints.
+    falsifyingCase: Delete a record, change an acceptance contract, or leave a PASS without a PASS record.
+    negativeRegression: "A deliberate violation of: Delete a record, change an acceptance contract, or leave a PASS without a PASS record."
+    remediation: Rerun or record the affected Evidence and reconcile the document.
+    evidence:
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+    evaluatedAt: 2026-09-14T12:55:33.138Z
+  - id: G-constraints-resolved
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Task constraints are resolved
+    detail: 61 constraints resolved with no conflict or unknown blocker.
+    authority: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+    predicate: Resolve current authority, decisions, contract, and representative patterns.
+    falsifyingCase: Introduce two incompatible HARD authority statements or leave a required unknown.
+    negativeRegression: "A deliberate violation of: Introduce two incompatible HARD authority statements or leave a required unknown."
+    remediation: Record a human Decision or make the authoritative input explicit.
+    evidence:
+      - .evo/project.md
+      - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      - AGENTS.md
+      - README.md
+      - docs/architecture.md
+      - docs/operations.md
+      - docs/testing.md
+      - scripts/phase2-evals.ts
+      - scripts/phase3-development-continuity.ts
+      - scripts/phase3-evals.ts
+      - scripts/phase3-ruoyi-behavioral.ts
+      - src/commands/init.ts
+      - src/core/goal.ts
+      - src/repository/consistency.ts
+      - src/repository/init.ts
+      - src/repository/scanner.ts
+      - src/validation/project.ts
+    evaluatedAt: 2026-09-14T12:55:33.138Z
+  - id: G-current-truth
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Current-truth targets are satisfied
+    detail: Verified 14 target(s).
+    authority: src/validation/doctor.ts
+    predicate: Check every Plan-declared current-truth path.
+    falsifyingCase: Delete or omit a required target after implementation.
+    negativeRegression: "A deliberate violation of: Delete or omit a required target after implementation."
+    remediation: Create or restore the declared current-truth path, or revise the approved Plan.
+    evidence:
+      - README.md
+      - docs/operations.md
+      - docs/testing.md
+      - docs/workflow-protocol.md
+      - package.json
+      - references/experiments/phase3/development-continuity.json
+      - references/experiments/phase3/development-continuity.md
+      - scripts/phase3-development-continuity.ts
+      - scripts/phase3-evals.ts
+      - src/repository/recovery.ts
+      - src/validation/doctor.ts
+      - src/validation/gates.ts
+      - tests/gates.test.ts
+      - tests/goal-orchestration.test.ts
+    evaluatedAt: 2026-09-14T12:55:33.138Z
+  - id: G-project-consistency
+    kind: PROJECT
+    enforcement: WARNING
+    status: PASS
+    title: Repository pattern consistency
+    detail: No candidate consistency drift was observed.
+    authority: scripts/phase3-evals.ts
+    predicate: Compare proposed changes with repository patterns.
+    falsifyingCase: Introduce a naming, response, permission, or blast-radius drift.
+    negativeRegression: "A deliberate violation of: Introduce a naming, response, permission, or blast-radius drift."
+    remediation: Review the signal and either reuse the pattern or document an approved exception.
+    evidence:
+      - scripts/phase2-evals.ts
+      - scripts/phase3-development-continuity.ts
+      - scripts/phase3-evals.ts
+      - scripts/phase3-ruoyi-behavioral.ts
+      - src/commands/init.ts
+      - src/core/goal.ts
+      - src/repository/consistency.ts
+      - src/repository/init.ts
+      - src/repository/scanner.ts
+      - src/validation/project.ts
+    evaluatedAt: 2026-09-14T12:55:33.382Z
+trace:
+  schemaVersion: 1
+  change: evo-0006-v0-3-engineering-closure
+  updatedAt: 2026-09-14T12:55:33.404Z
+  inputFingerprint: 5627af25d821e1f5cce0a6e24be8fa5b20eca3c8ecc9c6d09826321c67dcab38
+  items:
+    - id: AC-F1
+      title: Dogfood honesty**：EVO 能检测并报告 implementation-ahead-of-approval；恢复流程不手工伪造 COMPLETED，也不把后补 approval 描述为过去已经授权。
+      source: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      implementationSurface:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/admission.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/context.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915000-0-development-continuity.json
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915001-1-development-continuity.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121146-5399bc29.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121154-1762378c.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121208-87b9eba0.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121423-5b4b7168.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/project-gates.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/protocol-gates.yml
+        - README.md
+        - docs/operations.md
+        - docs/repository-protocol.md
+        - docs/testing.md
+        - docs/workflow-protocol.md
+        - package.json
+        - references/experiments/phase3/development-continuity.json
+        - references/experiments/phase3/development-continuity.md
+        - schemas/candidate-admission.schema.json
+        - schemas/review-metadata.schema.json
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - src/commands/admission.ts
+        - src/commands/evidence/record.ts
+        - src/core/convergence.ts
+        - src/core/schemas.ts
+        - src/repository/evidence.ts
+        - src/repository/recovery.ts
+        - src/validation/doctor.ts
+        - src/validation/gates.ts
+        - tests/convergence.test.ts
+        - tests/evidence-v2.test.ts
+        - tests/gates.test.ts
+        - tests/goal-orchestration.test.ts
+      verification:
+        - "other: implementation-ahead-of-approval and recovery honesty"
+      evidenceRefs:
+        - EV-20260914124820-d0fd0717
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-F2
+      title: Real development continuity**：固定 Brownfield revision 上至少一个真实代码修改场景完成 Feature → Delta → Bug/Regression → Fresh Recover → Follow-up Feature；changed paths 落在预期边界，独立 build/test/evaluator 通过，并能比较前后 Feature 的 naming/API/permission/response/data-scope/service/frontend/testing/domain consistency。
+      source: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      implementationSurface:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/admission.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/context.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915000-0-development-continuity.json
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915001-1-development-continuity.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121146-5399bc29.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121154-1762378c.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121208-87b9eba0.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121423-5b4b7168.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124820-d0fd0717.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/project-gates.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/protocol-gates.yml
+        - README.md
+        - docs/operations.md
+        - docs/repository-protocol.md
+        - docs/testing.md
+        - docs/workflow-protocol.md
+        - package.json
+        - references/experiments/phase3/development-continuity.json
+        - references/experiments/phase3/development-continuity.md
+        - schemas/candidate-admission.schema.json
+        - schemas/review-metadata.schema.json
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - src/commands/admission.ts
+        - src/commands/evidence/record.ts
+        - src/core/convergence.ts
+        - src/core/schemas.ts
+        - src/repository/evidence.ts
+        - src/repository/recovery.ts
+        - src/validation/doctor.ts
+        - src/validation/gates.ts
+        - tests/convergence.test.ts
+        - tests/evidence-v2.test.ts
+        - tests/gates.test.ts
+        - tests/goal-orchestration.test.ts
+      verification:
+        - "integration: real development continuity and durable trace"
+      evidenceRefs:
+        - EV-20260914124831-d1154046
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-F3
+      title: Durable trace**：最终 continuity eval 的脱敏 machine-readable output 作为可复查 artifact 持久化，Evidence 记录 artifact path + SHA-256；临时路径不是唯一证据。
+      source: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      implementationSurface:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/admission.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/context.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915000-0-development-continuity.json
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915001-1-development-continuity.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121146-5399bc29.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121154-1762378c.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121208-87b9eba0.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121423-5b4b7168.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124820-d0fd0717.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/project-gates.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/protocol-gates.yml
+        - README.md
+        - docs/operations.md
+        - docs/repository-protocol.md
+        - docs/testing.md
+        - docs/workflow-protocol.md
+        - package.json
+        - references/experiments/phase3/development-continuity.json
+        - references/experiments/phase3/development-continuity.md
+        - schemas/candidate-admission.schema.json
+        - schemas/review-metadata.schema.json
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - src/commands/admission.ts
+        - src/commands/evidence/record.ts
+        - src/core/convergence.ts
+        - src/core/schemas.ts
+        - src/repository/evidence.ts
+        - src/repository/recovery.ts
+        - src/validation/doctor.ts
+        - src/validation/gates.ts
+        - tests/convergence.test.ts
+        - tests/evidence-v2.test.ts
+        - tests/gates.test.ts
+        - tests/goal-orchestration.test.ts
+      verification:
+        - "integration: real development continuity and durable trace"
+      evidenceRefs:
+        - EV-20260914124831-d1154046
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-F4
+      title: Conservative enforcement**：启发式 project signal 默认 WARNING；任何 HARD project check 都对应明确 Authority、deterministic checker、falsifying case、CI negative regression 与 remediation。
+      source: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      implementationSurface:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/admission.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/context.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915000-0-development-continuity.json
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915001-1-development-continuity.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121146-5399bc29.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121154-1762378c.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121208-87b9eba0.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121423-5b4b7168.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111061-0-development-continuity.json
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111063-1-development-continuity.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124820-d0fd0717.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124831-d1154046.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/project-gates.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/protocol-gates.yml
+        - README.md
+        - docs/operations.md
+        - docs/repository-protocol.md
+        - docs/testing.md
+        - docs/workflow-protocol.md
+        - package.json
+        - references/experiments/phase3/development-continuity.json
+        - references/experiments/phase3/development-continuity.md
+        - schemas/candidate-admission.schema.json
+        - schemas/review-metadata.schema.json
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - src/commands/admission.ts
+        - src/commands/evidence/record.ts
+        - src/core/convergence.ts
+        - src/core/schemas.ts
+        - src/repository/evidence.ts
+        - src/repository/recovery.ts
+        - src/validation/doctor.ts
+        - src/validation/gates.ts
+        - tests/convergence.test.ts
+        - tests/evidence-v2.test.ts
+        - tests/gates.test.ts
+        - tests/goal-orchestration.test.ts
+      verification:
+        - "integration: Project HARD registry negative regression"
+        - pnpm run eval:phase3 --json
+      evidenceRefs:
+        - EV-20260914124843-66cb2fe5
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-F5
+      title: Current-state convergence**：exact Change/Plan approval current；Working Context/Constraints/Acceptance/Evidence/Freshness current；Protocol hard gates PASS；Candidate Admission 为 `REVIEW_ADMITTED`。
+      source: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      implementationSurface:
+        - .evo/state.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/admission.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/context.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915000-0-development-continuity.json
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915001-1-development-continuity.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121146-5399bc29.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121154-1762378c.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121208-87b9eba0.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121423-5b4b7168.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111061-0-development-continuity.json
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111063-1-development-continuity.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124820-d0fd0717.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124831-d1154046.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124843-66cb2fe5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124927-455bad51.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/project-gates.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/protocol-gates.yml
+        - README.md
+        - docs/operations.md
+        - docs/repository-protocol.md
+        - docs/testing.md
+        - docs/workflow-protocol.md
+        - package.json
+        - references/experiments/phase3/development-continuity.json
+        - references/experiments/phase3/development-continuity.md
+        - schemas/candidate-admission.schema.json
+        - schemas/review-metadata.schema.json
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - src/commands/admission.ts
+        - src/commands/evidence/record.ts
+        - src/core/convergence.ts
+        - src/core/schemas.ts
+        - src/repository/evidence.ts
+        - src/repository/recovery.ts
+        - src/validation/doctor.ts
+        - src/validation/gates.ts
+        - tests/convergence.test.ts
+        - tests/evidence-v2.test.ts
+        - tests/gates.test.ts
+        - tests/goal-orchestration.test.ts
+      verification:
+        - "other: current-state convergence and Candidate Admission"
+      evidenceRefs:
+        - EV-20260914125125-cd8067cc
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-F6
+      title: Independent acceptance**：Worker/Goal 最多 `READY_FOR_REVIEW`；fresh-context independent Review 通过并由 Human 明确 Acceptance 后才能 Finish。
+      source: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      implementationSurface:
+        - README.md
+        - docs/operations.md
+        - docs/testing.md
+        - docs/workflow-protocol.md
+        - package.json
+        - references/experiments/phase3/development-continuity.json
+        - references/experiments/phase3/development-continuity.md
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - src/repository/recovery.ts
+        - src/validation/doctor.ts
+        - src/validation/gates.ts
+        - tests/gates.test.ts
+        - tests/goal-orchestration.test.ts
+      verification: []
+      evidenceRefs: []
+      status: NOT_RUN
+      freshness: CURRENT
+      limitations:
+        - No independently observable evidence has been recorded.
+    - id: AC-F7
+      title: Distribution**：`pnpm run check` 在 Node 22/24 CI 通过；Phase 2/3 eval、schema/skill validation、CLI smoke、packed-artifact clean-install smoke 全部 PASS；behavioral/runtime limitations 被诚实记录。
+      source: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      implementationSurface:
+        - .evo/state.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/admission.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/context.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915000-0-development-continuity.json
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/artifacts/1789387915001-1-development-continuity.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121146-5399bc29.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121154-1762378c.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121208-87b9eba0.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-admission-deferral/records/EV-20260914121423-5b4b7168.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/acceptance.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence-history/pre-final-contract/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111061-0-development-continuity.json
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111063-1-development-continuity.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212142-9324ad08.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212143-ff665d1e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212145-f98b0fd6.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913212913-98fe240a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913213344-3c0fc955.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214415-93d9731e.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214639-184a3c9a.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913214747-b0101de9.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260913215149-462a52a5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124820-d0fd0717.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124831-d1154046.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124843-66cb2fe5.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124927-455bad51.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914125125-cd8067cc.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/project-gates.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/protocol-gates.yml
+        - README.md
+        - docs/operations.md
+        - docs/repository-protocol.md
+        - docs/testing.md
+        - docs/workflow-protocol.md
+        - package.json
+        - references/experiments/phase3/development-continuity.json
+        - references/experiments/phase3/development-continuity.md
+        - schemas/candidate-admission.schema.json
+        - schemas/review-metadata.schema.json
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - src/commands/admission.ts
+        - src/commands/evidence/record.ts
+        - src/core/convergence.ts
+        - src/core/schemas.ts
+        - src/repository/evidence.ts
+        - src/repository/recovery.ts
+        - src/validation/doctor.ts
+        - src/validation/gates.ts
+        - tests/convergence.test.ts
+        - tests/evidence-v2.test.ts
+        - tests/gates.test.ts
+        - tests/goal-orchestration.test.ts
+      verification:
+        - "build: final full repository check after CLI compatibility fix"
+        - "build: full repository check for v0.3 distribution"
+        - pnpm run check
+      evidenceRefs:
+        - EV-20260914124927-455bad51
+        - EV-20260914125310-e0e21c3e
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-F8
+      title: Final delivery**：`evo-finish --apply` 产生真实 COMPLETED/archive 状态；随后 final `evo-commit` 记录 chronology；v0.3.0 metadata/docs 对齐；只有这些完成后才允许 merge `main`。
+      source: .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      implementationSurface:
+        - README.md
+        - docs/operations.md
+        - docs/testing.md
+        - docs/workflow-protocol.md
+        - package.json
+        - references/experiments/phase3/development-continuity.json
+        - references/experiments/phase3/development-continuity.md
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - src/repository/recovery.ts
+        - src/validation/doctor.ts
+        - src/validation/gates.ts
+        - tests/gates.test.ts
+        - tests/goal-orchestration.test.ts
+      verification: []
+      evidenceRefs: []
+      status: NOT_RUN
+      freshness: CURRENT
+      limitations:
+        - No independently observable evidence has been recorded.
+freshness:
+  schemaVersion: 1
+  change: evo-0006-v0-3-engineering-closure
+  generatedAt: 2026-09-14T12:55:33.410Z
+  status: CURRENT
+  entries:
+    - id: change
+      kind: change
+      status: CURRENT
+      fingerprint: c09ea2035935a7dd1c8ab156ed3c70617b68e2edeb7414caf22dae5e649ada20
+      inputFingerprint: 52661edc35e4f62ddfcb980f42b88515bd739561c4e73e70e658190d265b0b65
+      inputs:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+      changedInputs: []
+      detail: Authoritative file .evo/work/active/evo-0006-v0-3-engineering-closure/change.md exists.
+      generatedAt: 2026-09-14T12:55:33.410Z
+    - id: plan
+      kind: plan
+      status: CURRENT
+      fingerprint: f548c6782b7de79e8af3b7f4823934080a50f53be4ae14f03dd2bd05780ca5fb
+      inputFingerprint: 5627af25d821e1f5cce0a6e24be8fa5b20eca3c8ecc9c6d09826321c67dcab38
+      inputs:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/plan.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+      changedInputs:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+      detail: Authoritative file .evo/work/active/evo-0006-v0-3-engineering-closure/plan.md exists.
+      generatedAt: 2026-09-14T12:55:33.410Z
+    - id: constraints
+      kind: derived
+      status: CURRENT
+      fingerprint: 79ff34aedc3305e0db55e2c439661d7746e143855ca9652f9737d0812a68f1d9
+      inputFingerprint: 0513e713b14e9ac6e104ff119d66a0942c7689df64c0291d09c7015d6b8dc21c
+      inputs:
+        - .evo/decisions/current
+        - .evo/decisions/current/d-0001-human-controlled-phases.md
+        - .evo/decisions/current/d-0002-bounded-goal-execution.md
+        - .evo/decisions/working
+        - .evo/project.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/plan.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+        - AGENTS.md
+        - docs/architecture.md
+        - docs/operations.md
+        - docs/testing.md
+        - README.md
+        - scripts/phase2-evals.ts
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - scripts/phase3-ruoyi-behavioral.ts
+        - src/commands/init.ts
+        - src/core/goal.ts
+        - src/repository/consistency.ts
+        - src/repository/init.ts
+        - src/repository/scanner.ts
+        - src/validation/project.ts
+      changedInputs:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+      detail: Derived artifact .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml matches its recorded inputs.
+      generatedAt: 2026-09-14T12:55:33.410Z
+    - id: acceptance
+      kind: derived
+      status: CURRENT
+      fingerprint: 798931ff828c44c4bc9e154816f9d82197b180b158252f1e09fbb509a85b3a22
+      inputFingerprint: 5627af25d821e1f5cce0a6e24be8fa5b20eca3c8ecc9c6d09826321c67dcab38
+      inputs:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/plan.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+      changedInputs:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+      detail: Derived artifact .evo/work/active/evo-0006-v0-3-engineering-closure/acceptance.yml matches its recorded inputs.
+      generatedAt: 2026-09-14T12:55:33.410Z
+    - id: evidence
+      kind: derived
+      status: CURRENT
+      fingerprint: eaf98f4a61f1accb9c0935a8239f499a1d012c80cd75c6cd69eb3c518c06e840
+      inputFingerprint: d18306d4ec6ceb16a456a601d106e71365fdf597455a81188f9f4034f9094619
+      inputs:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/constraints.yml
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/plan.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+      changedInputs:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+      detail: Derived artifact .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.yml matches its recorded inputs.
+      generatedAt: 2026-09-14T12:55:33.410Z
+    - id: context
+      kind: context
+      status: CURRENT
+      fingerprint: b96289e94bbdd814c1f3ced1e9062416cf5419e8669d9cc6de5ce2df95ccc68a
+      inputFingerprint: 3413e8aad683cbf3e3a588f15f2b2a6b2158c944b5f035246f16d2667050296c
+      inputs:
+        - .evo/decisions/current
+        - .evo/decisions/current/d-0001-human-controlled-phases.md
+        - .evo/decisions/current/d-0002-bounded-goal-execution.md
+        - .evo/decisions/working
+        - .evo/project.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/change.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/evidence.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/plan.md
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+        - AGENTS.md
+        - docs/architecture.md
+        - docs/operations.md
+        - docs/testing.md
+        - README.md
+        - scripts/phase2-evals.ts
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - scripts/phase3-ruoyi-behavioral.ts
+        - scripts/phase3-ruoyi-smoke.ts
+        - src/core/goal.ts
+        - src/repository/scanner.ts
+        - src/validation/gates.ts
+        - src/validation/project.ts
+        - tests/artifacts.test.ts
+        - tests/convergence.test.ts
+        - tests/gates.test.ts
+        - tests/goal-orchestration.test.ts
+        - tests/goals-repository.test.ts
+        - tests/helpers.ts
+        - tests/recovery.test.ts
+        - tests/scanner.test.ts
+      changedInputs:
+        - .evo/work/active/evo-0006-v0-3-engineering-closure/spec.md
+      detail: context.md matches its recorded inputs.
+      generatedAt: 2026-09-14T12:55:33.410Z

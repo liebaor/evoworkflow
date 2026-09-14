@@ -1,7 +1,8 @@
 import {readFile} from 'node:fs/promises'
 import path from 'node:path'
+import type {ZodType} from 'zod'
 
-import {ConfigSchema, DecisionMetadataSchema, EvidenceDocumentSchema, GoalSchema, ReviewMetadataSchema, StateSchema, type DecisionMetadata, type State} from '../core/schemas.js'
+import {AcceptanceTraceDocumentSchema, CandidateAdmissionSchema, ConfigSchema, DecisionMetadataSchema, EvidenceDocumentSchema, GateReportSchema, GoalSchema, ResolvedConstraintsDocumentSchema, ReviewMetadataSchema, StateSchema, type DecisionMetadata, type State} from '../core/schemas.js'
 import {approvalFingerprint, changeContextFingerprint} from '../core/fingerprint.js'
 import {validateGoalIntent} from '../core/goal.js'
 import {inspectArtifactApproval, parseArtifactMetadata, type ApprovableArtifactKind} from '../repository/artifacts.js'
@@ -72,6 +73,7 @@ export async function validateProject(root: string): Promise<ValidationReport> {
         issues.push(issue('INCOMPLETE_ACTIVE_CHANGE', 'error', 'Active Change is missing evidence.md or evidence.yml.', relative(paths, evidenceMarkdown)))
       }
       if (await pathExists(evidenceYaml)) issues.push(...await validateEvidenceDocument(evidenceYaml, state.activeChange, paths))
+      issues.push(...await validatePhase3Artifacts(changeRoot, state.activeChange, paths))
       for (const kind of ['change', 'plan', 'spec'] as const) {
         const target = path.join(changeRoot, `${kind}.md`)
         if (await pathExists(target)) issues.push(...await validateArtifact(target, kind, state.activeChange, artifactApprovalRequired(kind, state), paths))
@@ -94,6 +96,33 @@ export async function validateProject(root: string): Promise<ValidationReport> {
   issues.push(...await validateDecisionLinks(paths))
 
   return {valid: !issues.some((item) => item.severity === 'error'), issues: sortIssues(issues)}
+}
+
+async function validatePhase3Artifacts(changeRoot: string, changeId: string, paths: ReturnType<typeof repositoryPaths>): Promise<ValidationIssue[]> {
+  const issues: ValidationIssue[] = []
+  const documents = [
+    ['constraints.yml', ResolvedConstraintsDocumentSchema],
+    ['acceptance.yml', AcceptanceTraceDocumentSchema],
+    ['protocol-gates.yml', GateReportSchema],
+    ['project-gates.yml', GateReportSchema],
+    ['admission.yml', CandidateAdmissionSchema],
+  ] as const
+  for (const [filename, schema] of documents) {
+    const target = path.join(changeRoot, filename)
+    if (!(await pathExists(target))) continue
+    try {
+      const value = await readYaml(target, schema as ZodType<unknown>)
+      if (isRecord(value) && typeof value.change === 'string' && value.change !== changeId) issues.push(issue('DERIVED_CHANGE_MISMATCH', 'error', `${filename} belongs to ${value.change}, not ${changeId}.`, relative(paths, target)))
+      if (filename === 'constraints.yml' && isRecord(value) && value.freshness === 'CONFLICT') issues.push(issue('CONSTRAINT_CONFLICT', 'error', 'Resolved constraints contain a conflict and cannot be used for hard enforcement.', relative(paths, target)))
+    } catch (error) {
+      issues.push(issue('INVALID_PHASE3_ARTIFACT', 'error', errorMessage(error), relative(paths, target)))
+    }
+  }
+  return issues
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 async function validateEvidenceDocument(target: string, changeId: string, paths: ReturnType<typeof repositoryPaths>): Promise<ValidationIssue[]> {
