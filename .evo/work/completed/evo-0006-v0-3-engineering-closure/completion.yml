@@ -4,8 +4,8 @@ workflowStatus: COMPLETED
 finishedAt: 2026-09-14T12:58:58.625Z
 baselineCommit: 5ed7e4ebb42a85cfeeb91730b222396e6a5f8041
 finishedTreeFingerprint: 43424f0becd7b3bc6121a21e54a0fb43c9b4eb7564b5c867393bd013fb548a5f
-sourceStatus: READY_TO_COMMIT
-commit: null
+sourceStatus: COMMITTED
+commit: f3653f38f3a5a1278dbd70af00b327e94b561fab
 currentTruth:
   required:
     - path: src/validation/doctor.ts
