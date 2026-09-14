@@ -14,6 +14,7 @@ import {readFile} from 'node:fs/promises'
 import {inspectAcceptanceTrace, buildAcceptanceTraceability} from '../repository/acceptance-trace.js'
 import {inspectConstraintsFreshness} from '../repository/constraints.js'
 import {inspectFreshness} from '../repository/freshness.js'
+import {detectImplementationAheadOfApproval, IMPLEMENTATION_AHEAD_OF_APPROVAL} from '../repository/deviation.js'
 
 export interface DoctorReport extends ValidationReport {
   readonly checkedAt: string
@@ -59,6 +60,12 @@ export async function runDoctor(root: string, now = new Date()): Promise<DoctorR
     const evidence = await readOptionalText(evidencePath)
     if (evidence && /\bUNVERIFIED\b/u.test(evidence)) {
       issues.push(diagnostic('UNVERIFIED_ACTIVE_WORK', 'warning', `Active Change ${workId} still records UNVERIFIED evidence.`, relative(paths.root, evidencePath)))
+    }
+    try {
+      const deviation = await detectImplementationAheadOfApproval(paths.root, workId)
+      if (deviation) issues.push(diagnostic(IMPLEMENTATION_AHEAD_OF_APPROVAL, 'warning', deviation.detail, relative(paths.root, path.join(paths.activeWork, workId, 'change.md'))))
+    } catch (error) {
+      issues.push(diagnostic('INVALID_IMPLEMENTATION_DEVIATION_CHECK', 'error', error instanceof Error ? error.message : String(error), relative(paths.root, path.join(paths.activeWork, workId))))
     }
     await addEvidenceDiagnostics(issues, paths.root, workId, false)
     await addPhase3Diagnostics(issues, paths.root, workId)

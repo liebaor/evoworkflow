@@ -15,6 +15,7 @@ import {buildAcceptanceTraceability, inspectAcceptanceTrace, type AcceptanceTrac
 import {inspectConstraintsFreshness, readResolvedConstraints} from './constraints.js'
 import {inspectFreshness} from './freshness.js'
 import {evaluateProtocolGates} from '../validation/gates.js'
+import {detectImplementationAheadOfApproval, type ImplementationAheadFinding} from './deviation.js'
 
 export interface RecoveryEvidence {
   readonly path: string
@@ -49,6 +50,7 @@ export interface RecoveryReport {
   readonly gates: GateReport | null
   readonly acceptanceTrace: AcceptanceTraceReport['document'] | null
   readonly checkpointChronology: readonly string[]
+  readonly implementationAheadOfApproval: ImplementationAheadFinding | null
   readonly unknowns: readonly string[]
   readonly protocolIssues: readonly ValidationIssue[]
   readonly workingContext: WorkingContext
@@ -75,7 +77,9 @@ export async function buildRecoveryReport(root: string): Promise<RecoveryReport>
   const freshness = managed.state.activeChange ? await safeFreshness(paths.root, managed.state.activeChange) : null
   const gates = managed.state.activeChange ? await safeProtocolGates(paths.root, managed.state.activeChange) : null
   const acceptanceTrace = managed.state.activeChange ? (await safeAcceptanceTrace(paths.root, managed.state.activeChange))?.document ?? null : null
+  const implementationAheadOfApproval = managed.state.activeChange ? await safeImplementationAhead(paths.root, managed.state.activeChange) : null
   const checkpointChronology = workingContext.git.recentCommits
+  if (implementationAheadOfApproval) blocked.push(implementationAheadOfApproval.detail)
   if (freshness && freshness.status !== 'CURRENT') blocked.push(`Derived artifact freshness is ${freshness.status}.`)
   if (constraints.status === 'CONFLICT') blocked.push('Resolved constraints contain an authority conflict.')
   if (constraints.unknowns.length > 0) blocked.push(`Resolved constraints contain unknown blockers: ${constraints.unknowns.join(', ')}.`)
@@ -108,10 +112,11 @@ export async function buildRecoveryReport(root: string): Promise<RecoveryReport>
     gates,
     acceptanceTrace,
     checkpointChronology,
+    implementationAheadOfApproval,
     unknowns,
     protocolIssues: validation.issues,
     workingContext,
-    recommendedNextAction: summary?.nextAction ?? 'evo check --root <repository>',
+    recommendedNextAction: implementationAheadOfApproval?.nextAction ?? summary?.nextAction ?? 'evo check --root <repository>',
   }
 }
 
@@ -158,6 +163,14 @@ export function formatRecoveryReport(report: RecoveryReport): string {
     '',
     '## Checkpoint chronology / 检查点历史',
     ...(report.checkpointChronology.length > 0 ? report.checkpointChronology.map((item) => `- ${item}`) : ['- none / 无']),
+    '',
+    '## Findings / 发现',
+    ...(report.implementationAheadOfApproval
+      ? [
+        `- ${report.implementationAheadOfApproval.code}: ${report.implementationAheadOfApproval.detail}`,
+        ...report.implementationAheadOfApproval.signals.map((signal) => `- ${signal.kind} ${signal.source}: ${signal.detail}`),
+      ]
+      : ['- none / 无']),
     '',
     '## Modified paths / 修改路径',
     ...(report.modifiedPaths.length > 0 ? report.modifiedPaths.map((item) => `- \`${item}\``) : ['- none / 无']),
@@ -206,6 +219,14 @@ async function safeProtocolGates(root: string, changeId: string): Promise<GateRe
 async function safeAcceptanceTrace(root: string, changeId: string): Promise<AcceptanceTraceReport | null> {
   try {
     return await inspectAcceptanceTrace(root, changeId) ?? await buildAcceptanceTraceability(root, changeId)
+  } catch {
+    return null
+  }
+}
+
+async function safeImplementationAhead(root: string, changeId: string): Promise<ImplementationAheadFinding | null> {
+  try {
+    return await detectImplementationAheadOfApproval(root, changeId)
   } catch {
     return null
   }
