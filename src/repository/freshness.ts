@@ -31,7 +31,11 @@ export async function fingerprintInputs(root: string, inputs: readonly (string |
   const hash = createHash('sha256')
   hash.update('evo-inputs-v1\0')
   for (const relative of paths) {
-    hash.update(relative)
+    // A Change remains the same logical contract when Finish archives it from
+    // .evo/work/active to .evo/work/completed. Keep the physical paths in the
+    // returned input list for diagnostics, but fingerprint completed paths as
+    // their pre-Finish active paths so existing Evidence hashes remain valid.
+    hash.update(canonicalFingerprintPath(relative))
     hash.update('\0')
     const target = path.join(resolvedRoot, relative)
     try {
@@ -282,10 +286,15 @@ async function fingerprintDirectory(root: string, relativeDirectory: string): Pr
   const hash = createHash('sha256')
   for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name))) {
     const child = path.join(relativeDirectory, entry.name)
-    if (entry.isDirectory()) hash.update(`${child}/:${await fingerprintDirectory(root, child)}\0`)
-    else if (entry.isFile()) hash.update(`${child}:${createHash('sha256').update(await readFile(path.join(root, child))).digest('hex')}\0`)
+    const logicalChild = canonicalFingerprintPath(child)
+    if (entry.isDirectory()) hash.update(`${logicalChild}/:${await fingerprintDirectory(root, child)}\0`)
+    else if (entry.isFile()) hash.update(`${logicalChild}:${createHash('sha256').update(await readFile(path.join(root, child))).digest('hex')}\0`)
   }
   return hash.digest('hex')
+}
+
+function canonicalFingerprintPath(relative: string): string {
+  return relative.replace(/^\.evo\/work\/completed\/([^/]+)/u, '.evo/work/active/$1')
 }
 
 function overallFreshness(entries: readonly FreshnessEntry[]): FreshnessStatus {
