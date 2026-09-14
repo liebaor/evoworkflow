@@ -10,6 +10,9 @@ import {
   EvidenceDocumentSchema,
   EvidenceRecordSchema,
   AcceptanceTraceDocumentSchema,
+  AgentCompatibilityReportSchema,
+  AgentSetupReportSchema,
+  CrossAgentContinuityTraceSchema,
   FreshnessDocumentSchema,
   GateReportSchema,
   GoalSchema,
@@ -40,6 +43,9 @@ const definitions = [
   ['completion.schema.json', 'https://evoworkflow.dev/schema/completion-v1.json', 'evoworkflow Completion v1', CompletionSchema],
   ['change-set.schema.json', 'https://evoworkflow.dev/schema/change-set-v1.json', 'evoworkflow Change Set v1', ChangeSetSchema],
   ['skill-manifest.schema.json', 'https://evoworkflow.dev/schema/skill-manifest-v1.json', 'evoworkflow Skill Manifest v1', SkillManifestSchema],
+  ['agent-compatibility.schema.json', 'https://evoworkflow.dev/schema/agent-compatibility-v1.json', 'evoworkflow Agent Compatibility v1', AgentCompatibilityReportSchema],
+  ['agent-setup.schema.json', 'https://evoworkflow.dev/schema/agent-setup-v1.json', 'evoworkflow Agent Setup v1', AgentSetupReportSchema],
+  ['cross-agent-continuity.schema.json', 'https://evoworkflow.dev/schema/cross-agent-continuity-v1.json', 'evoworkflow Cross-Agent Continuity v1', CrossAgentContinuityTraceSchema],
 ] as const
 
 /** Projects Zod machine-state authorities into deterministic JSON Schema documents. */

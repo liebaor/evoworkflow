@@ -26,6 +26,14 @@ try {
   const check = await run(['check', '--root', repository])
   assertIncludes(check, 'PASS: repository protocol is valid.')
 
+  const agentPreview = await run(['agents', 'setup', '--root', repository, '--json'])
+  assertIncludes(agentPreview, '"mode": "PREVIEW"')
+  assertIncludes(agentPreview, '"action": "CREATE_CLAUDE_BRIDGE"')
+  await expectMissing(path.join(repository, 'CLAUDE.md'))
+  const agentApply = await run(['agents', 'setup', '--root', repository, '--apply', '--json'])
+  assertIncludes(agentApply, '"action": "ALREADY_CONFIGURED"')
+  assertIncludes(await readFile(path.join(repository, 'CLAUDE.md'), 'utf8'), '@AGENTS.md')
+
   await prepareFiveSliceGoal(repository)
   await run(['approve', 'smoke-change', 'change', '--root', repository, '--source', 'built CLI smoke'])
   await run(['approve', 'smoke-change', 'plan', '--root', repository, '--source', 'built CLI smoke'])
@@ -55,7 +63,9 @@ try {
   assertIncludes(evidenceCheck, 'Valid: yes')
 
   const help = await run(['--help'])
-  for (const command of ['admission', 'approve', 'check', 'commit', 'constraints', 'context', 'doctor', 'finish', 'gate', 'init', 'migrate', 'recover', 'status', 'evidence', 'completion', 'change-set']) assertIncludes(help, command)
+  for (const command of ['admission', 'agents', 'approve', 'check', 'commit', 'constraints', 'context', 'doctor', 'finish', 'gate', 'init', 'migrate', 'recover', 'status', 'evidence', 'completion', 'change-set']) assertIncludes(help, command)
+  const agentsHelp = await run(['agents', '--help'])
+  for (const command of ['doctor', 'inspect', 'setup']) assertIncludes(agentsHelp, command)
   const goalHelp = await run(['goal', '--help'])
   for (const command of ['approve', 'cancel', 'create', 'inspect', 'resume', 'run']) assertIncludes(goalHelp, command)
 } finally {

@@ -6,6 +6,8 @@ import {EvoError} from '../core/errors.js'
 import {sha256} from './git-snapshot.js'
 import {pathExists, writeTextAtomic} from './io.js'
 
+const DEFAULT_EVO_VERSION = '0.4.0'
+
 /** Returns the derived manifest location; canonical Skill files remain authoritative. */
 export function skillManifestPath(root: string): string {
   return path.join(path.resolve(root), 'skills', 'manifest.json')
@@ -15,10 +17,7 @@ export function skillManifestPath(root: string): string {
 export async function buildSkillManifest(root: string, evoVersion?: string): Promise<SkillManifest> {
   const resolvedRoot = path.resolve(root)
   const skillsRoot = path.join(resolvedRoot, 'skills')
-  const packageSource = await readFile(path.join(resolvedRoot, 'package.json'), 'utf8')
-  const packageValue = JSON.parse(packageSource) as {version?: unknown}
-  const version = evoVersion ?? (typeof packageValue.version === 'string' ? packageValue.version : null)
-  if (!version) throw new EvoError('package.json must declare a version before generating the Skill manifest.')
+  const version = evoVersion ?? await packageVersion(resolvedRoot)
   const entries: SkillManifest['skills'][number][] = []
   for (const entry of (await readdir(skillsRoot, {withFileTypes: true})).filter((item) => item.isDirectory()).sort((left, right) => left.name.localeCompare(right.name))) {
     const target = path.join(skillsRoot, entry.name, 'SKILL.md')
@@ -26,6 +25,15 @@ export async function buildSkillManifest(root: string, evoVersion?: string): Pro
     entries.push({name: entry.name, category: categoryForSkill(entry.name), sha256: sha256(await readFile(target))})
   }
   return SkillManifestSchema.parse({schemaVersion: 1, evoVersion: version, skills: entries})
+}
+
+async function packageVersion(root: string): Promise<string> {
+  try {
+    const packageValue = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8')) as {version?: unknown}
+    return typeof packageValue.version === 'string' ? packageValue.version : DEFAULT_EVO_VERSION
+  } catch {
+    return DEFAULT_EVO_VERSION
+  }
 }
 
 /** Reads and validates the committed derived manifest. */

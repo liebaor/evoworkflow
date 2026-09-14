@@ -20,6 +20,9 @@
 - EVO hardening 评估执行 E013-E020：验收项精确集合、重复/额外验收、证据记录引用、证据后的工作树漂移、完成凭证、当前事实目标、v1-to-v2 迁移和多仓库 Change Set。
 - 三期评估执行 E301-E319：行为基线、Recovery、Delta/Bug freshness、硬门禁负向回归、Finding→Eval→Rule/Gate 晋升、Acceptance/Admission、Worker 边界、Git chronology、Finish 边界、跨框架和人类 Decision 冲突停止，以及 implementation-ahead、evidence reconciliation、Project HARD registry、durable artifact hash。E320 是成本较高的真实 Development Continuity field eval，不进入普通 CI hard gate。
 - RuoYi evaluator 针对 Feature A（Supplier CRUD）、Feature B（Inventory DataScope/pagination/response/export）和 Feature C 在清洁临时副本中检查 `SysUserController`、DataScope、分页/响应、导出、领域语言和跨 Session 引用；FastAPI + Ant Design Pro 使用独立确定性夹具。
+- v0.4 跨 Agent 确定性评估执行 E401-E410：canonical Skill/manifest、Claude thin bridge、setup no-overwrite、duplicate/version drift、missing-client non-fatal、universal router、Recovery contract 和 single-writer boundary。它使用注入的 runtime fixture，不调用 coding model。
+- v0.4 `smoke:package` 同时检查 clean packed artifact 中的 CLI、`skills/manifest.json`、全部 canonical `SKILL.md` 和 `agents` 命令，确认没有 vendor-specific Skill/authority copies。
+- v0.4 真实 continuity 评估是独立现场测试：在临时固定 revision 中启动全新的 Codex、Claude Code、OpenCode 和 Fresh Agent invocation，独立检查实际 product-code changes、changed-path boundary、验证结果、恢复输入和跨任务工程语言；它不把 Agent 自报当作证据，也不作为普通 CI hard gate。
 
 自动化测试不得调用真实 coding model、外部系统、部署或生产写入。此类证据必须单独标注。
 
@@ -34,6 +37,8 @@ pnpm run check
 pnpm run eval:phase2
 pnpm run eval:hardening
 pnpm run eval:phase3
+pnpm run eval:cross-agent
+pnpm run eval:cross-agent:behavioral
 pnpm run eval:phase3:continuity -- \
   --backend-root /path/to/ruoyi-backend-git-root \
   --backend-revision <40-char-commit> \
@@ -80,6 +85,8 @@ pnpm run smoke:package
 ```
 
 `pnpm run check` 是本地聚合检查。CI 在最低支持 Node 主版本和开发 Node 主版本上运行它。
+
+跨 Agent 现场评估会把 machine-readable 结果保存到 `references/experiments/cross-agent/`。如果某个客户端未安装、认证不可用或宿主环境不允许安全执行，结果必须保留为 `UNVERIFIED`/限制说明；不能用本地确定性 fixture 冒充真实 Harness 证据。
 
 Development Continuity 的结果不能把环境限制提升为成功：`BEHAVIORAL_PASS` 只表示真实代码变更、独立 verifier、recovery 和 changed-boundary 目标通过；RuoYi runtime、MySQL/Redis、浏览器，以及因宿主 Java/依赖环境未执行的 backend/frontend build 必须保留为 `UNVERIFIED`。最终 trace 通过 Evidence artifact 记录 SHA-256，篡改后的 artifact 不得继续支持原结论。
 

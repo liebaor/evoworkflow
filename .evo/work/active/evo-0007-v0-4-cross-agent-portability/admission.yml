@@ -1,0 +1,980 @@
+schemaVersion: 1
+change: evo-0007-v0-4-cross-agent-portability
+evaluatedAt: 2026-09-14T16:28:55.262Z
+status: REVIEW_ADMITTED
+deferredAcceptance: []
+reasons: []
+gates:
+  - id: G-protocol-valid
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Repository protocol is valid
+    detail: All deterministic repository checks pass.
+    authority: null
+    predicate: Run deterministic repository validation.
+    falsifyingCase: Introduce a deliberate protocol violation.
+    negativeRegression: "A deliberate violation of: Introduce a deliberate protocol violation."
+    remediation: Add or repair the owning repository artifact.
+    evidence:
+      - validateProject
+    evaluatedAt: 2026-09-14T16:28:55.374Z
+  - id: G-approval-current
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Approval fingerprints are current
+    detail: All required narrative artifacts have current approval.
+    authority: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    predicate: Compare each artifact approval fingerprint with current content.
+    falsifyingCase: Edit or remove an approval record after approval.
+    negativeRegression: "A deliberate violation of: Edit or remove an approval record after approval."
+    remediation: Return the artifact to AWAITING_APPROVAL and approve its exact current content.
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md
+    evaluatedAt: 2026-09-14T16:28:55.374Z
+  - id: G-state-slice-current
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Persisted Slice state is aligned
+    detail: State and active Goal checkpoints are aligned or not yet active.
+    authority: null
+    predicate: Compare active Goal checkpoints with state.yml.
+    falsifyingCase: Change a persisted currentSlice or Slice status without updating its authority.
+    negativeRegression: "A deliberate violation of: Change a persisted currentSlice or Slice status without updating its authority."
+    remediation: Reconcile state.yml with the active Goal checkpoint.
+    evidence: []
+    evaluatedAt: 2026-09-14T16:28:55.374Z
+  - id: G-decision-lifecycle
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Decision lifecycle is valid
+    detail: Decision links and lifecycle directories are valid.
+    authority: null
+    predicate: Validate Decision ids, lifecycle status, and supersession links.
+    falsifyingCase: Break a Decision link or create a supersession cycle.
+    negativeRegression: "A deliberate violation of: Break a Decision link or create a supersession cycle."
+    remediation: Repair the owning Decision metadata and lifecycle link.
+    evidence: []
+    evaluatedAt: 2026-09-14T16:28:55.374Z
+  - id: G-acceptance-coverage
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Acceptance traceability is complete
+    detail: Every acceptance criterion maps to implementation, verification, and evidence.
+    authority: null
+    predicate: Build a complete Acceptance → Surface → Verification → Evidence mapping.
+    falsifyingCase: Remove one required mapping or current evidence record.
+    negativeRegression: "A deliberate violation of: Remove one required mapping or current evidence record."
+    remediation: Update the owning trace or rerun evidence.
+    evidence:
+      - acceptance.yml
+      - change.md
+      - plan.md
+    evaluatedAt: 2026-09-14T16:28:55.374Z
+  - id: G-evidence-current
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Required Evidence is current
+    detail: Every acceptance item has current PASS evidence.
+    authority: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    predicate: Reconcile acceptance ids, records, statuses, and input fingerprints.
+    falsifyingCase: Delete a record, change an acceptance contract, or leave a PASS without a PASS record.
+    negativeRegression: "A deliberate violation of: Delete a record, change an acceptance contract, or leave a PASS without a PASS record."
+    remediation: Rerun or record the affected Evidence and reconcile the document.
+    evidence:
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+    evaluatedAt: 2026-09-14T16:28:55.374Z
+  - id: G-constraints-resolved
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Task constraints are resolved
+    detail: 55 constraints resolved with no conflict or unknown blocker.
+    authority: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+    predicate: Resolve current authority, decisions, contract, and representative patterns.
+    falsifyingCase: Introduce two incompatible HARD authority statements or leave a required unknown.
+    negativeRegression: "A deliberate violation of: Introduce two incompatible HARD authority statements or leave a required unknown."
+    remediation: Record a human Decision or make the authoritative input explicit.
+    evidence:
+      - .evo/project.md
+      - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      - AGENTS.md
+      - README.md
+      - docs/architecture.md
+      - docs/operations.md
+      - docs/testing.md
+      - scripts/cross-agent-behavioral.ts
+      - scripts/phase2-evals.ts
+      - scripts/phase3-development-continuity.ts
+      - scripts/phase3-evals.ts
+      - scripts/phase3-ruoyi-behavioral.ts
+      - src/commands/init.ts
+      - src/core/goal.ts
+      - src/repository/consistency.ts
+      - src/repository/init.ts
+      - src/repository/scanner.ts
+    evaluatedAt: 2026-09-14T16:28:55.374Z
+  - id: G-current-truth
+    kind: PROTOCOL
+    enforcement: HARD
+    status: PASS
+    title: Current-truth targets are satisfied
+    detail: Verified 21 target(s).
+    authority: skills/ask-evo/SKILL.md
+    predicate: Check every Plan-declared current-truth path.
+    falsifyingCase: Delete or omit a required target after implementation.
+    negativeRegression: "A deliberate violation of: Delete or omit a required target after implementation."
+    remediation: Create or restore the declared current-truth path, or revise the approved Plan.
+    evidence:
+      - README.md
+      - docs/agents/README.md
+      - docs/agents/claude-code.md
+      - docs/agents/codex.md
+      - docs/agents/opencode.md
+      - docs/operations.md
+      - docs/testing.md
+      - package.json
+      - references/experiments/cross-agent/cross-agent-continuity.json
+      - references/experiments/cross-agent/cross-agent-continuity.md
+      - scripts/cross-agent-behavioral.ts
+      - scripts/cross-agent-evals.ts
+      - scripts/generate-skill-manifest.ts
+      - scripts/validate-skills.ts
+      - skills/ask-evo/SKILL.md
+      - skills/manifest.json
+      - src/agents/compatibility.ts
+      - src/agents/discovery.ts
+      - src/commands/agents/doctor.ts
+      - src/commands/agents/inspect.ts
+      - src/commands/agents/setup.ts
+    evaluatedAt: 2026-09-14T16:28:55.374Z
+  - id: G-project-consistency
+    kind: PROJECT
+    enforcement: WARNING
+    status: PASS
+    title: Repository pattern consistency
+    detail: No candidate consistency drift was observed.
+    authority: scripts/phase3-evals.ts
+    predicate: Compare proposed changes with repository patterns.
+    falsifyingCase: Introduce a naming, response, permission, or blast-radius drift.
+    negativeRegression: "A deliberate violation of: Introduce a naming, response, permission, or blast-radius drift."
+    remediation: Review the signal and either reuse the pattern or document an approved exception.
+    evidence:
+      - scripts/cross-agent-behavioral.ts
+      - scripts/phase2-evals.ts
+      - scripts/phase3-development-continuity.ts
+      - scripts/phase3-evals.ts
+      - scripts/phase3-ruoyi-behavioral.ts
+      - src/commands/init.ts
+      - src/core/goal.ts
+      - src/repository/consistency.ts
+      - src/repository/init.ts
+      - src/repository/scanner.ts
+    evaluatedAt: 2026-09-14T16:28:55.610Z
+trace:
+  schemaVersion: 1
+  change: evo-0007-v0-4-cross-agent-portability
+  updatedAt: 2026-09-14T16:28:55.630Z
+  inputFingerprint: 81373ab6803c1a5f008427e6808adcd5601d9ff1f20999ef369ffd2dab398900
+  items:
+    - id: AC-7.1
+      title: Canonical Skills**：所有 EVO Skills 通过跨 Harness compatible validation；Repository 只维护一个 canonical `skills/` source。
+      source: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      implementationSurface:
+        - .evo/goals/active/v04-cross-agent-portability.yml
+        - .evo/state.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/context.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/README.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152813-b0aed048.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914153433-df33e6e9.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161834-f656a8ec.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161845-56c0c9ba.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml
+        - README.md
+        - docs/agents/README.md
+        - docs/agents/claude-code.md
+        - docs/agents/codex.md
+        - docs/agents/opencode.md
+        - docs/operations.md
+        - docs/testing.md
+        - package.json
+        - references/experiments/cross-agent/cross-agent-continuity.json
+        - references/experiments/cross-agent/cross-agent-continuity.md
+        - schemas/agent-compatibility.schema.json
+        - schemas/agent-setup.schema.json
+        - schemas/cross-agent-continuity.schema.json
+        - scripts/cross-agent-behavioral.ts
+        - scripts/cross-agent-evals.ts
+        - scripts/generate-skill-manifest.ts
+        - scripts/package-smoke.ts
+        - scripts/schema-documents.ts
+        - scripts/smoke-cli.ts
+        - scripts/validate-skills.ts
+        - skills/ask-evo/SKILL.md
+        - skills/manifest.json
+        - src/agents/compatibility.ts
+        - src/agents/discovery.ts
+        - src/agents/setup.ts
+        - src/commands/agents/doctor.ts
+        - src/commands/agents/inspect.ts
+        - src/commands/agents/setup.ts
+        - src/core/schemas.ts
+        - src/repository/skill-manifest.ts
+        - tests/agent-compatibility.test.ts
+        - tests/agent-setup.test.ts
+      verification:
+        - "build: Current canonical Skill and router validation"
+        - pnpm run validate:skills
+      evidenceRefs:
+        - EV-20260914162728-59cec07f
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-7.10
+      title: Distribution Quality**：Node 22/24 默认 CI、Phase 2/3 regressions、v0.4 deterministic eval、CLI/package smoke 全部 PASS；真实 cross-agent behavioral eval 单独保存并可复查。
+      source: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      implementationSurface:
+        - .evo/goals/active/v04-cross-agent-portability.yml
+        - .evo/state.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/context.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/README.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152813-b0aed048.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914153433-df33e6e9.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161834-f656a8ec.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161845-56c0c9ba.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162728-59cec07f.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162731-0b726197.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162742-bdf03ccc.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml
+        - README.md
+        - docs/agents/README.md
+        - docs/agents/claude-code.md
+        - docs/agents/codex.md
+        - docs/agents/opencode.md
+        - docs/operations.md
+        - docs/testing.md
+        - package.json
+        - references/experiments/cross-agent/cross-agent-continuity.json
+        - references/experiments/cross-agent/cross-agent-continuity.md
+        - schemas/agent-compatibility.schema.json
+        - schemas/agent-setup.schema.json
+        - schemas/cross-agent-continuity.schema.json
+        - scripts/cross-agent-behavioral.ts
+        - scripts/cross-agent-evals.ts
+        - scripts/generate-skill-manifest.ts
+        - scripts/package-smoke.ts
+        - scripts/schema-documents.ts
+        - scripts/smoke-cli.ts
+        - scripts/validate-skills.ts
+        - skills/ask-evo/SKILL.md
+        - skills/manifest.json
+        - src/agents/compatibility.ts
+        - src/agents/discovery.ts
+        - src/agents/setup.ts
+        - src/commands/agents/doctor.ts
+        - src/commands/agents/inspect.ts
+        - src/commands/agents/setup.ts
+        - src/core/schemas.ts
+        - src/repository/skill-manifest.ts
+        - tests/agent-compatibility.test.ts
+        - tests/agent-setup.test.ts
+      verification:
+        - "build: Current universal distribution and package smoke"
+        - pnpm run smoke:package
+      evidenceRefs:
+        - EV-20260914162752-8944e84a
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-7.2
+      title: One Authority**：Codex/OpenCode 使用 `AGENTS.md`；Claude 仅通过薄 `CLAUDE.md -> @AGENTS.md` bridge；不存在复制的 Standing Rules Authority。
+      source: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      implementationSurface:
+        - .evo/goals/active/v04-cross-agent-portability.yml
+        - .evo/state.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/context.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/README.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152813-b0aed048.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914153433-df33e6e9.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161834-f656a8ec.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161845-56c0c9ba.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162728-59cec07f.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml
+        - README.md
+        - docs/agents/README.md
+        - docs/agents/claude-code.md
+        - docs/agents/codex.md
+        - docs/agents/opencode.md
+        - docs/operations.md
+        - docs/testing.md
+        - package.json
+        - references/experiments/cross-agent/cross-agent-continuity.json
+        - references/experiments/cross-agent/cross-agent-continuity.md
+        - schemas/agent-compatibility.schema.json
+        - schemas/agent-setup.schema.json
+        - schemas/cross-agent-continuity.schema.json
+        - scripts/cross-agent-behavioral.ts
+        - scripts/cross-agent-evals.ts
+        - scripts/generate-skill-manifest.ts
+        - scripts/package-smoke.ts
+        - scripts/schema-documents.ts
+        - scripts/smoke-cli.ts
+        - scripts/validate-skills.ts
+        - skills/ask-evo/SKILL.md
+        - skills/manifest.json
+        - src/agents/compatibility.ts
+        - src/agents/discovery.ts
+        - src/agents/setup.ts
+        - src/commands/agents/doctor.ts
+        - src/commands/agents/inspect.ts
+        - src/commands/agents/setup.ts
+        - src/core/schemas.ts
+        - src/repository/skill-manifest.ts
+        - tests/agent-compatibility.test.ts
+        - tests/agent-setup.test.ts
+      verification:
+        - pnpm exec vitest run tests/agent-compatibility.test.ts --run
+        - "unit: Current agent discovery and authority compatibility tests"
+      evidenceRefs:
+        - EV-20260914162731-0b726197
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-7.3
+      title: Setup Safety**：`evo agents setup` 默认只读 preview；`--apply` 只创建安全 adapter，不覆盖已有用户配置，冲突必须回到人工处理。
+      source: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      implementationSurface:
+        - .evo/goals/active/v04-cross-agent-portability.yml
+        - .evo/state.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/context.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/README.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152813-b0aed048.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914153433-df33e6e9.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161834-f656a8ec.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161845-56c0c9ba.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162728-59cec07f.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162731-0b726197.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml
+        - README.md
+        - docs/agents/README.md
+        - docs/agents/claude-code.md
+        - docs/agents/codex.md
+        - docs/agents/opencode.md
+        - docs/operations.md
+        - docs/testing.md
+        - package.json
+        - references/experiments/cross-agent/cross-agent-continuity.json
+        - references/experiments/cross-agent/cross-agent-continuity.md
+        - schemas/agent-compatibility.schema.json
+        - schemas/agent-setup.schema.json
+        - schemas/cross-agent-continuity.schema.json
+        - scripts/cross-agent-behavioral.ts
+        - scripts/cross-agent-evals.ts
+        - scripts/generate-skill-manifest.ts
+        - scripts/package-smoke.ts
+        - scripts/schema-documents.ts
+        - scripts/smoke-cli.ts
+        - scripts/validate-skills.ts
+        - skills/ask-evo/SKILL.md
+        - skills/manifest.json
+        - src/agents/compatibility.ts
+        - src/agents/discovery.ts
+        - src/agents/setup.ts
+        - src/commands/agents/doctor.ts
+        - src/commands/agents/inspect.ts
+        - src/commands/agents/setup.ts
+        - src/core/schemas.ts
+        - src/repository/skill-manifest.ts
+        - tests/agent-compatibility.test.ts
+        - tests/agent-setup.test.ts
+      verification:
+        - "integration: Current agent command safety and CLI smoke"
+        - pnpm run smoke:cli
+      evidenceRefs:
+        - EV-20260914162742-bdf03ccc
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-7.4
+      title: Doctor**：`evo agents doctor` 能检测 invalid/missing skill、duplicate source、version drift、instruction bridge、CLI/client availability，并正确区分 ERROR/WARNING/INFO。
+      source: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      implementationSurface:
+        - .evo/goals/active/v04-cross-agent-portability.yml
+        - .evo/state.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/context.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/README.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152813-b0aed048.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914153433-df33e6e9.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161834-f656a8ec.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161845-56c0c9ba.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162728-59cec07f.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml
+        - README.md
+        - docs/agents/README.md
+        - docs/agents/claude-code.md
+        - docs/agents/codex.md
+        - docs/agents/opencode.md
+        - docs/operations.md
+        - docs/testing.md
+        - package.json
+        - references/experiments/cross-agent/cross-agent-continuity.json
+        - references/experiments/cross-agent/cross-agent-continuity.md
+        - schemas/agent-compatibility.schema.json
+        - schemas/agent-setup.schema.json
+        - schemas/cross-agent-continuity.schema.json
+        - scripts/cross-agent-behavioral.ts
+        - scripts/cross-agent-evals.ts
+        - scripts/generate-skill-manifest.ts
+        - scripts/package-smoke.ts
+        - scripts/schema-documents.ts
+        - scripts/smoke-cli.ts
+        - scripts/validate-skills.ts
+        - skills/ask-evo/SKILL.md
+        - skills/manifest.json
+        - src/agents/compatibility.ts
+        - src/agents/discovery.ts
+        - src/agents/setup.ts
+        - src/commands/agents/doctor.ts
+        - src/commands/agents/inspect.ts
+        - src/commands/agents/setup.ts
+        - src/core/schemas.ts
+        - src/repository/skill-manifest.ts
+        - tests/agent-compatibility.test.ts
+        - tests/agent-setup.test.ts
+      verification:
+        - pnpm exec vitest run tests/agent-compatibility.test.ts --run
+        - "unit: Current agent discovery and authority compatibility tests"
+      evidenceRefs:
+        - EV-20260914162731-0b726197
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-7.5
+      title: Universal Distribution**：同一版本 canonical EVO Skills 能被 Codex、Claude Code、OpenCode 正确发现，无需维护三套 Skill 内容。
+      source: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      implementationSurface:
+        - .evo/goals/active/v04-cross-agent-portability.yml
+        - .evo/state.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/context.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/README.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152813-b0aed048.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914153433-df33e6e9.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161834-f656a8ec.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161845-56c0c9ba.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162728-59cec07f.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162731-0b726197.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162742-bdf03ccc.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml
+        - README.md
+        - docs/agents/README.md
+        - docs/agents/claude-code.md
+        - docs/agents/codex.md
+        - docs/agents/opencode.md
+        - docs/operations.md
+        - docs/testing.md
+        - package.json
+        - references/experiments/cross-agent/cross-agent-continuity.json
+        - references/experiments/cross-agent/cross-agent-continuity.md
+        - schemas/agent-compatibility.schema.json
+        - schemas/agent-setup.schema.json
+        - schemas/cross-agent-continuity.schema.json
+        - scripts/cross-agent-behavioral.ts
+        - scripts/cross-agent-evals.ts
+        - scripts/generate-skill-manifest.ts
+        - scripts/package-smoke.ts
+        - scripts/schema-documents.ts
+        - scripts/smoke-cli.ts
+        - scripts/validate-skills.ts
+        - skills/ask-evo/SKILL.md
+        - skills/manifest.json
+        - src/agents/compatibility.ts
+        - src/agents/discovery.ts
+        - src/agents/setup.ts
+        - src/commands/agents/doctor.ts
+        - src/commands/agents/inspect.ts
+        - src/commands/agents/setup.ts
+        - src/core/schemas.ts
+        - src/repository/skill-manifest.ts
+        - tests/agent-compatibility.test.ts
+        - tests/agent-setup.test.ts
+      verification:
+        - "build: Current universal distribution and package smoke"
+        - pnpm run smoke:package
+      evidenceRefs:
+        - EV-20260914162752-8944e84a
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-7.6
+      title: Cross-Agent Recover**：Agent B 不读取 Agent A Chat，也能从 Repository 恢复 objective、state、constraints、evidence、chronology 和 next action。
+      source: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      implementationSurface:
+        - .evo/goals/active/v04-cross-agent-portability.yml
+        - .evo/state.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/context.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/README.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152813-b0aed048.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914153433-df33e6e9.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161834-f656a8ec.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161845-56c0c9ba.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162728-59cec07f.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162731-0b726197.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162742-bdf03ccc.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162752-8944e84a.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml
+        - README.md
+        - docs/agents/README.md
+        - docs/agents/claude-code.md
+        - docs/agents/codex.md
+        - docs/agents/opencode.md
+        - docs/operations.md
+        - docs/testing.md
+        - package.json
+        - references/experiments/cross-agent/cross-agent-continuity.json
+        - references/experiments/cross-agent/cross-agent-continuity.md
+        - schemas/agent-compatibility.schema.json
+        - schemas/agent-setup.schema.json
+        - schemas/cross-agent-continuity.schema.json
+        - scripts/cross-agent-behavioral.ts
+        - scripts/cross-agent-evals.ts
+        - scripts/generate-skill-manifest.ts
+        - scripts/package-smoke.ts
+        - scripts/schema-documents.ts
+        - scripts/smoke-cli.ts
+        - scripts/validate-skills.ts
+        - skills/ask-evo/SKILL.md
+        - skills/manifest.json
+        - src/agents/compatibility.ts
+        - src/agents/discovery.ts
+        - src/agents/setup.ts
+        - src/commands/agents/doctor.ts
+        - src/commands/agents/inspect.ts
+        - src/commands/agents/setup.ts
+        - src/core/schemas.ts
+        - src/repository/skill-manifest.ts
+        - tests/agent-compatibility.test.ts
+        - tests/agent-setup.test.ts
+      verification:
+        - "external: Current durable cross-agent continuity field evaluation"
+      evidenceRefs:
+        - EV-20260914162821-2bfede23
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-7.7
+      title: Cross-Agent Engineering Consistency**：真实 Codex -> Claude -> OpenCode 连续开发后，独立 evaluator 证明目标 Repository engineering language 没有显著 drift，并保留真实 build/test/evidence 边界。
+      source: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      implementationSurface:
+        - .evo/goals/active/v04-cross-agent-portability.yml
+        - .evo/state.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/context.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/README.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152813-b0aed048.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914153433-df33e6e9.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161834-f656a8ec.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161845-56c0c9ba.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162728-59cec07f.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162731-0b726197.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162742-bdf03ccc.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162752-8944e84a.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml
+        - README.md
+        - docs/agents/README.md
+        - docs/agents/claude-code.md
+        - docs/agents/codex.md
+        - docs/agents/opencode.md
+        - docs/operations.md
+        - docs/testing.md
+        - package.json
+        - references/experiments/cross-agent/cross-agent-continuity.json
+        - references/experiments/cross-agent/cross-agent-continuity.md
+        - schemas/agent-compatibility.schema.json
+        - schemas/agent-setup.schema.json
+        - schemas/cross-agent-continuity.schema.json
+        - scripts/cross-agent-behavioral.ts
+        - scripts/cross-agent-evals.ts
+        - scripts/generate-skill-manifest.ts
+        - scripts/package-smoke.ts
+        - scripts/schema-documents.ts
+        - scripts/smoke-cli.ts
+        - scripts/validate-skills.ts
+        - skills/ask-evo/SKILL.md
+        - skills/manifest.json
+        - src/agents/compatibility.ts
+        - src/agents/discovery.ts
+        - src/agents/setup.ts
+        - src/commands/agents/doctor.ts
+        - src/commands/agents/inspect.ts
+        - src/commands/agents/setup.ts
+        - src/core/schemas.ts
+        - src/repository/skill-manifest.ts
+        - tests/agent-compatibility.test.ts
+        - tests/agent-setup.test.ts
+      verification:
+        - "external: Current durable cross-agent continuity field evaluation"
+      evidenceRefs:
+        - EV-20260914162821-2bfede23
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-7.8
+      title: Safe Concurrency Boundary**：Skills、Docs、Doctor 明确 one checkout -> one writer；v0.4 不宣称支持共享 working tree 并发写入。
+      source: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      implementationSurface:
+        - .evo/goals/active/v04-cross-agent-portability.yml
+        - .evo/state.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/context.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/README.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152813-b0aed048.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914153433-df33e6e9.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161834-f656a8ec.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161845-56c0c9ba.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162728-59cec07f.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162731-0b726197.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml
+        - README.md
+        - docs/agents/README.md
+        - docs/agents/claude-code.md
+        - docs/agents/codex.md
+        - docs/agents/opencode.md
+        - docs/operations.md
+        - docs/testing.md
+        - package.json
+        - references/experiments/cross-agent/cross-agent-continuity.json
+        - references/experiments/cross-agent/cross-agent-continuity.md
+        - schemas/agent-compatibility.schema.json
+        - schemas/agent-setup.schema.json
+        - schemas/cross-agent-continuity.schema.json
+        - scripts/cross-agent-behavioral.ts
+        - scripts/cross-agent-evals.ts
+        - scripts/generate-skill-manifest.ts
+        - scripts/package-smoke.ts
+        - scripts/schema-documents.ts
+        - scripts/smoke-cli.ts
+        - scripts/validate-skills.ts
+        - skills/ask-evo/SKILL.md
+        - skills/manifest.json
+        - src/agents/compatibility.ts
+        - src/agents/discovery.ts
+        - src/agents/setup.ts
+        - src/commands/agents/doctor.ts
+        - src/commands/agents/inspect.ts
+        - src/commands/agents/setup.ts
+        - src/core/schemas.ts
+        - src/repository/skill-manifest.ts
+        - tests/agent-compatibility.test.ts
+        - tests/agent-setup.test.ts
+      verification:
+        - "integration: Current agent command safety and CLI smoke"
+        - pnpm run smoke:cli
+      evidenceRefs:
+        - EV-20260914162742-bdf03ccc
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+    - id: AC-7.9
+      title: Router Consistency**：同一 Repository State 下，Codex/Claude/OpenCode 的 `ask-evo` 都路由到同一个 next Skill；自由语言可以不同。
+      source: .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      implementationSurface:
+        - .evo/goals/active/v04-cross-agent-portability.yml
+        - .evo/state.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/context.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/README.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914152813-b0aed048.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914153433-df33e6e9.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161834-f656a8ec.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence-history/pre-admission-refresh/records/EV-20260914161845-56c0c9ba.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152131-19fae791.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162728-59cec07f.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162731-0b726197.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162742-bdf03ccc.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162752-8944e84a.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml
+        - README.md
+        - docs/agents/README.md
+        - docs/agents/claude-code.md
+        - docs/agents/codex.md
+        - docs/agents/opencode.md
+        - docs/operations.md
+        - docs/testing.md
+        - package.json
+        - references/experiments/cross-agent/cross-agent-continuity.json
+        - references/experiments/cross-agent/cross-agent-continuity.md
+        - schemas/agent-compatibility.schema.json
+        - schemas/agent-setup.schema.json
+        - schemas/cross-agent-continuity.schema.json
+        - scripts/cross-agent-behavioral.ts
+        - scripts/cross-agent-evals.ts
+        - scripts/generate-skill-manifest.ts
+        - scripts/package-smoke.ts
+        - scripts/schema-documents.ts
+        - scripts/smoke-cli.ts
+        - scripts/validate-skills.ts
+        - skills/ask-evo/SKILL.md
+        - skills/manifest.json
+        - src/agents/compatibility.ts
+        - src/agents/discovery.ts
+        - src/agents/setup.ts
+        - src/commands/agents/doctor.ts
+        - src/commands/agents/inspect.ts
+        - src/commands/agents/setup.ts
+        - src/core/schemas.ts
+        - src/repository/skill-manifest.ts
+        - tests/agent-compatibility.test.ts
+        - tests/agent-setup.test.ts
+      verification:
+        - "build: Current canonical Skill and router validation"
+        - "external: Current durable cross-agent continuity field evaluation"
+        - pnpm run validate:skills
+      evidenceRefs:
+        - EV-20260914162728-59cec07f
+        - EV-20260914162821-2bfede23
+      status: PASS
+      freshness: CURRENT
+      limitations: []
+freshness:
+  schemaVersion: 1
+  change: evo-0007-v0-4-cross-agent-portability
+  generatedAt: 2026-09-14T16:28:55.636Z
+  status: CURRENT
+  entries:
+    - id: change
+      kind: change
+      status: CURRENT
+      fingerprint: 260013a0047fca82b7212539c7e0b1ee66014878f5795c69570408a8e864e9e9
+      inputFingerprint: e444ec899f22300490463f1376a7719130d0e349b575d809f73e9121bbb53570
+      inputs:
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+      changedInputs: []
+      detail: Authoritative file .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md exists.
+      generatedAt: 2026-09-14T16:28:55.636Z
+    - id: plan
+      kind: plan
+      status: CURRENT
+      fingerprint: 739eb16f9e60436293095debf49842fc1a71867bb75ff1a0071fb14c35c42b31
+      inputFingerprint: 81373ab6803c1a5f008427e6808adcd5601d9ff1f20999ef369ffd2dab398900
+      inputs:
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+      changedInputs:
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+      detail: Authoritative file .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md exists.
+      generatedAt: 2026-09-14T16:28:55.636Z
+    - id: constraints
+      kind: derived
+      status: CURRENT
+      fingerprint: b0f7250cbf4ff3f71eda630b98d8a5459a0a2ad9da33a6bf8dc5b4571220e785
+      inputFingerprint: aef8e5d1f6e6affd0a9f72242afc46c7751c0c317f6b958fa2692b3627699a44
+      inputs:
+        - .evo/decisions/current
+        - .evo/decisions/current/d-0001-human-controlled-phases.md
+        - .evo/decisions/current/d-0002-bounded-goal-execution.md
+        - .evo/decisions/working
+        - .evo/project.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+        - AGENTS.md
+        - docs/architecture.md
+        - docs/operations.md
+        - docs/testing.md
+        - README.md
+        - scripts/cross-agent-behavioral.ts
+        - scripts/phase2-evals.ts
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - scripts/phase3-ruoyi-behavioral.ts
+        - src/commands/init.ts
+        - src/core/goal.ts
+        - src/repository/consistency.ts
+        - src/repository/init.ts
+        - src/repository/scanner.ts
+      changedInputs:
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+      detail: Derived artifact .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml matches its recorded inputs.
+      generatedAt: 2026-09-14T16:28:55.636Z
+    - id: acceptance
+      kind: derived
+      status: CURRENT
+      fingerprint: 6f932a360e5904f2fdadf28004e3b321a49c8b59098538ab118f8a94d69c3c33
+      inputFingerprint: 81373ab6803c1a5f008427e6808adcd5601d9ff1f20999ef369ffd2dab398900
+      inputs:
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+      changedInputs:
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+      detail: Derived artifact .evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml matches its recorded inputs.
+      generatedAt: 2026-09-14T16:28:55.636Z
+    - id: evidence
+      kind: derived
+      status: CURRENT
+      fingerprint: 472b6c71d6e8d8c8c6c7fd58747c469c4ac9380d30ab7252acea3ef8468ed831
+      inputFingerprint: 094ae6b012d7670b728ff3cd45fbcb3b1833c673b03b3a1a74f5300983e018ab
+      inputs:
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+      changedInputs:
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+      detail: Derived artifact .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml matches its recorded inputs.
+      generatedAt: 2026-09-14T16:28:55.636Z
+    - id: context
+      kind: context
+      status: CURRENT
+      fingerprint: bf609a3ce440bf29d96d48e78c71d14a08fa51644235677d28bc328a956ec387
+      inputFingerprint: 7b6a527a32aa4ba22dfbc4a1d12afafe795db84bfaed248db8e3e2b16f081bee
+      inputs:
+        - .evo/decisions/current
+        - .evo/decisions/current/d-0001-human-controlled-phases.md
+        - .evo/decisions/current/d-0002-bounded-goal-execution.md
+        - .evo/decisions/working
+        - .evo/project.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+        - AGENTS.md
+        - docs/architecture.md
+        - docs/operations.md
+        - docs/testing.md
+        - README.md
+        - scripts/cross-agent-behavioral.ts
+        - scripts/phase2-evals.ts
+        - scripts/phase3-development-continuity.ts
+        - scripts/phase3-evals.ts
+        - scripts/phase3-ruoyi-behavioral.ts
+        - scripts/phase3-ruoyi-smoke.ts
+        - src/core/goal.ts
+        - src/core/schemas.ts
+        - src/repository/scanner.ts
+        - src/validation/project.ts
+        - tests/agent-compatibility.test.ts
+        - tests/artifacts.test.ts
+        - tests/constraints.test.ts
+        - tests/convergence.test.ts
+        - tests/freshness.test.ts
+        - tests/gates.test.ts
+        - tests/goal-orchestration.test.ts
+        - tests/recovery.test.ts
+      changedInputs:
+        - .evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md
+      detail: context.md matches its recorded inputs.
+      generatedAt: 2026-09-14T16:28:55.636Z

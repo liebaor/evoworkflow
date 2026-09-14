@@ -44,6 +44,8 @@ evoworkflow 是一套由人工驱动、AI 辅助执行、仓库持久化知识�
 - 三期的最终 verified boundary 是：`F1` 偏差诊断、`F2` Feature → Requirement Delta → Bug/Regression → Fresh Agent 的 Brownfield continuity、`F3` 脱敏 durable trace + Evidence SHA-256、`F4` deterministic Project HARD promotion。RuoYi runtime、数据库、浏览器和宿主环境缺失的 Java 17/frontend build 仍单独标记为 `UNVERIFIED`。
 - Greenfield 指导：先比较成熟方案，再决定是否需要自建基础设施。
 
+v0.4 增加了 Harness-neutral 的跨 Agent 兼容层：`AGENTS.md` 仍是唯一的仓库级 standing-rule authority，`skills/*/SKILL.md` 仍是唯一的 canonical Skill source。Codex、Claude Code 和 OpenCode 只作为可替换执行 Harness；`evo agents inspect/setup/doctor` 读取运行时事实并报告兼容性，不持久化客户端状态，也不会覆盖用户文件。
+
 evoworkflow v0.3 仍不包含多 Agent 并行执行、云控制面板、中央数据库、自动产品或架构决策，也不会自动提交、合并、发布、部署或完成 Change。多仓库 Change Set 只是只读聚合检查；真实人工身份系统仍不在命令行测试范围内，人工批准继续由显式测试协议模拟。
 
 ## 开发要求
@@ -90,6 +92,27 @@ pnpm evo migrate --root /path/to/project --apply
 pnpm evo completion inspect --root /path/to/project <change-id>
 pnpm evo change-set check --root /path/to/project <change-set-id>
 ```
+
+## v0.4 跨 Agent 最短路径
+
+在目标仓库中只选择一种 Skill 分发方式。当前推荐使用现有 universal installer：
+
+```sh
+npx skills@latest add liebaor/evoworkflow
+```
+
+随后在仓库内构建/使用 EVO CLI，并先检查兼容性：
+
+```sh
+evo agents inspect --root /path/to/project
+evo agents setup --root /path/to/project       # 只预览，不写文件
+evo agents setup --root /path/to/project --apply
+evo agents doctor --root /path/to/project
+```
+
+`setup --apply` 只会在缺少 `CLAUDE.md` 时安全创建内容为 `@AGENTS.md` 的 thin bridge；已有文件不会被覆盖，冲突必须人工合并。不要同时把同一套 Skill 安装到多个等价 source；doctor 会把重复、版本/hash drift 和 copied authority 报为诊断。一个 checkout 同时只允许一个 executing writer；需要并行时使用独立 branch/worktree。
+
+v0.4 的确定性跨 Agent 回归是 `pnpm run eval:cross-agent`。真实 Codex → Claude Code → OpenCode → Fresh Agent 接力评估是独立的现场评估，可用 `pnpm run eval:cross-agent:behavioral` 运行；它写入脱敏的 Repository trace，但不属于普通 CI hard gate。
 
 `evo init` 会报告发现了什么以及准备创建什么。`--apply` 只写入缺失的 EVO 文件，不覆盖项目已有的指令和文档。
 

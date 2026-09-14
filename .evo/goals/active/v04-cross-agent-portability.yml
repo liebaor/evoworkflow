@@ -5,7 +5,7 @@ changeId: evo-0007-v0-4-cross-agent-portability
 repository: /home/zhicheng/code/codex/evoworkflow
 adapter: codex
 maxAttempts: 1
-status: RUNNING
+status: READY_FOR_REVIEW
 stopConditions:
   - REQUIREMENT_AMBIGUITY
   - ACCEPTANCE_CHANGE
@@ -95,8 +95,40 @@ slices:
           - test
         label: Agent compatibility tests
         timeoutMs: 300000
-    status: PENDING
-    attempts: []
+    status: PASS
+    attempts:
+      - number: 1
+        epoch: 0
+        startedAt: 2026-09-14T15:28:33.153Z
+        endedAt: 2026-09-14T15:28:33.153Z
+        agent:
+          status: COMPLETED
+          summary: M4.2 runtime-derived client discovery and one-authority compatibility checks completed.
+          changedFiles:
+            - src/agents/discovery.ts
+            - src/agents/compatibility.ts
+            - src/core/schemas.ts
+            - scripts/schema-documents.ts
+            - schemas/agent-compatibility.schema.json
+            - tests/agent-compatibility.test.ts
+          evidence:
+            - EV-20260914152813-b0aed048
+          stopCondition: null
+        verification:
+          - label: M4.2 agent discovery and authority compatibility tests
+            command: pnpm
+            args:
+              - exec
+              - vitest
+              - run
+              - tests/agent-compatibility.test.ts
+              - --run
+            status: PASS
+            exitCode: 0
+            output: Agent discovery and compatibility tests passed.
+            startedAt: 2026-09-14T15:28:33.153Z
+            endedAt: 2026-09-14T15:28:33.153Z
+        invocationId: v04-cross-agent-portability/S2/0/manual
     blockReason: null
     stopCondition: null
   - id: S3
@@ -114,8 +146,40 @@ slices:
           - check
         label: Agent command and repository checks
         timeoutMs: 900000
-    status: PENDING
-    attempts: []
+    status: PASS
+    attempts:
+      - number: 1
+        epoch: 0
+        startedAt: 2026-09-14T15:34:49.825Z
+        endedAt: 2026-09-14T15:34:49.825Z
+        agent:
+          status: COMPLETED
+          summary: M4.3 inspect, setup, doctor, single-writer diagnostics, and CLI smoke completed.
+          changedFiles:
+            - src/agents/setup.ts
+            - src/agents/compatibility.ts
+            - src/commands/agents/inspect.ts
+            - src/commands/agents/setup.ts
+            - src/commands/agents/doctor.ts
+            - src/core/schemas.ts
+            - scripts/smoke-cli.ts
+            - schemas/agent-setup.schema.json
+            - tests/agent-setup.test.ts
+          evidence:
+            - EV-20260914153433-df33e6e9
+          stopCondition: null
+        verification:
+          - label: M4.3 agent command safety and CLI smoke
+            command: pnpm
+            args:
+              - run
+              - smoke:cli
+            status: PASS
+            exitCode: 0
+            output: Built CLI smoke passed.
+            startedAt: 2026-09-14T15:34:49.825Z
+            endedAt: 2026-09-14T15:34:49.825Z
+        invocationId: v04-cross-agent-portability/S3/0/manual
     blockReason: null
     stopCondition: null
   - id: S4
@@ -132,8 +196,40 @@ slices:
           - smoke:package
         label: Package distribution smoke
         timeoutMs: 300000
-    status: PENDING
-    attempts: []
+    status: PASS
+    attempts:
+      - number: 1
+        epoch: 0
+        startedAt: 2026-09-14T16:20:50.375Z
+        endedAt: 2026-09-14T16:20:50.375Z
+        agent:
+          status: COMPLETED
+          summary: M4.4 universal distribution and package smoke completed.
+          changedFiles:
+            - package.json
+            - scripts/package-smoke.ts
+            - README.md
+            - docs/agents/README.md
+            - docs/agents/codex.md
+            - docs/agents/claude-code.md
+            - docs/agents/opencode.md
+            - docs/operations.md
+            - docs/testing.md
+          evidence:
+            - EV-20260914161834-f656a8ec
+          stopCondition: null
+        verification:
+          - label: S4 universal distribution package smoke
+            command: pnpm
+            args:
+              - run
+              - smoke:package
+            status: PASS
+            exitCode: 0
+            output: E315 and E314 passed; one canonical 20-Skill set and packaged agents commands verified.
+            startedAt: 2026-09-14T16:20:50.375Z
+            endedAt: 2026-09-14T16:20:50.375Z
+        invocationId: v04-cross-agent-portability/S4/0/manual
     blockReason: null
     stopCondition: null
   - id: S5
@@ -156,8 +252,57 @@ slices:
           - check
         label: Full repository regression check
         timeoutMs: 900000
-    status: PENDING
-    attempts: []
+    status: PASS
+    attempts:
+      - number: 1
+        epoch: 0
+        startedAt: 2026-09-14T16:20:50.375Z
+        endedAt: 2026-09-14T16:20:50.375Z
+        agent:
+          status: COMPLETED
+          summary: Real Codex, Claude Code, OpenCode, and Fresh Agent continuity evaluation completed with independent evaluator PASS.
+          changedFiles:
+            - scripts/cross-agent-evals.ts
+            - scripts/cross-agent-behavioral.ts
+            - references/experiments/cross-agent/cross-agent-continuity.json
+            - references/experiments/cross-agent/cross-agent-continuity.md
+            - src/core/schemas.ts
+            - schemas/cross-agent-continuity.schema.json
+          evidence:
+            - EV-20260914161845-56c0c9ba
+          stopCondition: null
+        verification:
+          - label: S5 deterministic cross-agent evaluations
+            command: pnpm
+            args:
+              - run
+              - eval:cross-agent
+            status: PASS
+            exitCode: 0
+            output: E401-E410 passed.
+            startedAt: 2026-09-14T16:20:50.375Z
+            endedAt: 2026-09-14T16:20:50.375Z
+          - label: S5 real cross-agent continuity field evaluation
+            command: pnpm
+            args:
+              - run
+              - eval:cross-agent:behavioral
+            status: PASS
+            exitCode: 0
+            output: BEHAVIORAL_PASS; independent evaluator and node --test passed.
+            startedAt: 2026-09-14T16:20:50.375Z
+            endedAt: 2026-09-14T16:20:50.375Z
+          - label: Full repository regression check
+            command: pnpm
+            args:
+              - run
+              - check
+            status: PASS
+            exitCode: 0
+            output: "pnpm run check exited 0: all deterministic suites and package smoke passed."
+            startedAt: 2026-09-14T16:20:50.375Z
+            endedAt: 2026-09-14T16:22:04.413Z
+        invocationId: v04-cross-agent-portability/S5/0/manual
     blockReason: null
     stopCondition: null
 approval:
@@ -170,4 +315,4 @@ resumes: []
 failureBudget: 5
 failuresUsed: 0
 createdAt: 2026-09-14T15:14:55.404Z
-updatedAt: 2026-09-14T15:21:59.177Z
+updatedAt: 2026-09-14T16:22:04.413Z

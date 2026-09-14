@@ -1,0 +1,42 @@
+schemaVersion: 2
+id: EV-20260914152813-b0aed048
+change: evo-0007-v0-4-cross-agent-portability
+acceptance:
+  - AC-7.2
+  - AC-7.4
+kind: unit
+label: M4.2 agent discovery and authority compatibility tests
+status: PASS
+command:
+  executable: pnpm
+  args:
+    - exec
+    - vitest
+    - run
+    - tests/agent-compatibility.test.ts
+    - --run
+  cwd: /home/zhicheng/code/codex/evoworkflow
+exitCode: 0
+summary: exit=0; RUN  v4.1.11 /home/zhicheng/code/codex/evoworkflow
+outputHash: 675d22a5e426005dfed4ec65bd41c995294d72d30a42b278f5f5ea43083733e4
+git:
+  branch: v0.4/cross-agent-portability
+  head: 5051020f90d3d47733ffa81fc2838627f113d5d2
+  treeFingerprint: ba016c0844a3b0f107e99bf8eeedf6b21e19f339cbeabea4ebca6832cb7dc5e0
+  dirty: true
+  changedPaths:
+    - .evo/goals/active/v04-cross-agent-portability.yml
+    - .evo/state.yml
+    - scripts/schema-documents.ts
+    - src/agents/compatibility.ts
+    - src/agents/discovery.ts
+    - src/core/schemas.ts
+    - src/repository/skill-manifest.ts
+    - tests/agent-compatibility.test.ts
+  changedPathsFingerprint: 5c8b9b61285a26b86afde2861e54857e32a62e8f9f666719d40608ee869c9c46
+  capturedAt: 2026-09-14T15:28:13.302Z
+artifacts: []
+startedAt: 2026-09-14T15:28:11.029Z
+endedAt: 2026-09-14T15:28:13.300Z
+inputFingerprint: f83d5c87a798e3f9b08a09684a702dc022ad25c3dae407c693a9ef7fc7e7f812
+freshness: CURRENT

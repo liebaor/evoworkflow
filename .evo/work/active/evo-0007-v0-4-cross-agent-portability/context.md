@@ -2,9 +2,9 @@
 
 Repository / 仓库：/home/zhicheng/code/codex/evoworkflow
 Change / Change：evo-0007-v0-4-cross-agent-portability — evoworkflow v0.4 — Cross-Agent Portability (LARGE/APPROVED)
-Generated / 生成时间：2026-09-14T15:13:40.265Z
-Input fingerprint / 输入指纹：f4238e28e76e4b204bf7fe1088696a669f689827b9e3a26792d118f33479f5ee
-<!-- evo-context-inputs: .evo/project.md|AGENTS.md|.evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md|.evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md|.evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md|.evo/decisions/current|.evo/decisions/working|docs/architecture.md|docs/operations.md|docs/testing.md|README.md|.evo/decisions/current/d-0001-human-controlled-phases.md|.evo/decisions/current/d-0002-bounded-goal-execution.md|src/core/goal.ts|scripts/phase2-evals.ts|scripts/phase3-development-continuity.ts|scripts/phase3-evals.ts|scripts/phase3-ruoyi-behavioral.ts|src/agents/process-adapter.ts|src/repository/scanner.ts|src/validation/project.ts|scripts/phase3-ruoyi-smoke.ts|tests/artifacts.test.ts|tests/constraints.test.ts|tests/convergence.test.ts|tests/delivery.test.ts|tests/freshness.test.ts|tests/gates.test.ts|tests/goal-orchestration.test.ts|tests/recovery.test.ts -->
+Generated / 生成时间：2026-09-14T16:25:17.775Z
+Input fingerprint / 输入指纹：7b6a527a32aa4ba22dfbc4a1d12afafe795db84bfaed248db8e3e2b16f081bee
+<!-- evo-context-inputs: .evo/project.md|AGENTS.md|.evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md|.evo/work/active/evo-0007-v0-4-cross-agent-portability/spec.md|.evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md|.evo/decisions/current|.evo/decisions/working|docs/architecture.md|docs/operations.md|docs/testing.md|README.md|.evo/decisions/current/d-0001-human-controlled-phases.md|.evo/decisions/current/d-0002-bounded-goal-execution.md|scripts/cross-agent-behavioral.ts|src/core/goal.ts|scripts/phase3-development-continuity.ts|scripts/phase3-evals.ts|scripts/phase3-ruoyi-behavioral.ts|src/core/schemas.ts|src/repository/scanner.ts|src/validation/project.ts|scripts/phase2-evals.ts|scripts/phase3-ruoyi-smoke.ts|tests/agent-compatibility.test.ts|tests/artifacts.test.ts|tests/constraints.test.ts|tests/convergence.test.ts|tests/freshness.test.ts|tests/gates.test.ts|tests/goal-orchestration.test.ts|tests/recovery.test.ts -->
 
 ## References / 参考路径
 
@@ -19,19 +19,20 @@ Input fingerprint / 输入指纹：f4238e28e76e4b204bf7fe1088696a669f689827b9e3a
 | authority | supporting | `README.md` | 项目地图中的 project-overview 主权威。 |
 | decision | domain | `.evo/decisions/current/d-0001-human-controlled-phases.md` | 生命周期为 current 且与任务词汇相关。 |
 | decision | domain | `.evo/decisions/current/d-0002-bounded-goal-execution.md` | 生命周期为 current 且与任务词汇相关。 |
+| reference | exact | `scripts/cross-agent-behavioral.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 25）。 |
 | reference | exact | `src/core/goal.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 18）。 |
-| reference | domain | `scripts/phase2-evals.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 16）。；现有 authorization 能力的证据路径。；现有 data permission 能力的证据路径。；现有 standard response 能力的证据路径。 |
 | reference | domain | `scripts/phase3-development-continuity.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 27）。 |
 | reference | domain | `scripts/phase3-evals.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 26）。 |
 | reference | domain | `scripts/phase3-ruoyi-behavioral.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 24）。 |
-| reference | domain | `src/agents/process-adapter.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 16）。 |
+| reference | domain | `src/core/schemas.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 19）。 |
 | reference | domain | `src/repository/scanner.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 17）。 |
-| reference | domain | `src/validation/project.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 25）。 |
+| reference | domain | `src/validation/project.ts` | 与当前 Change 关键词和现有入口模式匹配（得分 17）。 |
+| reference | technical | `scripts/phase2-evals.ts` | 现有 authorization 能力的证据路径。；现有 data permission 能力的证据路径。；现有 standard response 能力的证据路径。 |
 | reference | technical | `scripts/phase3-ruoyi-smoke.ts` | 现有 pagination 能力的证据路径。；现有 export 能力的证据路径。 |
+| test | supporting | `tests/agent-compatibility.test.ts` | 与当前 Change 关键词匹配的测试入口（得分 9）。 |
 | test | supporting | `tests/artifacts.test.ts` | 与当前 Change 关键词匹配的测试入口（得分 6）。 |
 | test | supporting | `tests/constraints.test.ts` | 与当前 Change 关键词匹配的测试入口（得分 7）。 |
 | test | supporting | `tests/convergence.test.ts` | 与当前 Change 关键词匹配的测试入口（得分 10）。 |
-| test | supporting | `tests/delivery.test.ts` | 与当前 Change 关键词匹配的测试入口（得分 6）。 |
 | test | supporting | `tests/freshness.test.ts` | 与当前 Change 关键词匹配的测试入口（得分 7）。 |
 | test | supporting | `tests/gates.test.ts` | 与当前 Change 关键词匹配的测试入口（得分 10）。 |
 | test | supporting | `tests/goal-orchestration.test.ts` | 与当前 Change 关键词匹配的测试入口（得分 9）。 |
@@ -42,10 +43,10 @@ Input fingerprint / 输入指纹：f4238e28e76e4b204bf7fe1088696a669f689827b9e3a
 
 - Available / 可用：yes / 是
 - Branch / 分支：v0.4/cross-agent-portability
-- HEAD / 提交：7b4d97499170b1b862d6ebeb1fbdceae1da90177
-- Tree fingerprint / 工作树指纹：f240966cd3f6dfff3429020b45434dcd3d1b3d25b99661a57b8dc6cbf81bac35
-- Changed paths / 修改路径：`.evo/state.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/plan.md`, `src/repository/artifacts.ts`, `src/repository/goals.ts`, `src/repository/plan-slices.ts`, `src/validation/project.ts`, `tests/artifacts.test.ts`, `tests/goals-repository.test.ts`
-- Recent commits / 最近提交：15e4e8d docs(evo): add v0.4 cross-agent portability plan；ba4d9f3 docs(evo): add v0.4 cross-agent portability change；f3653f3 chore(evo): deliver completed evo-0006-v0-3-engineering-closure；5ed7e4e chore(evo): record evo-0006-v0-3-engineering-closure engineering checkpoint；eae6fc5 chore(evo): record evo-0006-v0-3-engineering-closure engineering checkpoint
+- HEAD / 提交：5051020f90d3d47733ffa81fc2838627f113d5d2
+- Tree fingerprint / 工作树指纹：5abd7eeb4abf4a0fa077e822f2cbb382eac9f648d2065f6a0e6139fbd6c394e6
+- Changed paths / 修改路径：`.evo/goals/active/v04-cross-agent-portability.yml`, `.evo/state.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/acceptance.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/admission.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/constraints.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402714117-0-manifest.json`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725399-0-cross-agent-continuity.json`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789402725400-1-cross-agent-continuity.md`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914152813-b0aed048.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914153433-df33e6e9.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914161834-f656a8ec.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914161845-56c0c9ba.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/project-gates.yml`, `.evo/work/active/evo-0007-v0-4-cross-agent-portability/protocol-gates.yml`, `docs/agents/claude-code.md`, `docs/agents/codex.md`, `docs/agents/opencode.md`, `docs/agents/README.md`, `docs/operations.md`, `docs/testing.md`, `package.json`, `README.md`, `references/experiments/cross-agent/cross-agent-continuity.json`, `references/experiments/cross-agent/cross-agent-continuity.md`, `schemas/agent-compatibility.schema.json`, `schemas/agent-setup.schema.json`, `schemas/cross-agent-continuity.schema.json`, `scripts/cross-agent-behavioral.ts`, `scripts/cross-agent-evals.ts`, `scripts/package-smoke.ts`, `scripts/schema-documents.ts`, `scripts/smoke-cli.ts`, `src/agents/compatibility.ts`, `src/agents/discovery.ts`, `src/agents/setup.ts`, `src/commands/agents/doctor.ts`, `src/commands/agents/inspect.ts`, `src/commands/agents/setup.ts`, `src/core/schemas.ts`, `src/repository/skill-manifest.ts`, `tests/agent-compatibility.test.ts`, `tests/agent-setup.test.ts`
+- Recent commits / 最近提交：5051020 feat(evo): record S1 engineering checkpoint；15e4e8d docs(evo): add v0.4 cross-agent portability plan；ba4d9f3 docs(evo): add v0.4 cross-agent portability change；f3653f3 chore(evo): deliver completed evo-0006-v0-3-engineering-closure；5ed7e4e chore(evo): record evo-0006-v0-3-engineering-closure engineering checkpoint
 
 ## Unknowns / 未知项
 
@@ -66,6 +67,7 @@ Input fingerprint / 输入指纹：f4238e28e76e4b204bf7fe1088696a669f689827b9e3a
 - HARD ac-7.9: **AC-7.9 Router Consistency**：同一 Repository State 下，Codex/Claude/OpenCode 的 `ask-evo` 都路由到同一个 next Skill；自由语言可以不同。 [CONTRACT:.evo/work/active/evo-0007-v0-4-cross-agent-portability/change.md]
 - REFERENCE architecture: Use docs/architecture.md as the primary authority for architecture. [PROJECT_MAP:.evo/project.md]
 - REFERENCE consistency: Follow the existing pattern at src/repository/consistency.ts. [REPRESENTATIVE_CODE:src/repository/consistency.ts]
+- REFERENCE cross-agent-behavioral: Follow the existing pattern at scripts/cross-agent-behavioral.ts. [REPRESENTATIVE_CODE:scripts/cross-agent-behavioral.ts]
 - HARD d-0001-human-controlled-phases: Every EVO Skill executes one phase outcome and stops. Humans invoke the next phase, approve content-bound artifacts, accept residual risk, and authorize side effects. `ask-evo` and `evo status` recommend but never execute the next action. [DECISION:.evo/decisions/current/d-0001-human-controlled-phases.md]
 - HARD d-0002-bounded-goal-execution: A v0.1 Goal is single-agent and sequential. Approval binds Goal intent, adapter configuration, and active Change/Plan content. Agent output is followed by deterministic verification. Success ends at `READY_FOR_REVIEW`; Goals cannot Finish Changes. [DECISION:.evo/decisions/current/d-0002-bounded-goal-execution.md]
 - REFERENCE goal: Follow the existing pattern at src/core/goal.ts. [REPRESENTATIVE_CODE:src/core/goal.ts]
@@ -76,7 +78,6 @@ Input fingerprint / 输入指纹：f4238e28e76e4b204bf7fe1088696a669f689827b9e3a
 - REFERENCE phase3-development-continuity: Follow the existing pattern at scripts/phase3-development-continuity.ts. [REPRESENTATIVE_CODE:scripts/phase3-development-continuity.ts]
 - REFERENCE phase3-evals: Follow the existing pattern at scripts/phase3-evals.ts. [REPRESENTATIVE_CODE:scripts/phase3-evals.ts]
 - REFERENCE phase3-ruoyi-behavioral: Follow the existing pattern at scripts/phase3-ruoyi-behavioral.ts. [REPRESENTATIVE_CODE:scripts/phase3-ruoyi-behavioral.ts]
-- REFERENCE project: Follow the existing pattern at src/validation/project.ts. [REPRESENTATIVE_CODE:src/validation/project.ts]
 - REFERENCE project-overview: Use README.md as the primary authority for project-overview. [PROJECT_MAP:.evo/project.md]
 - HARD repository-rule-1e2c584d8ef8: 初始化不破坏数据并且幂等；不覆盖已有项目指令和权威文档。 [AUTHORITY:AGENTS.md]
 - HARD repository-rule-246e6f7e720e: Standard 和 Large 工作只能执行 `.evo/state.yml` 或活动 Goal 持久化的 `currentSlice`，不能根据文档顺序猜测。 [AUTHORITY:AGENTS.md]

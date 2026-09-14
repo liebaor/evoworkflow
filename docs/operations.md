@@ -106,6 +106,33 @@ evo migrate --root /path/to/project --apply
 
 evoworkflow v0.3 不提供自动 release、deploy 或生产回滚；只读恢复报告也不代表外部运行已验证。
 
+## v0.4 跨 Agent 兼容与交接
+
+跨 Agent 交接只传递 Repository、`.evo` 状态、canonical Skills 和 Git chronology，不传递旧聊天作为工程事实。推荐顺序是：
+
+```text
+universal Skill install
+  -> evo agents inspect
+  -> evo agents setup        # preview first
+  -> evo agents doctor
+  -> ask-evo
+  -> current approved Slice
+```
+
+`AGENTS.md` 是仓库级 standing rules 的唯一 authority。Claude Code 的 `CLAUDE.md` 只允许是精确的 `@AGENTS.md` thin bridge；`evo agents setup --apply` 只创建缺失文件，并以 exclusive create 防止覆盖或竞争写入。Codex 和 OpenCode 不需要新增 `CODEX.md`、`OPENCODE.md` 或复制规则文件。
+
+`evo agents inspect` 是只读报告；`setup` 默认是只读 preview，已有不兼容文件返回 `NEEDS_HUMAN_MERGE`；`doctor` 的缺少客户端是 INFO，重复 Skill/hash drift/断裂 bridge 会按 ERROR 或 WARNING 报告。看到 `.git/index.lock` 或 Goal lock 时，停止当前 checkout 的其他写入者，确认进程后再恢复。
+
+同一 checkout 的并发边界是 `one checkout -> one executing writer`。需要并行工作时创建独立 branch/worktree，最后由人工在 Git/EVO Change 边界合并。v0.4 不提供调度器、共享工作树锁服务或多 Agent 并行 runtime。
+
+推荐的 universal Skill 分发命令是：
+
+```sh
+npx skills@latest add liebaor/evoworkflow
+```
+
+同一仓库只选择一种分发方式；安装后用 `evo agents inspect` 检查 source、version 和 hash。不要把 `skills/` 复制成 `skills-codex/`、`skills-claude/` 或 `skills-opencode/`。
+
 ## v0.3 最终收口
 
 最终顺序固定为：

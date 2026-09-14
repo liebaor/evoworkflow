@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-14T16:17:56.909Z",
+  "repository": "isolated temporary Brownfield fixture (removed after evaluation)",
+  "status": "BEHAVIORAL_PASS",
+  "baselineRevision": "c1e40c29295ce1d14ccd2bf413bfc06e8c7cc421",
+  "finalRevision": "51430c4ad88bcd77a34599ee63120b33defc1954",
+  "harnessSequence": [
+    "codex",
+    "claude-code",
+    "opencode",
+    "fresh-agent"
+  ],
+  "invocationBoundary": "Each session is a new non-interactive process in the same isolated checkout; no prior chat or session id is supplied.",
+  "sessions": [
+    {
+      "id": "A",
+      "client": "codex",
+      "status": "PASS",
+      "invocation": "fresh-a-1789401972186",
+      "taskPackage": "Feature A: reserveRoom",
+      "changedPaths": [
+        "src/booking-service.js",
+        "test/booking-service.test.js"
+      ],
+      "verification": [
+        "node --test exited 0"
+      ],
+      "summary": "Implemented S1 Feature A with validation, reserved status, and node:test coverage.",
+      "error": null
+    },
+    {
+      "id": "B",
+      "client": "claude-code",
+      "status": "PASS",
+      "invocation": "fresh-b-1789402289426",
+      "taskPackage": "Requirement Delta: eight-hour maximum",
+      "changedPaths": [
+        "src/booking-service.js",
+        "test/booking-service.test.js"
+      ],
+      "verification": [
+        "node --test exited 0"
+      ],
+      "summary": "Recovered repo state read-only from AGENTS.md, .evo/project.md, .evo/state.yml, the active cross-agent-continuity Change/Plan/Evidence, and Git (clean tree at 3463af9; phase IMPLEMENT; Slice S2 RUNNING). Applied the requirement delta to Feature A by adding a max-duration guard to reserveRoom: end - start > 8 now throws 'duration must not exceed 8 hours', placed after the existing end<=start check so all prior validation and the {roomId, tenantId, start, end, status:'reserved'} return shape are preserved. Added a focused node:test for the >8h rejection plus a boundary test that exactly 8h is accepted. Only the two permitted files were modified. Tests were not executed locally because node/npm invocations require approval in this sandbox; the runner should execute the approved verification command.",
+      "error": null
+    },
+    {
+      "id": "C",
+      "client": "opencode",
+      "status": "PASS",
+      "invocation": "fresh-c-1789402330400",
+      "taskPackage": "Bug/Regression: tenant scope",
+      "changedPaths": [
+        "src/room-policy.js"
+      ],
+      "verification": [
+        "node --test exited 0"
+      ],
+      "summary": "Reproduced the injected tenant-scope policy inversion bug. `isSameTenant` in `src/room-policy.js:3` used `!==` instead of `===`, causing same-tenant records to be rejected and cross-tenant records to be allowed. Changed the operator to `===`. All 8 tests pass (0 failures).",
+      "error": null
+    },
+    {
+      "id": "D",
+      "client": "fresh-agent",
+      "status": "PASS",
+      "invocation": "fresh-d-1789402426507",
+      "taskPackage": "Feature B: cancelReservation",
+      "changedPaths": [
+        "src/booking-service.js",
+        "test/booking-service.test.js"
+      ],
+      "verification": [
+        "node --test exited 0"
+      ],
+      "summary": "Implemented S4 cancelReservation with tenant enforcement and focused tests.",
+      "error": null
+    }
+  ],
+  "changedPaths": [
+    ".evo/state.yml",
+    "src/booking-service.js",
+    "test/booking-service.test.js"
+  ],
+  "recovery": {
+    "status": "PASS",
+    "objective": "Cross-agent booking continuity",
+    "nextAction": "/evo-verify",
+    "source": "evo recover / buildRecoveryReport from Repository and EVO state"
+  },
+  "evaluator": {
+    "status": "PASS",
+    "checks": [
+      {
+        "id": "EVAL-BOUNDARY",
+        "category": "changed-path boundary",
+        "status": "PASS",
+        "detail": "All changes stay in the declared product and EVO checkpoint boundary."
+      },
+      {
+        "id": "EVAL-FEATURE-A",
+        "category": "Feature A",
+        "status": "PASS",
+        "detail": "reserveRoom is present in the booking service."
+      },
+      {
+        "id": "EVAL-REQUIREMENT-DELTA",
+        "category": "Requirement Delta",
+        "status": "PASS",
+        "detail": "The maximum-duration requirement is represented in product code."
+      },
+      {
+        "id": "EVAL-BUG-REGRESSION",
+        "category": "Bug regression",
+        "status": "PASS",
+        "detail": "Tenant scope uses the positive same-tenant predicate after regression repair."
+      },
+      {
+        "id": "EVAL-FEATURE-B",
+        "category": "Feature B",
+        "status": "PASS",
+        "detail": "cancelReservation is present in the same service boundary."
+      },
+      {
+        "id": "EVAL-DOMAIN-LANGUAGE",
+        "category": "domain vocabulary",
+        "status": "PASS",
+        "detail": "Room/tenant/booking vocabulary remains consistent."
+      },
+      {
+        "id": "EVAL-FORBIDDEN-MECHANISMS",
+        "category": "forbidden mechanism leakage",
+        "status": "PASS",
+        "detail": "No unrelated RuoYi mechanism leaked into the positive fixture."
+      }
+    ],
+    "testCommand": "node --test",
+    "testStatus": "PASS"
+  },
+  "limitations": [],
+  "artifactSha256": "db2a804cf5497b8c05ecb42616276d41c8d90c9cdcfd157eb09726766680b7b7"
+}

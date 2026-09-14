@@ -1,7 +1,7 @@
 schemaVersion: 1
 change: evo-0007-v0-4-cross-agent-portability
-generatedAt: 2026-09-14T15:13:40.779Z
-inputFingerprint: b3be02fb0d664fd1591ef151febce57527e22b5cf4a7369b2102c7680fac6b96
+generatedAt: 2026-09-14T16:22:22.011Z
+inputFingerprint: aef8e5d1f6e6affd0a9f72242afc46c7751c0c317f6b958fa2692b3627699a44
 inputs:
   - .evo/decisions/current
   - .evo/decisions/current/d-0001-human-controlled-phases.md
@@ -16,6 +16,7 @@ inputs:
   - docs/architecture.md
   - docs/operations.md
   - docs/testing.md
+  - scripts/cross-agent-behavioral.ts
   - scripts/phase2-evals.ts
   - scripts/phase3-development-continuity.ts
   - scripts/phase3-evals.ts
@@ -25,7 +26,6 @@ inputs:
   - src/repository/consistency.ts
   - src/repository/init.ts
   - src/repository/scanner.ts
-  - src/validation/project.ts
 freshness: CURRENT
 constraints:
   - id: C-3f820c7559223099
@@ -161,6 +161,17 @@ constraints:
     evidence:
       - src/repository/consistency.ts
     fingerprint: e565193ca2ce0bd2ea0cd340ceda97378e5d5ea418ec73fe7266756ca519dca9
+  - id: C-de6acb94d372aab4
+    type: REFERENCE
+    topic: cross-agent-behavioral
+    statement: Follow the existing pattern at scripts/cross-agent-behavioral.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/cross-agent-behavioral.ts
+    scope: Change evo-0007-v0-4-cross-agent-portability
+    evidence:
+      - scripts/cross-agent-behavioral.ts
+    fingerprint: de6acb94d372aab4edc724c8ece59819889237113b46c70a5db860b3b26fea1d
   - id: C-728ead5d2685c0ba
     type: REFERENCE
     topic: goal
@@ -250,17 +261,6 @@ constraints:
     evidence:
       - scripts/phase3-ruoyi-behavioral.ts
     fingerprint: bbae5ef469ed897945485d15486aa1791d1e7980b954de3441c1b86c5ae5ecb7
-  - id: C-44dfd9219210bf32
-    type: REFERENCE
-    topic: project
-    statement: Follow the existing pattern at src/validation/project.ts.
-    source:
-      kind: REPRESENTATIVE_CODE
-      path: src/validation/project.ts
-    scope: Change evo-0007-v0-4-cross-agent-portability
-    evidence:
-      - src/validation/project.ts
-    fingerprint: 44dfd9219210bf32e3ff0c68cf39c11b3e0bad48487e889f08e0dd56491698ee
   - id: C-e0047ad27227bf22
     type: REFERENCE
     topic: project-overview
