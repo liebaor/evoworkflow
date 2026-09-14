@@ -5,7 +5,7 @@ finishedAt: 2026-09-14T16:35:00.782Z
 baselineCommit: 200915a34e6763eca57aa3b9a8ecfdd12bc08134
 finishedTreeFingerprint: 8c76686b2a19d516fc23517e0c876df3a14152ac87712208e8dab4f9ba8b6e41
 sourceStatus: COMMITTED
-commit: 42b9af7b3e5132c9ceb27042259369f0257f629e
+commit: 193df12ae5594ba4c15e912a7512e0ab4bb05f17
 currentTruth:
   required:
     - path: skills/ask-evo/SKILL.md
