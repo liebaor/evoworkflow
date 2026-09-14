@@ -10,10 +10,10 @@
 | AC-F2 | PASS | `EV-20260914124831-d1154046`：fixed RuoYi revisions 上真实代码变更的 A → Delta → Bug/Regression → Fresh Recover → Follow-up Feature |
 | AC-F3 | PASS | `EV-20260914124831-d1154046`：脱敏 continuity JSON/Markdown、Evidence artifact copy 和 SHA-256 |
 | AC-F4 | PASS | `EV-20260914124843-66cb2fe5`：registered deterministic Project HARD checker、负向回归和 WARNING-first heuristic boundary |
-| AC-F5 | NOT_RUN | exact approval、fresh derived views、current Evidence、Protocol Gates 和 Candidate Admission |
-| AC-F6 | PASS | `EV-20260914125808-ccfd2132`：READY_FOR_REVIEW → independent fresh-context Review → delegated Human Acceptance；Finish 尚未执行 |
-| AC-F7 | PASS | `EV-20260914124927-455bad51`：repository check、local Node 24 coverage、package smoke 和已声明的外部限制；Node 22/hosted CI 仍待远端证明 |
-| AC-F8 | NOT_RUN | `evo-finish --apply`、final `evo-commit`、push、CI 和 main merge chronology |
+| AC-F5 | PASS | `EV-20260914125125-cd8067cc`：exact approval、fresh derived views、current Evidence、Protocol Gates 和 Candidate Admission |
+| AC-F6 | PASS | `EV-20260914125808-ccfd2132`：READY_FOR_REVIEW → independent fresh-context Review → delegated Human Acceptance |
+| AC-F7 | PASS | `EV-20260914124927-455bad51`、`EV-20260914125310-e0e21c3e`：repository check、local Node 24 coverage、package smoke、Node 22/24 hosted CI 和已声明的外部限制 |
+| AC-F8 | PASS | `EV-20260914131157-d3dbbe16`：Finish archive、final delivery commits、push、branch CI、main merge `b9dfb725` 和 main CI |
 
 ## Historical evidence boundary / 历史证据边界
 
@@ -32,6 +32,7 @@
 
 ## Fresh records / 新建记录
 
-- F2/F3 artifact copies: `.evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/`
+- F2/F3 artifact copies: `.evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/artifacts/`
 - Continuity result: `BEHAVIORAL_PASS`; A/DELTA/BUG/C and their independent verifiers are `PASS`.
+- Final delivery record: `EV-20260914131157-d3dbbe16`; completion is bound to `f3653f38f3a5a1278dbd70af00b327e94b561fab` and the delivery attestation is `153932ad55ca8f81b1d8668359208b16996065fd`.
 - The current Evidence document remains authoritative; this Markdown file is only its human-readable index.
