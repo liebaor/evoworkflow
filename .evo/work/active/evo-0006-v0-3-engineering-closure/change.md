@@ -1,8 +1,12 @@
 ---
 id: evo-0006-v0-3-engineering-closure
 weight: LARGE
-status: AWAITING_APPROVAL
-approval: null
+status: APPROVED
+approval:
+  approvedAt: 2026-09-14T11:02:18.213Z
+  approvedBy: human
+  fingerprint: 51b8e9c581e3ac6eaa9375ca2f8702efb13f91701ed99769028f0d10ff792f64
+  source: user-delegated human approval for final closure
 ---
 
 # evoworkflow v0.3 — Final Engineering Closure

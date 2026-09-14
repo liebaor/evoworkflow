@@ -1,7 +1,11 @@
 ---
 change: evo-0006-v0-3-engineering-closure
-status: AWAITING_APPROVAL
-approval: null
+status: APPROVED
+approval:
+  approvedAt: 2026-09-14T11:02:18.640Z
+  approvedBy: human
+  fingerprint: 03e5b83dbc2553ff375669b21a56ec653ea1c9f4458ee83026e4395ac65f8152
+  source: user-delegated human approval for final closure
 currentTruthTargets:
   - path: src/validation/doctor.ts
     action: UPDATE
