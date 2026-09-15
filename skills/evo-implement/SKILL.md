@@ -1,86 +1,29 @@
 ---
 name: evo-implement
-description: Implement one bounded unit of accepted work using the repository's existing patterns and real feedback loops. Use when objective, scope, acceptance, and implementation boundary are clear. Stop and escalate if implementation uncovers a material requirement, architecture, or external-fact change.
-disable-model-invocation: true
+description: Implement one bounded plan slice using repository patterns and real feedback loops. Use when one slice has clear objective, boundaries and acceptance. Escalate changed intent instead of silently changing the plan.
 ---
 
 # EVO Implement
 
-## Purpose
-
-Build one bounded unit of work without widening scope, inventing parallel mechanisms, or silently changing accepted intent.
-
-## Use when
-
-- one slice or small task has a clear objective;
-- scope and out-of-scope are known;
-- acceptance is observable;
-- material product/architecture decisions are settled enough to code safely.
-
-## Do not use when
-
-- the desired behavior is still ambiguous — use `evo-grill-with-docs`;
-- an external/fresh fact could change the approach — use `evo-research`;
-- accepted intent changed — use `evo-change`;
-- the primary task is diagnosing an observed failure — use `evo-bug`.
-
 ## Preconditions
+Read `.evo/project.md`, `.evo/context.md`, current Plan slice, owning Spec, relevant Decisions, source/tests and at least one representative implementation when available.
 
-Before editing, establish:
+Do not start if a material human decision is unresolved.
 
-1. objective and acceptance;
-2. current bounded scope and explicit non-goals;
-3. governing repository instructions and relevant decisions;
-4. at least one representative existing pattern when available;
-5. the real consumer/composition path the change must reach;
-6. the smallest feedback loop that can catch mistakes early.
+## Workflow
+1. Trace the real consumer/composition path the slice must reach.
+2. Reuse existing permissions, response, transaction, data, error, logging, component and testing patterns.
+3. If a behavior has a stable test seam, apply `evo-tdd` rather than writing broad implementation first.
+4. Keep changes inside the slice; record unrelated discoveries separately.
+5. Run focused typecheck/tests/build/runtime checks during work.
+6. Update tests/contracts/current docs only when their owned fact changes.
 
-If any material precondition is missing, stop and route rather than guessing.
-
-## Implementation loop
-
-1. **Trace before editing.** Follow the existing path from public contract/entry point toward implementation, registration/composition, consumer, persistence, and user-visible result as applicable.
-2. **Reuse before inventing.** Prefer existing security, permissions, response, data, transaction, error, logging, component, test, and configuration patterns.
-3. **Change the smallest coherent surface.** Keep the patch tied to the current slice.
-4. **Run fast feedback early.** Use focused tests, typecheck, build, API/browser/runtime checks, or other project-native loops appropriate to the changed failure surface.
-5. **Keep authority surfaces aligned.** When an owned fact changes, update the source, tests, contracts, generated output, and current docs that own that same fact.
-6. **Record unrelated discoveries.** Do not opportunistically refactor unrelated code.
-7. **Finish the bounded unit, not the whole story.** Stop once this slice's implementation and focused feedback are complete.
-
-## Escalation rules
-
-Stop implementation and route when:
-
-- user intent or acceptance changed → `evo-change`;
-- a new material product/architecture choice is required → `evo-grill-with-docs`;
-- a current external fact or compatibility question blocks the approach → `evo-research`;
-- an unexpected observed defect becomes the primary problem → `evo-bug`;
-- the slice proves too broad to reason about safely → return to `evo-plan`.
-
-Do not hide a scope/decision change inside an implementation patch.
-
-## Verification during implementation
-
-Run the smallest relevant feedback loop while coding, but do not confuse focused developer feedback with final acceptance proof. Final acceptance evidence belongs to `evo-verify`.
+## Escalate
+- accepted intent changed → `evo-change`;
+- human product/architecture decision missing → `evo-grill-with-docs`;
+- current external fact needed → `evo-research`;
+- observed unexpected failure/root-cause problem → `evo-bug`;
+- slice is much broader than planned → return to `evo-plan`.
 
 ## Output
-
-Report:
-
-- what changed;
-- repository pattern/prior art reused;
-- checks actually run and meaningful outcomes;
-- checks skipped or unavailable;
-- uncertainty/discoveries recorded for later;
-- whether the bounded unit is ready for `evo-verify`.
-
-## Final checks
-
-Before stopping:
-
-- patch scope still matches the task;
-- no material decision was silently made;
-- changed behavior is connected through the real path, not only a leaf file;
-- relevant tests/contracts/docs were updated when their owned facts changed;
-- no unrelated refactor was bundled in;
-- completion language refers only to this bounded unit unless the entire change genuinely consists of this unit.
+Report exact changes, checks actually run, skipped checks and remaining uncertainty. Do not claim the whole Goal complete; route acceptance proof to `evo-verify`.

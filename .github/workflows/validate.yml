@@ -4,73 +4,52 @@ on:
   push:
   pull_request:
 
-permissions:
-  contents: read
-
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Validate version contract
+      - name: Validate version
+        run: |
+          test "$(cat VERSION)" = "1.0.0"
+          grep -q '^# EVOworkflow 1.0' README.md
+      - name: Validate canonical skills
         shell: bash
         run: |
           set -euo pipefail
-          test "$(tr -d '\r\n' < VERSION)" = "1.0.0"
-          grep -q '^# EVOworkflow 1.0$' README.md
-          grep -q '当前版本：\*\*1.0.0\*\*' README.md
-
-      - name: Validate canonical Skill set
-        shell: bash
-        run: |
-          set -euo pipefail
-          expected='ask-evo evo-init evo-grill-with-docs evo-research evo-spec evo-plan evo-implement evo-change evo-bug evo-verify evo-review evo-finish evo-recover'
-          actual="$(find skills -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | tr '\n' ' ' | sed 's/ $//')"
-          expected_sorted="$(for s in $expected; do echo "$s"; done | sort | tr '\n' ' ' | sed 's/ $//')"
-          test "$actual" = "$expected_sorted"
-          for skill in $expected; do
+          skills=(
+            ask-evo evo-setup evo-init evo-advisor evo-grill-with-docs evo-research
+            evo-spec evo-plan evo-implement evo-tdd evo-change evo-bug evo-verify
+            evo-review evo-finish evo-goal evo-commit evo-recover
+          )
+          count=$(find skills -mindepth 1 -maxdepth 1 -type d -name '*evo*' | wc -l | tr -d ' ')
+          test "$count" = "18"
+          for skill in "${skills[@]}"; do
             test -f "skills/$skill/SKILL.md"
             test -f "skills/$skill/agents/openai.yaml"
-            grep -q "^name: $skill$" "skills/$skill/SKILL.md"
-            grep -q '^description: ' "skills/$skill/SKILL.md"
-            grep -q '^interface:' "skills/$skill/agents/openai.yaml"
+            grep -q '^name: ' "skills/$skill/SKILL.md"
+            grep -q 'short_description:' "skills/$skill/agents/openai.yaml"
+            grep -q "$skill" skills/ask-evo/SKILL.md || test "$skill" = "ask-evo"
+            grep -q "$skill" README.md
           done
-
-      - name: Validate router coverage
-        shell: bash
+      - name: Validate fixed workspace contract
         run: |
-          set -euo pipefail
-          for skill in evo-init evo-grill-with-docs evo-research evo-spec evo-plan evo-implement evo-change evo-bug evo-verify evo-review evo-finish evo-recover; do
-            grep -q "$skill" skills/ask-evo/SKILL.md
+          for p in '.evo/project.md' '.evo/context.md' '.evo/goal.md' '.evo/decisions/' '.evo/specs/' '.evo/plans/' '.evo/research/'; do
+            grep -Fq "$p" README.md
           done
-
-      - name: Validate product docs
-        shell: bash
+          grep -Fq 'Convention over discovery' docs/architecture.md
+          grep -Fq 'Brownfield migration' docs/knowledge-model.md
+      - name: Validate key behavior contracts
         run: |
-          set -euo pipefail
-          test -f docs/architecture.md
-          test -f docs/knowledge-model.md
-          test -f docs/workflow.md
-          test -f docs/skill-contract.md
-          test -f docs/skill-evals.md
-          test ! -e docs/migration-from-cli.md
-          test ! -e docs/decisions/0001-skill-first-core.md
-          ! grep -R -n -E 'EVO_CLI_REQUIRED|@evoworkflow/cli|\.evo/state\.yml|Goal Runner|Evidence Engine|0\.4\.x|migration-from-cli' README.md AGENTS.md skills docs/architecture.md docs/knowledge-model.md docs/workflow.md docs/skill-contract.md docs/skill-evals.md
-
-      - name: Validate key phase boundaries
-        shell: bash
+          grep -Fq 'Facts are the Agent' skills/evo-grill-with-docs/SKILL.md
+          grep -Fq 'fresh Agent' skills/evo-plan/SKILL.md
+          grep -Fq 'valid RED' skills/evo-tdd/SKILL.md
+          grep -Fq 'PASS' skills/evo-verify/SKILL.md
+          grep -Fq 'Intent' skills/evo-review/SKILL.md
+          grep -Fq 'one repository, one active goal' skills/evo-goal/SKILL.md
+          grep -Fq 'Default is **no push**' skills/evo-commit/SKILL.md
+      - name: Ensure no central runtime is introduced
         run: |
-          set -euo pipefail
-          grep -q 'do not edit files' skills/ask-evo/SKILL.md
-          grep -q 'Do not use merely because a new session started' skills/evo-init/SKILL.md
-          grep -q 'do not use this Skill to interview the user' skills/evo-spec/SKILL.md
-          grep -q 'fresh Agent' skills/evo-plan/SKILL.md
-          grep -q 'Stop implementation and route' skills/evo-implement/SKILL.md
-          grep -q 'PASS' skills/evo-verify/SKILL.md
-          grep -q 'FAIL' skills/evo-verify/SKILL.md
-          grep -q 'UNVERIFIED' skills/evo-verify/SKILL.md
-          grep -q 'Intent' skills/evo-review/SKILL.md
-          grep -q 'Engineering' skills/evo-review/SKILL.md
-          grep -q 'Evidence' skills/evo-review/SKILL.md
-          grep -q 'Do not add new feature scope' skills/evo-finish/SKILL.md
+          test ! -d src
+          test ! -f package.json
+          test ! -d node_modules

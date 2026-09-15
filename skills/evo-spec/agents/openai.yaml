@@ -1,5 +1,5 @@
 interface:
   display_name: "EVO Spec"
-  short_description: "Synthesize understood work into a bounded proposal"
+  short_description: "Write a canonical working specification"
 policy:
   allow_implicit_invocation: false

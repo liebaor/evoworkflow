@@ -1,81 +1,55 @@
 # EVO Skill Contract
 
-This document defines how EVO Skills should be authored and reviewed. It is a design contract for the EVO repository, not a template that every user repository must adopt.
+Every EVO Skill is a reusable engineering capability, not a prose principle sheet.
 
-## 1. Discovery contract
+## Required sections
 
-Every `SKILL.md` frontmatter must have:
+A Skill should make these boundaries explicit:
 
-- `name` — stable Skill id;
-- `description` — what it does **and when to use it**.
+1. **Purpose** — one responsibility.
+2. **Use when** — positive triggers.
+3. **Do not use when** — neighboring responsibilities it must not absorb.
+4. **Read first / Preconditions** — repository evidence needed before action.
+5. **Workflow** — repeatable steps.
+6. **Stop / Escalate** — conditions that leave the Skill's authority.
+7. **Repository writes** — which `.evo/` or project surfaces it may change.
+8. **Output** — what the next human/Agent can consume.
+9. **Final checks** — conditions before handoff.
 
-Descriptions should distinguish adjacent Skills. A discovery description that says only "helps with planning" is insufficient.
+## Canonical workspace
 
-User-controlled workflow Skills may disable implicit invocation in host-specific metadata. Reactive capabilities such as bug diagnosis or current-source research may allow implicit invocation when the trigger is unambiguous.
+Skills must use these locations directly:
 
-## 2. Execution contract
+```text
+.evo/project.md
+.evo/context.md
+.evo/goal.md
+.evo/decisions/
+.evo/specs/
+.evo/plans/
+.evo/research/
+```
 
-A mature Skill should answer these questions where relevant:
+Do not add configuration for alternative EVO knowledge paths. If the project has not adopted the convention, route to `evo-setup`.
 
-1. **Purpose** — what single kind of work does it own?
-2. **Use when** — what situations should route here?
-3. **Do not use when** — which adjacent Skill owns look-alike situations?
-4. **Read first / Preconditions** — what authority/evidence is required before acting?
-5. **Workflow** — what repeatable cognitive or engineering procedure should the Agent follow?
-6. **Stop / Escalate** — what discoveries invalidate this Skill's authority to continue?
-7. **Repository writes** — what durable artifacts may this Skill update?
-8. **Output** — what should be visible when the Skill finishes?
-9. **Final checks** — what must be true before handoff?
+## Role boundaries
 
-These headings need not be mechanically identical in every Skill, but the behavior must be explicit.
+- `evo-advisor` advises; it does not implement.
+- `evo-grill-with-docs` resolves material decisions; facts are investigated by the Agent.
+- `evo-research` resolves external uncertainty; repository-internal facts should be read locally.
+- `evo-spec` synthesizes settled intent; it does not interview through unresolved product choices.
+- `evo-plan` creates fresh-Agent-executable slices.
+- `evo-implement` builds one slice and escalates changed intent rather than silently changing it.
+- `evo-tdd` drives implementation by behavioral tests; `evo-verify` proves acceptance after implementation.
+- `evo-review` is read-only by default.
+- `evo-finish` converges repository current truth.
+- `evo-goal` orchestrates repeated execution across a prepared plan.
+- `evo-commit` records Git history and pushes only with authorization.
 
-## 3. Facts, decisions, and tools
+## Goal rule
 
-- Discoverable repository/environment facts are the Agent's job to investigate.
-- Current external facts belong to primary-source research.
-- Material product/risk/trade-off decisions belong to humans unless repository policy already authorizes them.
-- Mechanically decidable claims should use project-native tools rather than model confidence.
+Goal may call/apply other Skill contracts, but it cannot waive their safety boundaries. Material decisions remain human authority. A worker does not treat its own self-report as final acceptance; use direct evidence and, when the harness allows, a fresh review context.
 
-## 4. Repository authority
+## Router synchronization
 
-Skills must adapt to the host repository's existing issue, Spec/RFC, ADR, documentation, testing, and CI conventions.
-
-Before creating a new artifact, search for an existing owner with the same responsibility.
-
-One mutable fact should have one canonical owner. Other surfaces may link or summarize.
-
-## 5. Phase boundaries
-
-Skills should not silently absorb adjacent phases.
-
-Examples:
-
-- `evo-spec` synthesizes settled understanding; it does not conduct another broad interview.
-- `evo-verify` executes evidence and reports status; it does not silently fix failures.
-- `evo-review` is read-only; it does not edit the implementation it judges.
-- `evo-finish` converges current truth; it does not introduce new feature scope.
-
-## 6. Progressive disclosure
-
-Keep the core procedure short enough to stay operational in context. Add local `references/` only when a detailed rubric, template, or domain method materially improves repeated execution.
-
-References should support the Skill, not become a second hidden workflow.
-
-## 7. Router synchronization
-
-`ask-evo` is a manual router over the user-facing Skill set. Any Skill add/remove/rename or responsibility change requires re-checking:
-
-- router coverage and precedence;
-- README Skill list;
-- `skills/README.zh-CN.md`;
-- workflow docs;
-- behavioral eval scenarios;
-- static validation.
-
-## 8. Quality test
-
-Before accepting a Skill change, ask:
-
-> Could a capable fresh Agent execute this Skill consistently without needing the author to explain the missing method in chat?
-
-If the answer is no, the Skill is still a principle note rather than an executable capability.
+Any change to the Skill set or flow must update `ask-evo`, README, workflow docs, eval scenarios and CI.

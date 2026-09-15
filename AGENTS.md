@@ -1,78 +1,55 @@
 # EVOworkflow repository instructions
 
-EVOworkflow 1.0 is a **Repository-centered, Skill-first AI software engineering workflow**.
+EVOworkflow is a repository-centered AI software engineering workflow built from Skills plus a fixed project knowledge convention.
 
-## Product principles
+## Core model
 
-1. Repository > Chat.
-2. Evidence > Claim.
-3. Existing Pattern > Reinvent.
-4. One Fact → One Owner.
-5. Change > Rewrite.
-6. Human Authority > Agent Autonomy.
-7. Minimum Necessary Process.
-8. Derived workflow status should be reconstructable from durable repository evidence.
+- Human: product direction, material trade-offs, authorization, final acceptance.
+- Agent + EVO Skills: semantic understanding, engineering reasoning, implementation, diagnosis, review and orchestration.
+- `.evo/`: canonical AI engineering knowledge workspace.
+- Project-native tests/build/lint/runtime/CI: deterministic evidence.
+- Git: chronology and delivery history.
+- Harness: execution environment, sandbox, tools, subagents and long-running execution.
 
-Semantic engineering judgment belongs to the Agent/model. Mechanically decidable facts should be proven with the host project's tests, build, lint, typecheck, runtime paths, and CI. Material product/risk decisions belong to humans.
+## Fixed project convention
 
-## Canonical repository layout
+Every EVO-enabled project uses:
 
-- `README.md` — user-facing positioning, installation, workflow, and Skill index.
-- `skills/*/SKILL.md` — canonical cross-host Skill behavior.
-- `skills/*/agents/openai.yaml` — Codex/OpenAI-facing display and invocation policy metadata.
-- `docs/architecture.md` — product architecture and responsibility split.
-- `docs/knowledge-model.md` — repository authority and long-term knowledge model.
-- `docs/workflow.md` — adaptive workflow and phase boundaries.
-- `docs/skill-contract.md` — common contract for authoring EVO Skills.
-- `docs/skill-evals.md` — behavioral scenarios used to audit routing and Skill boundaries.
-- `examples/` — bounded usage examples.
-- `.github/workflows/validate.yml` — repository-maintenance validation.
+```text
+.evo/
+├── project.md
+├── context.md
+├── goal.md
+├── decisions/
+├── specs/
+├── plans/
+└── research/
+```
 
-## Canonical Skill set
+Do not introduce alternate locations or per-project mappings for EVO-owned knowledge. Brownfield adoption migrates existing ADRs/decisions, working specs/RFCs, implementation plans, research notes and domain context into this convention and updates references.
 
-The user-facing Skill set is exactly:
+Project/product documentation such as API docs, deployment guides and user documentation stays in the project's normal documentation tree. `.evo/` owns AI engineering memory and work artifacts, not all documentation.
 
-`ask-evo`, `evo-init`, `evo-grill-with-docs`, `evo-research`, `evo-spec`, `evo-plan`, `evo-implement`, `evo-change`, `evo-bug`, `evo-verify`, `evo-review`, `evo-finish`, `evo-recover`.
+## Engineering principles
 
-When any Skill is added, removed, renamed, or changes responsibility boundaries, review and update all of:
+- Repository > Chat.
+- Evidence > Claim.
+- Existing Pattern > Reinvent.
+- One Fact → One Owner.
+- Change > Rewrite.
+- Minimum Necessary Process.
+- Human Authority > Agent Autonomy.
+- Convention Over Discovery for EVO knowledge locations.
+- Unknown is blocking only when different answers materially change the current task or risk.
 
-- `ask-evo` routing;
-- README Skill table and examples;
-- `skills/README.zh-CN.md`;
-- `docs/workflow.md`;
-- `docs/skill-evals.md`;
-- validation workflow.
+## Skill maintenance
 
-## Skill authoring rules
+Every user-facing Skill must state: Use when, Do not use when, Read first, Workflow, Stop/escalate, Output and Final checks.
 
-Each user-facing Skill should make these explicit where relevant:
+The canonical set is documented in README and `docs/skill-contract.md`. Any Skill add/remove/rename/boundary change must update `ask-evo`, README, workflow docs, evals and CI in the same change.
 
-- purpose;
-- use when;
-- do not use when;
-- inputs/read-first or preconditions;
-- executable workflow;
-- stop/escalation boundaries;
-- repository writes/authority effects;
-- output;
-- final checks.
+`evo-goal` is orchestration, not a runtime: one repository, one active goal, one writer. It may repeatedly apply implementation/TDD/verification/bug/review/commit contracts, but material decisions still stop for a human.
 
-Descriptions must help discovery: say both what the Skill does and when it should be used. Adjacent Skills must state their boundary clearly.
+`evo-commit` describes verified state; it does not create evidence. Push requires explicit user authorization or an explicit push policy in `.evo/goal.md`. Never force-push by default.
 
-Prefer progressive disclosure. Keep the core Skill executable and concise; move large rubrics/templates into local `references/` only when repeated detail materially helps execution.
-
-## Responsibility boundaries
-
-- `ask-evo` is read-only and recommends exactly one next Skill.
-- `evo-init` is first-time repository archaeology; `evo-recover` is continuation of already-existing work.
-- `evo-grill-with-docs` owns human decisions; discoverable facts should be investigated by the Agent.
-- `evo-spec` synthesizes settled understanding; it must not become a second interview phase.
-- `evo-plan` produces fresh-Agent-sized executable slices.
-- `evo-implement` stops when implementation discovers a material intent/architecture/external-fact change.
-- `evo-verify` proves acceptance with direct evidence and does not silently fix code.
-- `evo-review` is read-only and reviews Intent, Engineering, and Evidence.
-- `evo-finish` converges current truth after verification/review; it does not add feature scope or perform delivery actions unless explicitly requested.
-
-## Change discipline for EVO itself
-
-For substantive changes, inspect the affected Skills as a system rather than editing one file in isolation. Before completion, confirm README, Skill descriptions, router, workflow docs, metadata, and validation rules still agree.
+Before completing an EVOworkflow repository change, confirm the Skill set, Router, metadata, docs and validation workflow agree.

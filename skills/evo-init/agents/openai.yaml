@@ -1,5 +1,5 @@
 interface:
   display_name: "EVO Init"
-  short_description: "Understand repository conventions and knowledge owners"
+  short_description: "Learn the repository and fill project knowledge"
 policy:
   allow_implicit_invocation: false

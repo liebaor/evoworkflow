@@ -1,5 +1,5 @@
 interface:
-  display_name: "EVO Grill With Docs"
-  short_description: "Clarify material decisions and preserve durable knowledge"
+  display_name: "EVO Grill"
+  short_description: "Resolve material decisions and shared language"
 policy:
   allow_implicit_invocation: false

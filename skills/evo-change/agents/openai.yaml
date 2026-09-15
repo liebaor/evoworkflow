@@ -1,5 +1,5 @@
 interface:
   display_name: "EVO Change"
-  short_description: "Reconcile changed intent without restarting valid work"
+  short_description: "Reconcile changed requirements by delta"
 policy:
   allow_implicit_invocation: false

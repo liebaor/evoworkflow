@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Advisor"
+  short_description: "Senior engineer and architect guidance"
+policy:
+  allow_implicit_invocation: false

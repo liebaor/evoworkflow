@@ -1,29 +1,44 @@
-# Example — RuoYi Brownfield feature with EVO v1
+# RuoYi Brownfield adoption example
 
-Scenario: add a meeting-room management feature to an existing RuoYi Spring Boot/Vue repository.
+## 1. Setup
 
-## 1. Init
+Install EVO Skills, then run `evo-setup`.
 
-Use `evo-init` to inspect the actual repository. Let the Agent read parent/BOM dependency management, representative controllers/services/mappers, permission annotations, response wrappers, pagination helpers, frontend page patterns, tests and Git history. If exact dependency versions matter, use Maven's own effective POM/dependency tree rather than an EVO scanner.
+If the repository contains existing `docs/adr/`, RFCs or a domain `CONTEXT.md`, Setup migrates the engineering-memory artifacts into:
 
-## 2. Clarify
+```text
+.evo/decisions/
+.evo/specs/
+.evo/context.md
+```
 
-Use `evo-grill-with-docs` to settle business behavior such as room fields, booking conflicts, permissions, status lifecycle and deletion rules. Update existing domain docs/decisions only when the information is durable.
+and repairs references. It does not keep a permanent map back to the old knowledge layout.
 
-## 3. Spec/plan only when needed
+API/deployment/user docs remain in the project's normal docs tree.
 
-For a substantial feature, use `evo-spec` to record observable acceptance and direct evidence, then `evo-plan` to split vertical slices. A tiny label/style edit does not need this machinery.
+## 2. Init
 
-## 4. Implement by existing pattern
+Run `evo-init`. The Agent reads the actual RuoYi repository, Maven/Node metadata, representative modules, tests, CI and Git. When static metadata is insufficient it can use project tools such as:
 
-`evo-implement` should reuse the repository's existing permission, AjaxResult, pagination, mapper, service, validation and Vue conventions instead of creating EVO-specific abstractions.
+```bash
+mvn help:effective-pom
+mvn dependency:tree
+```
 
-## 5. Verify with RuoYi's tools
+Findings go into `.evo/project.md` and `.evo/context.md` as Confirmed / Inferred / Unknown. Unknowns only block when relevant to the current task.
 
-Use the project's actual Maven/npm/browser/API checks. Record exact commands and outcomes. If no CI configuration is present, that is not automatically a blocker for local feature work. If the target environment is unavailable, mark that boundary unverified.
+## 3. Feature
 
-## 6. Requirement changes
+For a meeting-room feature:
 
-If the user changes the requirement mid-way, use `evo-change`: revise the living proposal if work has not shipped, preserve unaffected work/tests, and rerun only invalidated evidence. A stable shipped design reversal gets a new cross-linked decision.
+```text
+evo-grill-with-docs
+→ evo-spec (.evo/specs/meeting-room.md)
+→ evo-plan (.evo/plans/meeting-room.md)
+```
 
-This example illustrates the v1 principle: **the repository does not adapt to EVO; EVO adapts to the repository.**
+Then either implement slices one by one or run `evo-goal` to execute the prepared plan continuously. TDD drives stable behavior seams; Verify proves acceptance through RuoYi's actual tests/API/UI paths.
+
+## 4. Delivery
+
+After Full Verify + Review, `evo-finish` converges current truth and Decisions, then `evo-commit` records an outcome-oriented Git history. Push occurs only when authorized.

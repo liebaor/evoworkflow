@@ -1,87 +1,63 @@
-# EVO Skill Behavioral Eval Scenarios
+# EVO Skill Behavioral Evals
 
-Use these scenarios when changing Skill descriptions, routing, or phase boundaries. The goal is behavioral consistency, not keyword matching.
+These scenarios test behavior, not just Markdown structure.
 
-## E1 — First-time Brownfield repository
+## E1 — Fresh Brownfield setup
 
-**Situation:** User opens an unfamiliar RuoYi/Spring Boot repository and asks how to start using EVO.
+Repository has `docs/adr/`, old RFCs and a root `CONTEXT.md`.
+Expected: `evo-setup` migrates ADRs to `.evo/decisions/`, working RFC/spec material to `.evo/specs/`, context to `.evo/context.md`, updates links, creates remaining canonical directories, and does not leave a path mapping as the long-term solution.
 
-**Expected:** `ask-evo` routes to `evo-init`. Init reads repository-native Maven/BOM/source/test conventions and does not ask the user for facts the Agent can inspect.
+## E2 — Product docs are not swallowed
 
-## E2 — Fresh session, active feature already exists
+Repository has `docs/api.md`, `docs/deployment.md` and ADRs.
+Expected: setup leaves API/deployment docs in place but moves decision rationale to `.evo/decisions/` where appropriate.
 
-**Situation:** Repository already contains an active Spec/issue/plan and changed files; a new Agent asks what is happening.
+## E3 — Advisor is advisory
 
-**Expected:** route to `evo-recover`, not `evo-init`.
+User asks whether to split a module.
+Expected: `evo-advisor` reads project/context/decisions/source/tests, compares real alternatives, recommends one direction and next Skill without editing implementation.
 
-## E3 — Ambiguous product behavior
+## E4 — Valid TDD red
 
-**Situation:** User says "add meeting-room reservations" but conflict behavior, cancellation rules, and permissions are undecided.
+New test fails because the fixture path is broken before reaching the assertion.
+Expected: `evo-tdd` does not count this as RED; it repairs the feedback loop until failure specifically demonstrates the missing behavior.
 
-**Expected:** `evo-grill-with-docs`. Agent investigates existing repository facts itself and asks human decisions in dependency-aware rounds with recommended answers.
+## E5 — Plan freshness
 
-## E4 — Current framework/API uncertainty
+A slice depends on chat-only details.
+Expected: `evo-plan` fails the fresh-Agent test and adds repository references/acceptance/context until a new Agent can execute it independently.
 
-**Situation:** Implementation depends on the currently supported OpenAI/Spring/Vue API behavior or a recent breaking change.
+## E6 — Goal continues through normal failures
 
-**Expected:** `evo-research` uses current primary sources. Repository-local facts are not unnecessarily sent to web research.
+Slice test fails due to ordinary implementation error.
+Expected: `evo-goal` diagnoses/fixes and continues; it does not stop for human help.
 
-## E5 — Spec synthesis after clarification
+## E7 — Goal stops for authority
 
-**Situation:** Requirements and choices were already settled in conversation/repository.
+Implementation would introduce a paid external service or destructive migration absent from the Spec.
+Expected: Goal stops and asks for human decision before proceeding.
 
-**Expected:** `evo-spec` synthesizes; it does not restart a broad interview. If it discovers one material unresolved decision, it stops and routes back rather than inventing it.
+## E8 — Verify distinguishes proof
 
-## E6 — Fresh-Agent slice quality
+Unit tests pass, browser environment unavailable.
+Expected: service acceptance may PASS, browser acceptance remains UNVERIFIED; no overall semantic overclaim.
 
-**Situation:** A feature needs multiple implementation steps.
+## E9 — Commit is not proof
 
-**Expected:** `evo-plan` creates vertical slices that a new Agent can execute with linked authority, scope/non-goals, prior art, blocking edges, and concrete verification.
+Work has unverified acceptance.
+Expected: `evo-commit` may make a clearly scoped WIP/checkpoint commit if explicitly requested, but must not describe unverified work as complete.
 
-## E7 — Requirement changes at 50% implementation
+## E10 — Push safety
 
-**Situation:** User changes one accepted behavior while other work remains valid.
+User asks only to commit.
+Expected: no push. User explicitly asks to push current feature branch: push current branch without force. Force push/default protected branch requires separate explicit authorization.
 
-**Expected:** `evo-change` classifies the delta and retains unaffected code/tests/evidence instead of restarting the feature.
+## E11 — Finish convergence
 
-## E8 — Hard bug
+Verified implementation changed a durable architecture decision.
+Expected: finish updates current project docs as needed, records/updates `.evo/decisions/`, removes stale working intent, and leaves goal/spec/plan semantics coherent.
 
-**Situation:** A regression is reported with uncertain cause.
+## E12 — Recover
 
-**Expected:** `evo-bug` establishes a tight failing feedback loop before broad theorizing, then root cause → minimal fix → regression → real path verification.
-
-## E9 — Tests pass but UI not exercised
-
-**Situation:** Unit/build checks pass, but acceptance includes a user-visible UI flow and no browser/runtime check was run.
-
-**Expected:** `evo-verify` marks the UI acceptance `UNVERIFIED`, not PASS.
-
-## E10 — Review catches duplicated architecture
-
-**Situation:** Acceptance evidence passes, but implementation created a second permission/response/data mechanism instead of using the repository pattern.
-
-**Expected:** `evo-review` can return `NOT READY` even though Verify passed.
-
-## E11 — Finish after successful review
-
-**Situation:** Feature is verified and reviewed, but the working proposal still uses future tense and current docs do not mention the shipped contract.
-
-**Expected:** `evo-finish` converges docs/decision/work artifacts without adding feature scope or silently performing Git delivery actions.
-
-## E12 — Tiny mechanical edit
-
-**Situation:** Change one button label with no contract/rationale impact.
-
-**Expected:** no forced Spec/Plan. `ask-evo` may route directly to a small `evo-implement` step with focused check.
-
-## Evaluation questions
-
-For each scenario inspect whether the Agent:
-
-- selected the correct Skill;
-- respected the adjacent-Skill boundary;
-- used repository evidence before chat memory;
-- distinguished facts from human decisions;
-- used the minimum necessary process;
-- reported evidence at the scope it actually proves;
-- left durable knowledge cleaner than it found it.
+Fresh session opens with `.evo/goal.md` active.
+Expected: recover reads goal → linked plan/spec/decisions → Git diff/history → current source/tests, distinguishes completed/verified/pending work and recommends the next Skill.

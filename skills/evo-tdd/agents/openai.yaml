@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO TDD"
+  short_description: "Drive behavior with valid red-green-refactor"
+policy:
+  allow_implicit_invocation: true
