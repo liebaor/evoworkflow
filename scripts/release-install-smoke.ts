@@ -40,6 +40,8 @@ async function run(command: string, args: readonly string[], cwd: string, env: N
       ...(stdout.length > 0 ? [`stdout=${stdout.slice(-4000)}`] : []),
       ...(stderr.length > 0 ? [`stderr=${stderr.slice(-4000)}`] : []),
     ].join(' | ')
+    const annotation = details.replace(/%/gu, '%25').replace(/\r/gu, '%0D').replace(/\n/gu, '%0A')
+    process.stderr.write(`::error title=Release install smoke failed::${annotation}\n`)
     throw new Error(`command failed: ${command} ${args.join(' ')} (${details})`)
   }
 }
