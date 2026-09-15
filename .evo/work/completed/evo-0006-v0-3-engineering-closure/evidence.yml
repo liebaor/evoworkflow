@@ -1,6 +1,6 @@
 schemaVersion: 2
 change: evo-0006-v0-3-engineering-closure
-updatedAt: 2026-09-14T13:11:57.520Z
+updatedAt: 2026-09-15T05:56:29.514Z
 acceptance:
   - id: AC-F1
     status: PASS
@@ -43,5 +43,5 @@ acceptance:
     evidenceRefs:
       - EV-20260914131157-d3dbbe16
     limitations: []
-inputFingerprint: 2f8314964f2a407ae8449fdabcdd1439bc18d5b2eb7658183e86f7fc14ff2564
+inputFingerprint: ea6bbfaa3ed1063a4bccfbb536e3de33f88799b69d134b230dad13272c668ccc
 freshness: CURRENT

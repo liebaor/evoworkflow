@@ -54,17 +54,18 @@ async function discoverInstructionSources(root: string, client: AgentClient): Pr
 }
 
 async function discoverSkillSources(root: string, homeDirectory: string, client: AgentClient): Promise<string[]> {
-  const clientDirectory = client === 'codex' ? '.codex' : client === 'claude-code' ? '.claude' : '.opencode'
-  const userCandidates = client === 'opencode'
-    ? [path.join(homeDirectory, '.config', 'opencode', 'skills'), path.join(homeDirectory, '.agents', 'skills')]
-    : [path.join(homeDirectory, clientDirectory, 'skills'), path.join(homeDirectory, '.agents', 'skills')]
-  const projectCandidates = [
-    path.join(root, 'skills'),
-    path.join(root, clientDirectory, 'skills'),
-    path.join(root, '.agents', 'skills'),
-    path.join(root, '.claude', 'skills'),
-    path.join(root, '.opencode', 'skills'),
-  ]
+  // These are Harness contracts, not a generic "any skills directory" scan.
+  // EVO's authoring source (`<package>/skills`) is intentionally excluded.
+  const userCandidates = client === 'codex'
+    ? [path.join(homeDirectory, '.agents', 'skills')]
+    : client === 'claude-code'
+      ? [path.join(homeDirectory, '.claude', 'skills')]
+      : [path.join(homeDirectory, '.config', 'opencode', 'skills'), path.join(homeDirectory, '.claude', 'skills'), path.join(homeDirectory, '.agents', 'skills')]
+  const projectCandidates = client === 'codex'
+    ? [path.join(root, '.agents', 'skills')]
+    : client === 'claude-code'
+      ? [path.join(root, '.claude', 'skills')]
+      : [path.join(root, '.opencode', 'skills'), path.join(root, '.claude', 'skills'), path.join(root, '.agents', 'skills')]
   const candidates = [...projectCandidates, ...userCandidates]
   const existing = await existingDirectories(candidates)
   return [...new Set(existing.map((target) => displayPath(root, target, homeDirectory)))]

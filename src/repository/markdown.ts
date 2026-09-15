@@ -9,7 +9,8 @@ export interface MarkdownDocument {
 
 /** Parses YAML frontmatter from a narrative artifact. */
 export function parseMarkdownDocument(source: string, target: string): MarkdownDocument {
-  const match = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/u.exec(source)
+  const normalized = source.replace(/\r\n/gu, '\n')
+  const match = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/u.exec(normalized)
   if (!match) throw new EvoError(`Missing YAML frontmatter in ${target}.`)
   let value: unknown
   try {

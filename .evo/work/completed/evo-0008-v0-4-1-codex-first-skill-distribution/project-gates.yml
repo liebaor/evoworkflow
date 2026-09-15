@@ -1,0 +1,28 @@
+schemaVersion: 1
+change: evo-0008-v0-4-1-codex-first-skill-distribution
+evaluatedAt: 2026-09-15T06:00:30.818Z
+status: PASS
+gates:
+  - id: G-project-consistency
+    kind: PROJECT
+    enforcement: WARNING
+    status: PASS
+    title: Repository pattern consistency
+    detail: No candidate consistency drift was observed.
+    authority: scripts/phase3-evals.ts
+    predicate: Compare proposed changes with repository patterns.
+    falsifyingCase: Introduce a naming, response, permission, or blast-radius drift.
+    negativeRegression: "A deliberate violation of: Introduce a naming, response, permission, or blast-radius drift."
+    remediation: Review the signal and either reuse the pattern or document an approved exception.
+    evidence:
+      - scripts/cross-agent-behavioral.ts
+      - scripts/phase2-evals.ts
+      - scripts/phase3-development-continuity.ts
+      - scripts/phase3-evals.ts
+      - scripts/phase3-ruoyi-behavioral.ts
+      - src/commands/init.ts
+      - src/core/goal.ts
+      - src/repository/consistency.ts
+      - src/repository/init.ts
+      - src/repository/scanner.ts
+    evaluatedAt: 2026-09-15T06:00:30.818Z

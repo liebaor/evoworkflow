@@ -1,7 +1,11 @@
 ---
 change: evo-0008-v0-4-1-codex-first-skill-distribution
-status: AWAITING_APPROVAL
-approval: null
+status: APPROVED
+approval:
+  approvedAt: 2026-09-15T05:49:05.312Z
+  approvedBy: human
+  fingerprint: 4c5e38890f73417080c43d2cd28f68061a6206996db98ae8c14164f2e651d9aa
+  source: user-authorized continuation
 currentTruthTargets:
   - path: src/commands/skills/inspect.ts
     action: CREATE

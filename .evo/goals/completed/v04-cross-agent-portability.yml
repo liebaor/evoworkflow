@@ -2,7 +2,7 @@ schemaVersion: 1
 id: v04-cross-agent-portability
 title: v0.4 Cross-Agent Portability implementation and verification
 changeId: evo-0007-v0-4-cross-agent-portability
-repository: /home/zhicheng/code/codex/evoworkflow
+repository: C:/lzc/code/codex/evoworkflow
 adapter: codex
 maxAttempts: 1
 status: READY_FOR_REVIEW
@@ -308,7 +308,7 @@ slices:
 approval:
   approvedAt: 2026-09-14T15:14:55.909Z
   approvedBy: human
-  fingerprint: 1e59bcd6560a41e3b18074eb012df050e84be1e5b1a70a34f404ad5a5c89bfe3
+  fingerprint: b8810f677b70d00b86fb5165867498945f0af99c4aa0a5c362c7fa69ee2f0f2e
   contextFingerprint: 92747b3bb467a7fbe8ec41fdef932c49c423f63bad30b7aaaa84c27d7035f93c
 runEpoch: 0
 resumes: []

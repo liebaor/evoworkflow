@@ -9,6 +9,6 @@ evo agents inspect --root /path/to/project
 evo agents doctor --root /path/to/project
 ```
 
-OpenCode 可能发现仓库 `skills/`、`.opencode/skills/`、项目 `.agents/skills/`、`~/.config/opencode/skills/` 或通用 `~/.agents/skills/`。多个 source 中同名 Skill 的优先级和版本不能由 Agent 猜测；doctor 会把 duplicate 或 hash drift 显式报告。
+OpenCode 直接共享 canonical `~/.agents/skills`；EVO 不创建 `.opencode/skills/evo-*` 或仓库 `skills/` 的 runtime duplicate。其他同名 source 的优先级和版本不能由 Agent 猜测；`evo skills doctor` 会把 duplicate 或 hash drift 显式报告。
 
 OpenCode 只执行当前 approved Slice。一个 checkout 仍只有一个 executing writer；要并行请使用独立 worktree/branch。没有安装 OpenCode 时，inspect/doctor 只报告 INFO，不改变其他 Harness 或 EVO 协议的有效性。

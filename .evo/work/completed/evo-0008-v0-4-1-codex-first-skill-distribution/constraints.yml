@@ -1,0 +1,642 @@
+schemaVersion: 1
+change: evo-0008-v0-4-1-codex-first-skill-distribution
+generatedAt: 2026-09-15T05:49:39.656Z
+inputFingerprint: 147b0a6525e874c3ef60914ee9c998e43476fa2eea2b78ed9e71405a7160533f
+inputs:
+  - .evo/decisions/current
+  - .evo/decisions/current/d-0001-human-controlled-phases.md
+  - .evo/decisions/current/d-0002-bounded-goal-execution.md
+  - .evo/decisions/working
+  - .evo/project.md
+  - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+  - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/plan.md
+  - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/spec.md
+  - .evo\project.md
+  - .evo\work\active\evo-0008-v0-4-1-codex-first-skill-distribution\change.md
+  - AGENTS.md
+  - README.md
+  - docs\architecture.md
+  - docs\operations.md
+  - docs\testing.md
+  - scripts\cross-agent-behavioral.ts
+  - scripts\phase2-evals.ts
+  - scripts\phase3-development-continuity.ts
+  - scripts\phase3-evals.ts
+  - scripts\phase3-ruoyi-behavioral.ts
+  - src\commands\init.ts
+  - src\core\goal.ts
+  - src\repository\consistency.ts
+  - src\repository\init.ts
+  - src\repository\scanner.ts
+freshness: CURRENT
+constraints:
+  - id: C-169fc033f4a1fbdd
+    type: HARD
+    topic: ac-8.1
+    statement: "**AC-8.1 One Canonical Installation**：EVO 通用 Skills 在用户机器只有一个 canonical physical installation，默认 `~/.agents/skills`。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 169fc033f4a1fbdd83a202d095d3ec6030a706f969d8ea9877a9197cc091c802
+  - id: C-64067d0c85bf0561
+    type: HARD
+    topic: ac-8.10
+    statement: "**AC-8.10 Native Behavioral Proof**：真实 Codex 完成 `discover ask-evo -> route -> load target Skill -> bounded Repository work`；Claude/OpenCode至少完成 shared-source compatibility smoke。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 64067d0c85bf056151f4720072c7ce9e8ddded061091af829afbcb630e38ada5
+  - id: C-c371b27ffe0a592d
+    type: HARD
+    topic: ac-8.11
+    statement: "**AC-8.11 CI / Distribution Quality**：Node 22/24、现有 Phase2/3/v0.4 regressions、CLI/package smoke 和新增 Skill-install eval 全部 PASS。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: c371b27ffe0a592d6135fcdad64f8b9d6f397439b857b0100cf7d2ea3a1de17d
+  - id: C-bfed152bfcbbacc3
+    type: HARD
+    topic: ac-8.2
+    statement: "**AC-8.2 Codex Native**：Codex 无需 vendor-specific duplicate copy 即可原生发现并运行 EVO Skills。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: bfed152bfcbbacc37db8e3c5354d6f8ad230c203db7dd388df99fbeaa2ddfbbe
+  - id: C-0174243c80666cd0
+    type: HARD
+    topic: ac-8.3
+    statement: "**AC-8.3 OpenCode Shared**：OpenCode直接复用同一 canonical installation，不需要 EVO-specific duplicate copy。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 0174243c80666cd0b68ea4968a66a43ae68c0020c50ee7d47e862898c79a4d6c
+  - id: C-2c5763c87e042061
+    type: HARD
+    topic: ac-8.4
+    statement: "**AC-8.4 Claude Shared**：Claude通过 symlink/junction 读取同一 canonical Skill；无法安全 link 时允许受控 COPY fallback。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 2c5763c87e042061070a76b3191c40332b1ce5cc73a5af458262b5174cb99d32
+  - id: C-21cc50a80172cf6d
+    type: HARD
+    topic: ac-8.5
+    statement: "**AC-8.5 No Silent Overwrite**：已有用户 Skill、自定义内容、真实目录或冲突 link 不被静默覆盖/删除。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 21cc50a80172cf6d43709d02f01a9713dafb4edce29099082038def4b689f624
+  - id: C-d71734d78d926ccc
+    type: HARD
+    topic: ac-8.6
+    statement: "**AC-8.6 Safe Update**：升级只更新 canonical source；symlink consumer自动一致；COPY fallback同步后必须 hash 一致。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: d71734d78d926cccf977cccb980492cfa2d8e8a4c532acada121bf1bdee0f7af
+  - id: C-dd761baaa81b4838
+    type: HARD
+    topic: ac-8.7
+    statement: "**AC-8.7 Drift Detection**：wrong/broken link、copy drift、version drift、legacy duplicate 能被 Doctor 识别。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: dd761baaa81b48384373e36217318a419a26133d16790a1ca491ca2404c61992
+  - id: C-5b56eee9438e43f3
+    type: HARD
+    topic: ac-8.8
+    statement: "**AC-8.8 Codex Metadata**：需要 Codex native metadata 的核心 Skill 拥有合法 `agents/openai.yaml`，并明确 human/model invocation policy。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 5b56eee9438e43f3ce11e6ca6ff2d3cf72cbb89ac38b6b0262b69f4ab622cb83
+  - id: C-26982b9d5af6a1f3
+    type: HARD
+    topic: ac-8.9
+    statement: "**AC-8.9 Repository Independence**：Skill install/update 不把机器环境事实写入 `.evo/state.yml`；三个 Agent仍共享同一项目 `.evo/`。"
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 26982b9d5af6a1f3cd46475c3aa3930208e72aed7ac050ffd829f9d1badcc0fb
+  - id: C-2fb8015266bcb6e0
+    type: REFERENCE
+    topic: architecture
+    statement: Use docs/architecture.md as the primary authority for architecture.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/project.md
+      - docs/architecture.md
+    fingerprint: 2fb8015266bcb6e03e266ff6171b386e24a684635fa1d3e214122a02ec5bc291
+  - id: C-af5b39c8db445a1f
+    type: REFERENCE
+    topic: consistency
+    statement: Follow the existing pattern at src/repository/consistency.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/repository/consistency.ts
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - src/repository/consistency.ts
+    fingerprint: af5b39c8db445a1fd4a1d9a88805508265740715cfbe220db89b126a7d3f947d
+  - id: C-17fbcddb2dbe6354
+    type: REFERENCE
+    topic: cross-agent-behavioral
+    statement: Follow the existing pattern at scripts/cross-agent-behavioral.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/cross-agent-behavioral.ts
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - scripts/cross-agent-behavioral.ts
+    fingerprint: 17fbcddb2dbe635421dd86da95fedd80fae4c195a335e69363667b698252c0f7
+  - id: C-e2f2af06b346a49d
+    type: REFERENCE
+    topic: goal
+    statement: Follow the existing pattern at src/core/goal.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/core/goal.ts
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - src/core/goal.ts
+    fingerprint: e2f2af06b346a49d1fd47a4fb9b5bccbe445183ebb5fdcb551f5cb16a018b7a7
+  - id: C-2474ec3e70cb8940
+    type: REFERENCE
+    topic: init
+    statement: Follow the existing pattern at src/commands/init.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/commands/init.ts
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - src/commands/init.ts
+    fingerprint: 2474ec3e70cb8940909da3b1fd624f2e1420cd7435a40b70c9531c72e11d8732
+  - id: C-d422f2c9b5551de4
+    type: REFERENCE
+    topic: init
+    statement: Follow the existing pattern at src/repository/init.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/repository/init.ts
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - src/repository/init.ts
+    fingerprint: d422f2c9b5551de40c38227bc3af87fbe5e550ee49613b15211d861086762d2c
+  - id: C-e4eb655faf80f99c
+    type: REFERENCE
+    topic: operations
+    statement: Use docs/operations.md as the primary authority for operations.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/project.md
+      - docs/operations.md
+    fingerprint: e4eb655faf80f99c1ce373286379d9e7136f7afbeef5761c32160fb6b899e701
+  - id: C-28f856b5f9e38f4f
+    type: REFERENCE
+    topic: phase2-evals
+    statement: Follow the existing pattern at scripts/phase2-evals.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase2-evals.ts
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - scripts/phase2-evals.ts
+    fingerprint: 28f856b5f9e38f4fa0346a396f9a08be2310e55fed3347a89e3a1ff10aced833
+  - id: C-22d6222f4d97c1cf
+    type: REFERENCE
+    topic: phase3-development-continuity
+    statement: Follow the existing pattern at scripts/phase3-development-continuity.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase3-development-continuity.ts
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - scripts/phase3-development-continuity.ts
+    fingerprint: 22d6222f4d97c1cfbb01a9a99a6a51dede9a7d291b173c043807e531553bf73f
+  - id: C-2575c43c63745568
+    type: REFERENCE
+    topic: phase3-evals
+    statement: Follow the existing pattern at scripts/phase3-evals.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase3-evals.ts
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - scripts/phase3-evals.ts
+    fingerprint: 2575c43c63745568ae16678ab0268e19243e0ea923eb2e900757ef738a006777
+  - id: C-16a6ee816c1982d5
+    type: REFERENCE
+    topic: phase3-ruoyi-behavioral
+    statement: Follow the existing pattern at scripts/phase3-ruoyi-behavioral.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: scripts/phase3-ruoyi-behavioral.ts
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - scripts/phase3-ruoyi-behavioral.ts
+    fingerprint: 16a6ee816c1982d5fd7943787494bffaedc49b0632b60c421226404d757ee3ca
+  - id: C-5ff24ef1815b72d2
+    type: REFERENCE
+    topic: project-overview
+    statement: Use README.md as the primary authority for project-overview.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/project.md
+      - README.md
+    fingerprint: 5ff24ef1815b72d22f469cceb0a40aa8f7424be65ee4e8ea59cbf93ea834a712
+  - id: C-55cdc3e5adc305dc
+    type: HARD
+    topic: repository-rule-1e2c584d8ef8
+    statement: 初始化不破坏数据并且幂等；不覆盖已有项目指令和权威文档。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 55cdc3e5adc305dcb9e315e29d3918fb02bb02f63eb15f57f669b27b9bafdef1
+  - id: C-0d46ac71731bfae4
+    type: HARD
+    topic: repository-rule-246e6f7e720e
+    statement: Standard 和 Large 工作只能执行 `.evo/state.yml` 或活动 Goal 持久化的 `currentSlice`，不能根据文档顺序猜测。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 0d46ac71731bfae471428b1ee29234cbf30fb5eda43b2b20e8e66ffda3253b56
+  - id: C-565966002d55f698
+    type: HARD
+    topic: repository-rule-456dee1924e9
+    statement: "`src/commands/`：oclif 命令入口。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 565966002d55f698f7730d7d2f03009a6e11d6da6129f321d7e3ba2f276836bb
+  - id: C-67cfea961b858f84
+    type: HARD
+    topic: repository-rule-57d7c4cfac2f
+    statement: Goal 只接受已批准且没有歧义的 Slice；遇到问题会停止，成功结束于 `READY_FOR_REVIEW`，永远不是 `DONE`。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 67cfea961b858f843150c4a81b14bd6a06dab4fea8ec3da41737198ed33edf2a
+  - id: C-eef4840b9cf6664b
+    type: HARD
+    topic: repository-rule-6288d20e2c19
+    statement: "`src/validation/`：确定性项目检查和 Doctor 诊断。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: eef4840b9cf6664b6d83e3cec64a0b62c61ad6eeab88f25d97a10174b3339a1e
+  - id: C-5f72d9d0cc8b62b2
+    type: HARD
+    topic: repository-rule-66c0215a1296
+    statement: "`src/agents/`：Agent Adapter 约定和本地 CLI Adapter。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 5f72d9d0cc8b62b2d14514b57241b8433f0a663b9141bd71005ca026de8095db
+  - id: C-b0f44dfbb4515ae4
+    type: HARD
+    topic: repository-rule-6c70ae2a824e
+    statement: "`skills/`：面向结果的 Agent Skill；保持 `SKILL.md` 简洁，把条件性内容放到 references。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: b0f44dfbb4515ae40b7974a618aec0c81517f50f26a46a46e37190408bbf4ecd
+  - id: C-f1dd3634a38ed12d
+    type: HARD
+    topic: repository-rule-7e9b3c7eee42
+    statement: 当前文档描述当前行为；历史进入 Git、Decision、Postmortem 和已完成 Change 证据。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: f1dd3634a38ed12d1cfc3b97b3e98ea3b29702bcc151b6fc2cecd146c2e94bf4
+  - id: C-a87367ac974cc9e8
+    type: HARD
+    topic: repository-rule-a243de00346a
+    statement: "`src/repository/`：文件协议、仓库发现、初始化和模板。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: a87367ac974cc9e8a0cca4409430d2ade774eb093ef26a38b46d6e33a4f744fc
+  - id: C-a66f2f80720b2d12
+    type: HARD
+    topic: repository-rule-b3e31fe97a11
+    statement: "`schemas/`：Zod 权威生成的 JSON Schema 投影。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: a66f2f80720b2d1254ce52d7d8ee9a5ca5b59c67e5ae554467258dda8e9b6d36
+  - id: C-fb5c70ec1efb5863
+    type: HARD
+    topic: repository-rule-b51cd1e7b3b2
+    statement: 保持协议文档、Zod Schema、生成的 Schema、模板、CLI、Skill 和测试一致。新增行为必须有可观察测试。保留用户已有改动，除非用户明确要求，不要 commit。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: fb5c70ec1efb586338da05c2aac42f4a41a379af97b62b4bfbc6a6996ad2cf12
+  - id: C-87c5c342525e7077
+    type: HARD
+    topic: repository-rule-bd03ec5a8ee7
+    statement: "`src/core/`：Schema、状态转换、批准指纹、导航和 Goal 执行。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 87c5c342525e7077a7274d916036ce66ec5f88ff5d26deeaedba43d51f05e5b5
+  - id: C-2a9dc7b2d4a8083f
+    type: HARD
+    topic: repository-rule-c2fb2b9efa59
+    statement: 长期知识必须进入仓库。一个事实只能有一个主权威，其他文档链接到它。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 2a9dc7b2d4a8083f6fcfea806bf83645f9dd34084a2ca1b4c9d6254502531eec
+  - id: C-ff3664144ed0a512
+    type: HARD
+    topic: repository-rule-c40adf673f2f
+    statement: 人工拥有产品决策、批准、阶段转换、风险接受和副作用授权。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: ff3664144ed0a5125108fdf23275c761a41d6c9bda217876fc4bd8ac0ebb84a2
+  - id: C-07e5cef2cbcc6517
+    type: HARD
+    topic: repository-rule-ca907645a04a
+    statement: 没有命令或 Skill 会自动完成 Change、commit、merge、deploy 或扩大范围。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 07e5cef2cbcc6517c84d66c7fabacb4e0d8e996ca4c9fe5e40f3de5d0208fa41
+  - id: C-3b38d5f1e52b2c92
+    type: HARD
+    topic: repository-rule-cca1d02923c5
+    statement: "`templates/`：安装到受管理仓库的文件。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 3b38d5f1e52b2c92f3429d42e999749dca44604f37b3e1101733082dfbeae098
+  - id: C-937cbfa3e4e7f24d
+    type: HARD
+    topic: repository-rule-e0297f21bd90
+    statement: 除非已有批准 Decision，否则已有仓库模式和成熟能力优先于新抽象。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 937cbfa3e4e7f24df19b3f71ff7ca616fb5dfd6325f3416f7d051e01aeb74c06
+  - id: C-112a46892681b530
+    type: HARD
+    topic: repository-rule-e03ee8b7c39a
+    statement: "`src/repository/evidence.ts`：验收项精确映射、追加式证据记录和迁移兼容。"
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 112a46892681b530734ef6d9cd18277c00a62ba4ba87ff7df8b9f927997cf060
+  - id: C-cb16b7f4ec49beef
+    type: HARD
+    topic: repository-rule-f34daa02d5c9
+    statement: Evidence v2 记录 `PASS`、`FAIL`、`BLOCKED` 或 `NOT_RUN`；旧版 `UNVERIFIED` 仅在迁移期间兼容。声明不是证据。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: cb16b7f4ec49beeff02ad4e765bbef1354a762aa97d2e3f7cf7dddb1a762e99f
+  - id: C-c574206ddb7b391c
+    type: HARD
+    topic: repository-rule-f9c8feb2fcf6
+    statement: Agent 调查仓库事实，只执行当前已授权的工作。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: c574206ddb7b391ca92eb5912d35df5da8fc10b6d74a4ce78d00dc9c1be22f3e
+  - id: C-7a99e7ff119ae6c2
+    type: HARD
+    topic: repository-rule-fec3e143258c
+    statement: 批准绑定精确内容；实质编辑会使批准失效。
+    source:
+      kind: AUTHORITY
+      path: AGENTS.md
+    scope: Repository-wide standing rules
+    evidence:
+      - AGENTS.md
+    fingerprint: 7a99e7ff119ae6c261e219510231e4ec22becf7a53692434449c3c53376167c0
+  - id: C-902dbab21b267b8d
+    type: REFERENCE
+    topic: scanner
+    statement: Follow the existing pattern at src/repository/scanner.ts.
+    source:
+      kind: REPRESENTATIVE_CODE
+      path: src/repository/scanner.ts
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - src/repository/scanner.ts
+    fingerprint: 902dbab21b267b8de331b9e2e860fae8d5bd0d31c426ac5774979b982729770e
+  - id: C-e2a1ef1eeef2d6a6
+    type: HARD
+    topic: scope/03eb3f4b61c4
+    statement: 不维护三份 EVO Skill physical copy。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: e2a1ef1eeef2d6a6fe042a90a732630b941cf29742f189a9e400d283154fcb0f
+  - id: C-5db38c6b6810562f
+    type: HARD
+    topic: scope/146e75986388
+    statement: 不创建 `.evo/skills`。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 5db38c6b6810562f9cb56ff4bd29f1ca4e5cb1e7d74c6d604c7fcbff93474744
+  - id: C-ebba8d7a53d910e8
+    type: HARD
+    topic: scope/6ae1d3e75803
+    statement: 不改变现有 Change/Decision/Evidence/Finish 生命周期。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: ebba8d7a53d910e827a46370113c53ebad3ba7fa2988cfb104ce32242d5dec8c
+  - id: C-8d968eef34ccecac
+    type: HARD
+    topic: scope/b43babf1f4c4
+    statement: 不自研通用 Agent marketplace/package-manager ecosystem。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 8d968eef34ccecac19b156bc5b81447a12b3f2d4e8c2c3f5547307584d697563
+  - id: C-28476fe433abd4f2
+    type: HARD
+    topic: scope/e4e3c0ddab2d
+    statement: 不在本 Change 中发布 Claude Plugin / Codex Plugin marketplace package。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 28476fe433abd4f2fc02046d3c5d7ff943a9531e3c0ae144a4bf3b1a1ac8ed9d
+  - id: C-0fc1caa3e760943d
+    type: HARD
+    topic: scope/non-goal/3ca32680ab18
+    statement: 不做后台自动更新 daemon。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 0fc1caa3e760943dee1dc99504105fc471b79a4aedd842d7d39ceec1133b47c0
+  - id: C-28900614ccd1f9e3
+    type: HARD
+    topic: scope/non-goal/40f4b11ed897
+    statement: 不做 project-local custom Skill linking helper。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: 28900614ccd1f9e3d607fa1fbfba7e7c7c1049b4dae0da55f15f5e812a854540
+  - id: C-fc35acbbc275f6d8
+    type: HARD
+    topic: scope/non-goal/fd2ba8603df6
+    statement: 不做 multi-agent scheduler / concurrent writer coordination。
+    source:
+      kind: CONTRACT
+      path: .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    fingerprint: fc35acbbc275f6d82233e0aca679d723542a4f325e2be32f9aa043df97462e7a
+  - id: C-2f1bb23687189560
+    type: REFERENCE
+    topic: standing-rules
+    statement: Use AGENTS.md as the primary authority for standing-rules.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/project.md
+      - AGENTS.md
+    fingerprint: 2f1bb23687189560ee723e2dfd699bd4b733077480568e31443d0b367a3f092b
+  - id: C-16896a6d464250b5
+    type: REFERENCE
+    topic: testing
+    statement: Use docs/testing.md as the primary authority for testing.
+    source:
+      kind: PROJECT_MAP
+      path: .evo/project.md
+    scope: Change evo-0008-v0-4-1-codex-first-skill-distribution
+    evidence:
+      - .evo/project.md
+      - docs/testing.md
+    fingerprint: 16896a6d464250b587be62bbfc5c518f30819335c456909955acd15932b10273

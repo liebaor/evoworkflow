@@ -11,13 +11,15 @@ v0.4 让同一份 EVO Engineering Protocol 可以被 Codex、Claude Code 和 Ope
 
 ## 推荐安装
 
-同一仓库选择一种 distribution mode。当前推荐使用 universal installer：
+EVO Skills 只维护一份 canonical runtime。当前推荐使用 Codex-first 安装器：
 
 ```sh
-npx skills@latest add liebaor/evoworkflow
+evo skills install
+evo skills install --apply
+evo skills doctor
 ```
 
-安装后在目标 checkout 运行：
+安装后在目标 checkout 运行仓库兼容性检查：
 
 ```sh
 evo agents inspect --root /path/to/project
@@ -26,6 +28,8 @@ evo agents doctor --root /path/to/project
 ```
 
 `setup` 默认 preview。只有缺少 `CLAUDE.md` 时，显式 `--apply` 才会尝试创建精确内容 `@AGENTS.md`；已有文件永远不覆盖，冲突交给人工处理。
+
+Codex 原生读取 `~/.agents/skills`；OpenCode 共享该路径；Claude Code 通过 `~/.claude/skills` 的 symlink/junction 或受控 COPY fallback 使用同一份内容。`evo agents` 与 `evo skills` 是两个边界清晰的命令主题。
 
 ## 交接协议
 

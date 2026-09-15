@@ -80,7 +80,9 @@ async function run(args: readonly string[]): Promise<string> {
 }
 
 function assertIncludes(source: string, expected: string): void {
-  if (!source.includes(expected)) throw new Error(`Expected output to include ${JSON.stringify(expected)}:\n${source}`)
+  const normalizedSource = source.replaceAll('\\', '/')
+  const normalizedExpected = expected.replaceAll('\\', '/')
+  if (!normalizedSource.includes(normalizedExpected)) throw new Error(`Expected output to include ${JSON.stringify(expected)}:\n${source}`)
 }
 
 async function expectMissing(target: string): Promise<void> {

@@ -6,7 +6,7 @@ import {EvoError} from '../core/errors.js'
 import {sha256} from './git-snapshot.js'
 import {pathExists, writeTextAtomic} from './io.js'
 
-const DEFAULT_EVO_VERSION = '0.4.0'
+const DEFAULT_EVO_VERSION = '0.4.1'
 
 /** Returns the derived manifest location; canonical Skill files remain authoritative. */
 export function skillManifestPath(root: string): string {
@@ -22,7 +22,7 @@ export async function buildSkillManifest(root: string, evoVersion?: string): Pro
   for (const entry of (await readdir(skillsRoot, {withFileTypes: true})).filter((item) => item.isDirectory()).sort((left, right) => left.name.localeCompare(right.name))) {
     const target = path.join(skillsRoot, entry.name, 'SKILL.md')
     if (!(await pathExists(target))) throw new EvoError(`Canonical Skill ${entry.name} is missing SKILL.md.`)
-    entries.push({name: entry.name, category: categoryForSkill(entry.name), sha256: sha256(await readFile(target))})
+    entries.push({name: entry.name, category: categoryForSkill(entry.name), sha256: hashSkillContent(await readFile(target, 'utf8'))})
   }
   return SkillManifestSchema.parse({schemaVersion: 1, evoVersion: version, skills: entries})
 }
@@ -65,4 +65,9 @@ export function categoryForSkill(name: string): SkillCategory {
   if (['evo-commit', 'evo-finish', 'evo-review', 'evo-verify'].includes(name)) return 'delivery'
   if (name === 'evo-implement') return 'execution'
   return 'workflow'
+}
+
+/** Hashes canonical Skill text independently of the checkout's line-ending mode. */
+export function hashSkillContent(source: string): string {
+  return sha256(source.replace(/\r\n/gu, '\n'))
 }

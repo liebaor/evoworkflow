@@ -9,7 +9,7 @@ import {formatMarkdownDocument, parseMarkdownDocument} from '../repository/markd
 import {listDirectory, openManagedRepository} from '../repository/managed.js'
 import {repositoryPaths} from '../repository/paths.js'
 import {validateProject} from '../validation/project.js'
-import {reconcileEvidence} from '../repository/evidence.js'
+import {rebaseArchivedEvidence, reconcileEvidence} from '../repository/evidence.js'
 import {checkCurrentTruth, createCompletionRecord} from '../repository/completion.js'
 
 export type ConvergenceStatus = 'APPLY' | 'PENDING' | 'DRIFT' | 'CONFLICT' | 'UNAFFECTED'
@@ -107,6 +107,7 @@ export async function finishChange(root: string, requestedChangeId?: string, now
 
   await mkdir(paths.completedWork, {recursive: true})
   await rename(activeWork, completedWork)
+  await rebaseArchivedEvidence(paths.root, report.changeId, now)
   const timestamp = now.toISOString()
   await writeYaml(paths.state, {
     ...managed.state,

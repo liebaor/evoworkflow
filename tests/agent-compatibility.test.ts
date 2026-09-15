@@ -15,7 +15,8 @@ describe('cross-agent discovery and compatibility', () => {
     await writeRepositoryFiles(root, {
       'AGENTS.md': '# Canonical rules\n',
       'CLAUDE.md': '@AGENTS.md\n',
-      'skills/evo-example/SKILL.md': skill('evo-example'),
+      '.agents/skills/evo-example/SKILL.md': skill('evo-example'),
+      '.claude/skills/evo-example/SKILL.md': skill('evo-example'),
     })
 
     const observations = await discoverAgentClients(root, {
@@ -29,7 +30,8 @@ describe('cross-agent discovery and compatibility', () => {
       ['claude-code', 'FOUND', 'claude 1.0.0'],
       ['opencode', 'MISSING', null],
     ])
-    expect(observations.every((item) => item.skillSources.includes('skills'))).toBe(true)
+    expect(observations.find((item) => item.client === 'codex')?.skillSources).toContain('.agents/skills')
+    expect(observations.find((item) => item.client === 'claude-code')?.skillSources).toContain('.claude/skills')
   })
 
   it('reports duplicate-source and missing-client boundaries without persisting client facts', async () => {
@@ -41,6 +43,7 @@ describe('cross-agent discovery and compatibility', () => {
       'AGENTS.md': '# Canonical rules\n\n- Keep one authority.\n',
       'CLAUDE.md': '@AGENTS.md\n',
       'skills/evo-example/SKILL.md': skill('evo-example'),
+      'home/.agents/skills/evo-example/SKILL.md': skill('evo-example'),
       'home/.claude/skills/evo-example/SKILL.md': skill('evo-example'),
     })
     await writeSkillManifest(root, await buildSkillManifest(root))

@@ -86,7 +86,8 @@ async function evalDuplicateDiscovery(): Promise<void> {
     'AGENTS.md': '# Canonical rules\n',
     'CLAUDE.md': '@AGENTS.md\n',
     'skills/evo-example/SKILL.md': fixtureSkill('evo-example'),
-    'home/.claude/skills/evo-example/SKILL.md': fixtureSkill('evo-example'),
+    '.agents/skills/evo-example/SKILL.md': fixtureSkill('evo-example'),
+    '.claude/skills/evo-example/SKILL.md': fixtureSkill('evo-example'),
   })
   await writeSkillManifest(root, await buildSkillManifest(root))
   const report = await inspectAgentCompatibility(root, {homeDirectory: home, locateExecutable: async () => false})
@@ -114,7 +115,8 @@ async function evalSkillVersionDrift(): Promise<void> {
     'package.json': '{"name":"drift-fixture","version":"0.4.0"}\n',
     'AGENTS.md': '# Canonical rules\n',
     'skills/evo-example/SKILL.md': fixtureSkill('evo-example'),
-    'home/.codex/skills/evo-example/SKILL.md': fixtureSkill('evo-example', 'drifted implementation'),
+    '.agents/skills/evo-example/SKILL.md': fixtureSkill('evo-example'),
+    'home/.agents/skills/evo-example/SKILL.md': fixtureSkill('evo-example', 'drifted implementation'),
   })
   await writeSkillManifest(root, await buildSkillManifest(root))
   const report = await inspectAgentCompatibility(root, {homeDirectory: home, locateExecutable: async (command) => command === 'codex'})

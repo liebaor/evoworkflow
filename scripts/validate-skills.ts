@@ -6,6 +6,7 @@ import {parse} from 'yaml'
 import {z} from 'zod'
 
 import {buildSkillManifest, readSkillManifest} from '../src/repository/skill-manifest.js'
+import {codexMetadataSkills, validateCodexMetadata} from '../src/skills/metadata.js'
 
 const skillsRoot = fileURLToPath(new URL('../skills/', import.meta.url))
 const expected = new Set([
@@ -47,7 +48,7 @@ for (const name of directories) {
     const metadata = await stat(target)
     if (!metadata.isFile()) throw new Error('not a file')
     const source = await readFile(target, 'utf8')
-    const match = /^---\n([\s\S]*?)\n---\n([\s\S]+)$/u.exec(source)
+    const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]+)$/u.exec(source)
     if (!match) {
       errors.push(`${name}: missing YAML frontmatter`)
       continue
@@ -78,6 +79,11 @@ try {
   if (JSON.stringify(actualManifest) !== JSON.stringify(expectedManifest)) errors.push('skills/manifest.json: generated content is stale; run pnpm run generate:skill-manifest')
 } catch (error) {
   errors.push(`skills/manifest.json: ${error instanceof Error ? error.message : String(error)}`)
+}
+
+for (const name of codexMetadataSkills) {
+  const result = await validateCodexMetadata(path.dirname(skillsRoot), name)
+  if (!result.valid) errors.push(`${name}: invalid Codex metadata: ${result.errors.join('; ')}`)
 }
 
 if (errors.length > 0) {

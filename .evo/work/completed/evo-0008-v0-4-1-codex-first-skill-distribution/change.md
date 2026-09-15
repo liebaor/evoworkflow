@@ -1,8 +1,12 @@
 ---
 id: evo-0008-v0-4-1-codex-first-skill-distribution
 weight: STANDARD
-status: AWAITING_APPROVAL
-approval: null
+status: APPROVED
+approval:
+  approvedAt: 2026-09-15T05:49:04.165Z
+  approvedBy: human
+  fingerprint: ef5c4c4782869884e3a7ac559e8eb9cb93cee35fa16bd869759f5ec823c43a7e
+  source: user-authorized continuation
 ---
 
 # evoworkflow v0.4.1 — Codex-first Skill Distribution & Shared Agent Installation

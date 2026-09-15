@@ -1,0 +1,99 @@
+schemaVersion: 1
+change: evo-0008-v0-4-1-codex-first-skill-distribution
+workflowStatus: COMPLETED
+finishedAt: 2026-09-15T06:02:49.127Z
+baselineCommit: 407890338e01ae873e2f56c4a285a02eea1cb56d
+finishedTreeFingerprint: d3273c6c20cca882ae6d12470548eb5b8e0edc742756919e3a3dc57eee8b402d
+sourceStatus: READY_TO_COMMIT
+commit: null
+currentTruth:
+  required:
+    - path: src/commands/skills/inspect.ts
+      action: CREATE
+      reason: Read-only canonical Skill installation inspection.
+    - path: src/commands/skills/install.ts
+      action: CREATE
+      reason: Preview/apply canonical Skill installation.
+    - path: src/commands/skills/update.ts
+      action: CREATE
+      reason: Safe preview/apply Skill updates.
+    - path: src/commands/skills/doctor.ts
+      action: CREATE
+      reason: Skill visibility, link, copy and drift diagnostics.
+    - path: src/skills/installation.ts
+      action: CREATE
+      reason: Canonical installation planning and application model.
+    - path: src/skills/links.ts
+      action: CREATE
+      reason: Claude symlink/junction and copy-fallback handling.
+    - path: src/skills/diagnostics.ts
+      action: CREATE
+      reason: Cross-harness Skill installation diagnostics.
+    - path: src/repository/skill-manifest.ts
+      action: UPDATE
+      reason: Reuse canonical hashes for runtime install/update verification.
+    - path: skills/ask-evo/agents/openai.yaml
+      action: CREATE
+      reason: Codex-native display and invocation policy for the router.
+    - path: scripts/validate-skills.ts
+      action: UPDATE
+      reason: Validate Codex-native metadata without making it the canonical behavior source.
+    - path: scripts/skill-install-evals.ts
+      action: CREATE
+      reason: Deterministic E411-E420 installation regressions.
+    - path: scripts/codex-native-behavioral.ts
+      action: CREATE
+      reason: Real Codex native discovery/router/target-Skill field evaluation.
+    - path: scripts/cross-agent-behavioral.ts
+      action: UPDATE
+      reason: Reframe Claude/OpenCode as compatibility checks over shared canonical Skills.
+    - path: docs/skills/installation.md
+      action: CREATE
+      reason: Canonical install/update model and safety rules.
+    - path: docs/skills/codex.md
+      action: CREATE
+      reason: First-class Codex usage and metadata contract.
+    - path: docs/skills/claude-code.md
+      action: CREATE
+      reason: Claude symlink/copy adapter contract.
+    - path: docs/skills/opencode.md
+      action: CREATE
+      reason: OpenCode direct shared-source usage.
+    - path: docs/skills/migration.md
+      action: CREATE
+      reason: Safe migration from historical duplicate Skill copies.
+    - path: docs/agents/README.md
+      action: UPDATE
+      reason: Separate Agent compatibility from Skill distribution responsibilities.
+    - path: README.md
+      action: UPDATE
+      reason: Make Codex the default recommended EVO experience.
+    - path: docs/testing.md
+      action: UPDATE
+      reason: Document deterministic and native behavioral proof boundaries.
+    - path: package.json
+      action: UPDATE
+      reason: Add v0.4.1 scripts and align final version before delivery.
+  verified:
+    - src/commands/skills/inspect.ts
+    - src/commands/skills/install.ts
+    - src/commands/skills/update.ts
+    - src/commands/skills/doctor.ts
+    - src/skills/installation.ts
+    - src/skills/links.ts
+    - src/skills/diagnostics.ts
+    - src/repository/skill-manifest.ts
+    - skills/ask-evo/agents/openai.yaml
+    - scripts/validate-skills.ts
+    - scripts/skill-install-evals.ts
+    - scripts/codex-native-behavioral.ts
+    - scripts/cross-agent-behavioral.ts
+    - docs/skills/installation.md
+    - docs/skills/codex.md
+    - docs/skills/claude-code.md
+    - docs/skills/opencode.md
+    - docs/skills/migration.md
+    - docs/agents/README.md
+    - README.md
+    - docs/testing.md
+    - package.json

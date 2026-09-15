@@ -1,0 +1,6 @@
+interface:
+  display_name: evo-finish
+  short_description: Converge accepted implementation, evidence, and current repository documents.
+  default_prompt: Use evo-finish only after independent review and human acceptance are recorded.
+policy:
+  allow_model_invocation: false

@@ -73,11 +73,11 @@ git:
   changedPathsFingerprint: c1df81525cc2ba098e11fcdd7b5dc7b255b201624a9307eaabf34251a014cd41
   capturedAt: 2026-09-14T16:28:21.706Z
 artifacts:
-  - path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789403301737-0-cross-agent-continuity.json
-    sha256: 4711f5e8c9cc253f621f72c9ac7a17da5684415bac355e1dc14645f44f643526
-  - path: .evo/work/active/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789403301738-1-cross-agent-continuity.md
-    sha256: 405fc432a267357930cbbe676e0767e11590063534153422e3b440d23a7e5302
+  - path: .evo/work/completed/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789403301737-0-cross-agent-continuity.json
+    sha256: bcd885303b32029c71413f9bce5da9aae021f99a21782acc9be5a3cbd1ef2d43
+  - path: .evo/work/completed/evo-0007-v0-4-cross-agent-portability/evidence/artifacts/1789403301738-1-cross-agent-continuity.md
+    sha256: 0f5d268b66cd8972e7dbef4880c48b639a448a0c34174558943d9271b31f2945
 startedAt: 2026-09-14T16:28:21.706Z
 endedAt: 2026-09-14T16:28:21.706Z
-inputFingerprint: 094ae6b012d7670b728ff3cd45fbcb3b1833c673b03b3a1a74f5300983e018ab
+inputFingerprint: 9790e3c656c08945d39cdf7ea5ea69b2d651729aa8cda1c06f532ee3f9ed2d69
 freshness: CURRENT

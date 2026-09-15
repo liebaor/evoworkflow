@@ -1,6 +1,6 @@
 {
   "name": "@evoworkflow/cli",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "description": "Human-controlled, repository-centered AI software engineering workflow",
   "type": "module",
@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run smoke:cli && pnpm run validate:skills && pnpm run check:schemas && pnpm run eval:phase2 && pnpm run eval:phase3 && pnpm run eval:hardening && pnpm run eval:cross-agent && pnpm run smoke:package",
+    "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run smoke:cli && pnpm run validate:skills && pnpm run check:schemas && pnpm run eval:phase2 && pnpm run eval:phase3 && pnpm run eval:hardening && pnpm run eval:cross-agent && pnpm run eval:skill-install && pnpm run smoke:package",
     "check:schemas": "tsx scripts/check-schemas.ts",
     "dev": "tsx src/index.ts",
     "evo": "tsx src/index.ts",
@@ -36,6 +36,8 @@
     "eval:phase3:continuity": "tsx scripts/phase3-development-continuity.ts",
     "eval:cross-agent": "tsx scripts/cross-agent-evals.ts",
     "eval:cross-agent:behavioral": "tsx scripts/cross-agent-behavioral.ts",
+    "eval:codex-native": "tsx scripts/codex-native-behavioral.ts",
+    "eval:skill-install": "tsx scripts/skill-install-evals.ts",
     "eval:ruoyi:phase3": "tsx scripts/phase3-ruoyi-smoke.ts",
     "eval:ruoyi:phase3:behavioral": "tsx scripts/phase3-ruoyi-behavioral.ts",
     "generate:schemas": "tsx scripts/generate-schemas.ts",

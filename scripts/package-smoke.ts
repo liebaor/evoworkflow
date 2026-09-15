@@ -8,21 +8,23 @@ import {pathExists} from '../src/repository/io.js'
 import {buildSkillManifest} from '../src/repository/skill-manifest.js'
 
 const execFile = promisify(execFileCallback)
+const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 const packageRoot = path.resolve('.')
 const smokeRoot = await mkdtemp(path.join(tmpdir(), 'evoworkflow-package-smoke-'))
 const packDirectory = path.join(smokeRoot, 'pack')
 const consumerRoot = path.join(smokeRoot, 'consumer')
 const managedRoot = path.join(consumerRoot, 'managed-repository')
+const npmEnvironment = {...process.env, npm_config_cache: path.join(smokeRoot, 'npm-cache')}
 
 try {
   await mkdir(consumerRoot, {recursive: true})
   await mkdir(managedRoot, {recursive: true})
   await mkdir(packDirectory, {recursive: true})
-  await execFile('pnpm', ['pack', '--pack-destination', packDirectory], {cwd: packageRoot, timeout: 120_000, maxBuffer: 2_000_000})
+  await execFile(npmCommand, ['pack', '--pack-destination', packDirectory], {cwd: packageRoot, timeout: 120_000, maxBuffer: 2_000_000, shell: process.platform === 'win32', env: npmEnvironment})
   const tarball = (await readdir(packDirectory)).find((name) => name.endsWith('.tgz'))
-  if (!tarball) throw new Error('pnpm pack produced no .tgz artifact.')
+  if (!tarball) throw new Error('npm pack produced no .tgz artifact.')
   await assertPackedDistribution(path.join(packDirectory, tarball))
-  await execFile('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--no-package-lock', path.join(packDirectory, tarball)], {cwd: consumerRoot, timeout: 180_000, maxBuffer: 4_000_000})
+  await execFile(npmCommand, ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--no-package-lock', path.join(packDirectory, tarball)], {cwd: consumerRoot, timeout: 180_000, maxBuffer: 4_000_000, shell: process.platform === 'win32', env: npmEnvironment})
   const cli = path.join(consumerRoot, 'node_modules', '@evoworkflow', 'cli', 'dist', 'index.js')
   if (!(await pathExists(cli))) throw new Error(`Packed CLI entry is missing: ${cli}`)
   await writeFile(path.join(managedRoot, 'README.md'), '# Packed artifact smoke repository\n', 'utf8')
@@ -53,8 +55,16 @@ async function assertPackedDistribution(tarball: string): Promise<void> {
     'dist/commands/agents/inspect.js',
     'dist/commands/agents/setup.js',
     'dist/commands/agents/doctor.js',
+    'dist/commands/skills/inspect.js',
+    'dist/commands/skills/install.js',
+    'dist/commands/skills/update.js',
+    'dist/commands/skills/doctor.js',
     'skills/manifest.json',
     ...manifest.skills.map((skill) => `skills/${skill.name}/SKILL.md`),
+    'skills/ask-evo/agents/openai.yaml',
+    'skills/evo-init/agents/openai.yaml',
+    'skills/evo-finish/agents/openai.yaml',
+    'skills/evo-commit/agents/openai.yaml',
   ]
   const missing = required.filter((entry) => !entries.has(entry))
   if (missing.length > 0) throw new Error(`Packed artifact is missing required universal distribution entries: ${missing.join(', ')}`)

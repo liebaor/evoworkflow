@@ -1,0 +1,123 @@
+schemaVersion: 2
+id: EV-20260915055427-f4432732
+change: evo-0008-v0-4-1-codex-first-skill-distribution
+acceptance:
+  - AC-8.11
+kind: build
+label: Full deterministic repository regression and distribution quality check
+status: PASS
+command:
+  executable: C:\Users\lzcoffice\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe
+  args:
+    - C:\Users\lzcoffice\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\node_modules\pnpm\bin\pnpm.mjs
+    - run
+    - check
+  cwd: C:\lzc\code\codex\evoworkflow
+exitCode: 0
+summary: exit=0; $ pnpm run typecheck && pnpm run test && pnpm run build && pnpm run smoke:cli && pnpm run validate:skills && pnpm run check:schemas && pnpm run eval:phase2 && pnpm run eval:phase3 && pnpm run eval:hardening && pnpm run eval:cross-agent && pnpm run eval:skill-install && pnpm run smoke:package
+outputHash: 10b9ac3c6761ab5a59a830b88a79443a671533b0c71117e4781d7ee3cec98531
+git:
+  branch: v0.4.1/codex-first-skill-distribution
+  head: 407890338e01ae873e2f56c4a285a02eea1cb56d
+  treeFingerprint: 986b93e15988998f70050e173ac8d80e58828e611d337a071d00001400af40f9
+  dirty: true
+  changedPaths:
+    - .evo/goals/completed/v04-cross-agent-portability.yml
+    - .evo/state.yml
+    - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/acceptance.yml
+    - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/change.md
+    - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/constraints.yml
+    - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/context.md
+    - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/evidence.yml
+    - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/evidence/records/EV-20260915055221-11369546.yml
+    - .evo/work/active/evo-0008-v0-4-1-codex-first-skill-distribution/plan.md
+    - .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence.yml
+    - .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124820-d0fd0717.yml
+    - .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124831-d1154046.yml
+    - .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124843-66cb2fe5.yml
+    - .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914124927-455bad51.yml
+    - .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914125125-cd8067cc.yml
+    - .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914125310-e0e21c3e.yml
+    - .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914125808-ccfd2132.yml
+    - .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/records/EV-20260914131157-d3dbbe16.yml
+    - .evo/work/completed/evo-0007-v0-4-cross-agent-portability/evidence.yml
+    - .evo/work/completed/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162728-59cec07f.yml
+    - .evo/work/completed/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162731-0b726197.yml
+    - .evo/work/completed/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162742-bdf03ccc.yml
+    - .evo/work/completed/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162752-8944e84a.yml
+    - .evo/work/completed/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914162821-2bfede23.yml
+    - .evo/work/completed/evo-0007-v0-4-cross-agent-portability/evidence/records/EV-20260914163311-fb05dcea.yml
+    - docs/agents/claude-code.md
+    - docs/agents/codex.md
+    - docs/agents/opencode.md
+    - docs/agents/README.md
+    - docs/skills/claude-code.md
+    - docs/skills/codex.md
+    - docs/skills/installation.md
+    - docs/skills/migration.md
+    - docs/skills/opencode.md
+    - docs/testing.md
+    - package.json
+    - README.md
+    - references/experiments/skills/codex-native-skill-flow.json
+    - references/experiments/skills/codex-native-skill-flow.md
+    - references/experiments/skills/shared-harness-compatibility.md
+    - schemas/acceptance-trace.schema.json
+    - schemas/agent-compatibility.schema.json
+    - schemas/agent-setup.schema.json
+    - schemas/candidate-admission.schema.json
+    - schemas/change-metadata.schema.json
+    - schemas/change-set.schema.json
+    - schemas/completion.schema.json
+    - schemas/config.schema.json
+    - schemas/cross-agent-continuity.schema.json
+    - schemas/decision-metadata.schema.json
+    - schemas/evidence-document.schema.json
+    - schemas/evidence-record.schema.json
+    - schemas/freshness.schema.json
+    - schemas/gate-report.schema.json
+    - schemas/goal.schema.json
+    - schemas/linked-artifact-metadata.schema.json
+    - schemas/project-gate-definition.schema.json
+    - schemas/resolved-constraints.schema.json
+    - schemas/review-metadata.schema.json
+    - schemas/skill-manifest.schema.json
+    - schemas/state.schema.json
+    - scripts/codex-native-behavioral.ts
+    - scripts/cross-agent-behavioral.ts
+    - scripts/cross-agent-evals.ts
+    - scripts/package-smoke.ts
+    - scripts/skill-install-evals.ts
+    - scripts/smoke-cli.ts
+    - scripts/validate-skills.ts
+    - skills/ask-evo/agents/openai.yaml
+    - skills/evo-commit/agents/openai.yaml
+    - skills/evo-finish/agents/openai.yaml
+    - skills/evo-init/agents/openai.yaml
+    - skills/manifest.json
+    - src/agents/discovery.ts
+    - src/commands/skills/doctor.ts
+    - src/commands/skills/inspect.ts
+    - src/commands/skills/install.ts
+    - src/commands/skills/update.ts
+    - src/core/convergence.ts
+    - src/repository/evidence.ts
+    - src/repository/freshness.ts
+    - src/repository/markdown.ts
+    - src/repository/skill-manifest.ts
+    - src/skills/diagnostics.ts
+    - src/skills/installation.ts
+    - src/skills/links.ts
+    - src/skills/metadata.ts
+    - tests/agent-compatibility.test.ts
+    - tests/completion.test.ts
+    - tests/evidence-v2.test.ts
+    - tests/skills-installation.test.ts
+    - vitest.config.ts
+  changedPathsFingerprint: a6ba573ae4751e084f4b325e90a18bb664f838f00e4944274991a7cb9a1a9e86
+  capturedAt: 2026-09-15T05:54:27.332Z
+artifacts: []
+startedAt: 2026-09-15T05:52:38.958Z
+endedAt: 2026-09-15T05:54:27.328Z
+inputFingerprint: 50077a5187874905495c78c2c14142a4a4e899f2790d9d8ddb3c1ee1a5664d26
+freshness: CURRENT

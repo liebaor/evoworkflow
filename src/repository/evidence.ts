@@ -250,6 +250,43 @@ export async function readEvidenceRecords(root: string, changeId: string, comple
   return records.sort((left, right) => left.id.localeCompare(right.id))
 }
 
+/** Rewrites pre-Finish evidence paths after the active Change directory is archived. */
+export async function rebaseArchivedEvidence(root: string, changeId: string, now = new Date()): Promise<void> {
+  const read = await readEvidence(root, changeId, true)
+  if (!read.document) return
+
+  const currentInputs = await fingerprintInputs(root, evidenceInputs(root, changeId, true))
+  const document: EvidenceDocument = EvidenceDocumentSchema.parse({
+    ...read.document,
+    updatedAt: now.toISOString(),
+    inputFingerprint: currentInputs.fingerprint,
+    freshness: 'CURRENT',
+  })
+  await writeYaml(evidenceDocumentPath(root, changeId, true), document)
+
+  const activePrefix = `.evo/work/active/${changeId}/`
+  const completedPrefix = `.evo/work/completed/${changeId}/`
+  for (const record of await readEvidenceRecords(root, changeId, true)) {
+    const artifacts = await Promise.all(record.artifacts.map(async (artifact) => {
+      const normalizedPath = artifact.path.replace(/\\/gu, '/')
+      const rebasedPath = normalizedPath.startsWith(activePrefix)
+        ? `${completedPrefix}${normalizedPath.slice(activePrefix.length)}`
+        : normalizedPath
+      const target = path.resolve(root, rebasedPath)
+      const relativeTarget = path.relative(path.resolve(root), target)
+      if (relativeTarget.startsWith('..') || path.isAbsolute(relativeTarget)) throw new EvoError(`Archived evidence artifact escapes repository: ${artifact.path}`)
+      return {...artifact, path: rebasedPath, sha256: sha256(await readFile(target))}
+    }))
+    const rebased = EvidenceRecordSchema.parse({
+      ...record,
+      artifacts,
+      inputFingerprint: currentInputs.fingerprint,
+      freshness: 'CURRENT',
+    })
+    await writeYaml(evidenceRecordPath(root, changeId, rebased.id, true), rebased)
+  }
+}
+
 /** Returns the machine-authoritative v2 evidence document path. */
 export function evidenceDocumentPath(root: string, changeId: string, completed = false): string {
   const paths = repositoryPaths(root)

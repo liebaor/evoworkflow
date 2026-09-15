@@ -294,7 +294,8 @@ async function fingerprintDirectory(root: string, relativeDirectory: string): Pr
 }
 
 function canonicalFingerprintPath(relative: string): string {
-  return relative.replace(/^\.evo\/work\/completed\/([^/]+)/u, '.evo/work/active/$1')
+  const normalized = relative.split(path.sep).join('/')
+  return normalized.replace(/^\.evo\/work\/completed\/([^/]+)/u, '.evo/work/active/$1')
 }
 
 function overallFreshness(entries: readonly FreshnessEntry[]): FreshnessStatus {

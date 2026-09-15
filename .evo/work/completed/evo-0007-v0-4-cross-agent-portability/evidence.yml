@@ -1,6 +1,6 @@
 schemaVersion: 2
 change: evo-0007-v0-4-cross-agent-portability
-updatedAt: 2026-09-14T16:33:11.116Z
+updatedAt: 2026-09-15T05:56:29.602Z
 acceptance:
   - id: AC-7.1
     status: PASS
@@ -54,5 +54,5 @@ acceptance:
       - EV-20260914162728-59cec07f
       - EV-20260914162821-2bfede23
     limitations: []
-inputFingerprint: 094ae6b012d7670b728ff3cd45fbcb3b1833c673b03b3a1a74f5300983e018ab
+inputFingerprint: 9790e3c656c08945d39cdf7ea5ea69b2d651729aa8cda1c06f532ee3f9ed2d69
 freshness: CURRENT

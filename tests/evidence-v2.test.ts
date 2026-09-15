@@ -1,8 +1,8 @@
-import {mkdir, rename, writeFile} from 'node:fs/promises'
+import {mkdir, readFile, readdir, rename, writeFile} from 'node:fs/promises'
 import path from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
 
-import {initializeEvidence, runEvidence, reconcileEvidence} from '../src/repository/evidence.js'
+import {initializeEvidence, rebaseArchivedEvidence, runEvidence, reconcileEvidence} from '../src/repository/evidence.js'
 import {writeYaml} from '../src/repository/io.js'
 import {repositoryPaths} from '../src/repository/paths.js'
 import {cleanupTemporaryRepositories, initializeRepository, readState, temporaryRepository, writeRepositoryFiles} from './helpers.js'
@@ -114,14 +114,21 @@ describe('Evidence v2', () => {
       label: 'pre-finish evidence',
       executable: process.execPath,
       args: ['-e', 'process.exit(0)'],
+      artifacts: ['evidence-fixture.txt'],
     })
 
     await mkdir(paths.completedWork, {recursive: true})
     await rename(path.join(paths.activeWork, 'evidence-change'), path.join(paths.completedWork, 'evidence-change'))
+    await rebaseArchivedEvidence(root, 'evidence-change')
 
     const report = await reconcileEvidence(root, 'evidence-change', true)
     expect(report.valid).toBe(true)
     expect(report.evidence).toEqual([expect.objectContaining({id: 'AC-01', status: 'PASS', evidenceRefs: [record.id]})])
+    expect(record.artifacts[0]?.path).toMatch(/\.evo\/work\/active\/evidence-change\/evidence\/artifacts\//u)
+    const archivedRecord = (await readdir(path.join(paths.completedWork, 'evidence-change', 'evidence', 'records'))).find((filename) => filename.endsWith('.yml'))
+    expect(archivedRecord).toBeDefined()
+    const archivedSource = await readFile(path.join(paths.completedWork, 'evidence-change', 'evidence', 'records', archivedRecord as string), 'utf8')
+    expect(archivedSource).toContain('.evo/work/completed/evidence-change/evidence/artifacts/')
   })
 })
 

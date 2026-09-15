@@ -1,5 +1,5 @@
 import {execFile as execFileCallback} from 'node:child_process'
-import {cp, mkdir, mkdtemp, readFile, rm, writeFile} from 'node:fs/promises'
+import {mkdir, mkdtemp, readFile, rm, writeFile} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
 import path from 'node:path'
 import {promisify} from 'node:util'
@@ -119,7 +119,6 @@ if (trace.status !== 'BEHAVIORAL_PASS') {
 
 async function prepareFixture(target: string): Promise<void> {
   await applyInitialization(await planInitialization(target))
-  await cp(path.join(packageRoot, 'skills'), path.join(target, 'skills'), {recursive: true})
   await writeFiles(target, {
     'package.json': JSON.stringify({name: 'evo-cross-agent-brownfield', version: '1.0.0', type: 'module', scripts: {test: 'node --test'}}, null, 2) + '\n',
     'AGENTS.md': [
@@ -131,7 +130,7 @@ async function prepareFixture(target: string): Promise<void> {
       '- Work only in src/ and test/ for product changes.',
       '- Preserve the existing room/tenant domain vocabulary and ES module style.',
       '- Use node:test; do not add dependencies.',
-      '- Do not edit AGENTS.md, .evo/, package.json, or skills/.',
+      '- Do not edit AGENTS.md, .evo/, package.json, or the machine-level canonical Skill runtime.',
       '- Do not commit, merge, deploy, or claim acceptance. The harness records Git checkpoints.',
       '',
     ].join('\n'),

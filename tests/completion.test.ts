@@ -49,6 +49,6 @@ describe('completion handoff', () => {
     })
     const truth = await checkCurrentTruth(root, 'current-change')
     expect(truth.missing).toEqual(['src/missing.ts'])
-    expect(paths.activeWork).toContain('.evo/work/active')
+    expect(paths.activeWork.split(path.sep).join('/')).toContain('.evo/work/active')
   })
 })

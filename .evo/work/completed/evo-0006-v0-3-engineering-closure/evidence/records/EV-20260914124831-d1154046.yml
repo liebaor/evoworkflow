@@ -74,11 +74,11 @@ git:
   changedPathsFingerprint: ff5c15a7def407676834dc76ea5929960859c86893eefda96706cfaf4cda7451
   capturedAt: 2026-09-14T12:48:31.030Z
 artifacts:
-  - path: .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111061-0-development-continuity.json
-    sha256: c378a946206691de43d633720f5861bb3b7a965d3b7ef65c1657dfd9bb86306a
-  - path: .evo/work/active/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111063-1-development-continuity.md
-    sha256: c6921e6e6ed4f7f4a2e8391111145c24d69b8323b34342edea4d23cf90b5701a
+  - path: .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111061-0-development-continuity.json
+    sha256: 9fa552e419eee00b07d0b449d3b17f214960b634dd74895928ccc8758353bb80
+  - path: .evo/work/completed/evo-0006-v0-3-engineering-closure/evidence/artifacts/1789390111063-1-development-continuity.md
+    sha256: 0171043078d630e2c0f6975ab212464156ed3e5baf4ca07e1ba3eec323eff86d
 startedAt: 2026-09-14T12:48:31.030Z
 endedAt: 2026-09-14T12:48:31.030Z
-inputFingerprint: d18306d4ec6ceb16a456a601d106e71365fdf597455a81188f9f4034f9094619
+inputFingerprint: ea6bbfaa3ed1063a4bccfbb536e3de33f88799b69d134b230dad13272c668ccc
 freshness: CURRENT

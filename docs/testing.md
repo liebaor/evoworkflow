@@ -22,6 +22,8 @@
 - RuoYi evaluator 针对 Feature A（Supplier CRUD）、Feature B（Inventory DataScope/pagination/response/export）和 Feature C 在清洁临时副本中检查 `SysUserController`、DataScope、分页/响应、导出、领域语言和跨 Session 引用；FastAPI + Ant Design Pro 使用独立确定性夹具。
 - v0.4 跨 Agent 确定性评估执行 E401-E410：canonical Skill/manifest、Claude thin bridge、setup no-overwrite、duplicate/version drift、missing-client non-fatal、universal router、Recovery contract 和 single-writer boundary。它使用注入的 runtime fixture，不调用 coding model。
 - v0.4 `smoke:package` 同时检查 clean packed artifact 中的 CLI、`skills/manifest.json`、全部 canonical `SKILL.md` 和 `agents` 命令，确认没有 vendor-specific Skill/authority copies。
+- v0.4.1 `eval:skill-install` 执行 E411-E420：canonical 安装、preview 无写入、Codex/OpenCode shared visibility、Claude link/conflict/drift、收据-backed update 和 Codex metadata。
+- v0.4.1 `eval:codex-native` 是独立现场评估：在 clean HOME 中真实安装 Skills，向 Codex 只发送用户级请求 `Use ask-evo and continue the current approved work.`，再独立检查 native discovery、router、bounded changed paths、测试和 Finish/commit 边界；外部超时只能记录 `UNVERIFIED`。
 - v0.4 真实 continuity 评估是独立现场测试：在临时固定 revision 中启动全新的 Codex、Claude Code、OpenCode 和 Fresh Agent invocation，独立检查实际 product-code changes、changed-path boundary、验证结果、恢复输入和跨任务工程语言；它不把 Agent 自报当作证据，也不作为普通 CI hard gate。
 
 自动化测试不得调用真实 coding model、外部系统、部署或生产写入。此类证据必须单独标注。
@@ -39,6 +41,8 @@ pnpm run eval:hardening
 pnpm run eval:phase3
 pnpm run eval:cross-agent
 pnpm run eval:cross-agent:behavioral
+pnpm run eval:skill-install
+pnpm run eval:codex-native
 pnpm run eval:phase3:continuity -- \
   --backend-root /path/to/ruoyi-backend-git-root \
   --backend-revision <40-char-commit> \
