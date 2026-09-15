@@ -12,6 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate version
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f VERSION
+          test "$(tr -d '\r\n' < VERSION)" = "1.0.0"
+          grep -q '^# EVOworkflow 1.0$' README.md
+          grep -q '当前版本：\*\*1.0.0\*\*' README.md
+
       - name: Assert CLI-free architecture
         shell: bash
         run: |
@@ -25,6 +35,7 @@ jobs:
           test ! -f pnpm-lock.yaml
           test ! -f tsconfig.json
           ! grep -R -n -E 'EVO_CLI_REQUIRED|@evoworkflow/cli|evo --version|evo (init|status|doctor|gate|goal|evidence|finish)( |`|$)' skills AGENTS.md
+
       - name: Validate Skill structure
         shell: bash
         run: |
@@ -38,6 +49,7 @@ jobs:
             grep -q "^name: $skill$" "skills/$skill/SKILL.md"
             grep -q '^description: ' "skills/$skill/SKILL.md"
           done
+
       - name: Ensure repository docs exist
         shell: bash
         run: |
@@ -45,5 +57,4 @@ jobs:
           test -f docs/architecture.md
           test -f docs/knowledge-model.md
           test -f docs/workflow.md
-          test -f docs/migration-from-cli.md
           test -f docs/decisions/0001-skill-first-core.md
