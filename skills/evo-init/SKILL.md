@@ -1,44 +1,106 @@
 ---
 name: evo-init
-description: Understand a repository, discover its existing engineering conventions and knowledge owners, and establish only the minimum missing repository guidance needed for durable AI-assisted development.
+description: Understand an existing repository for durable AI-assisted development. Use when EVO is being adopted for the first time, or when repository instructions, knowledge owners, build/test paths, and implementation patterns are not yet understood. Do not use merely because a new session started.
+disable-model-invocation: true
 ---
 
 # EVO Init
 
-## Objective
+## Purpose
 
-Make the repository legible to a fresh Agent without introducing an EVO runtime or forcing a new directory scheme.
+Make an existing repository legible to a fresh Agent while preserving the repository's own conventions.
 
-## Repository archaeology
+## Use when
 
-Inspect the actual repository: root and nested instructions, README/docs, manifests and lockfiles, source layout, representative implementations, tests, CI/build files, Git history, runtime entry paths, public contracts, issue/spec/ADR conventions, and domain vocabulary.
+- EVO is being introduced to a repository for the first time;
+- the current Agent cannot identify where project rules and current truth live;
+- build/test/run paths are unclear;
+- representative implementation patterns are not yet understood;
+- the repository has durable knowledge gaps that repeatedly force rediscovery.
 
-Use the host project's own tools when they reveal facts better than static reading. Examples include Maven effective POM/dependency tree, package-manager metadata, test discovery, framework CLIs, or Git history. Do not reimplement package managers with heuristics.
+## Do not use when
 
-Separate findings into:
+- the repository is already understood and only the current task context was lost — use `evo-recover`;
+- the only uncertainty is a current external technology fact — use `evo-research`;
+- the user already supplied a bounded implementation task with sufficient repository context.
 
-- **Confirmed** — directly supported by repository/runtime evidence.
-- **Inferred** — likely, with the evidence and uncertainty stated.
-- **Unknown** — not established. Unknown is not automatically blocking.
+## Process
 
-## Reuse before creating
+### 1. Explore before proposing structure
 
-Find which existing artifacts already own:
+Inspect the repository's real sources of authority:
+
+- root and nested Agent instructions;
+- README, CONTRIBUTING, architecture/API/business/operations docs;
+- manifests, lockfiles, dependency-management files, generated metadata;
+- source layout and representative implementations;
+- tests, build, lint, typecheck, run commands, CI;
+- Git history relevant to current conventions;
+- existing Spec/RFC/ADR/issue/decision conventions;
+- domain vocabulary and public contracts.
+
+Use the host project's own tools when they reveal facts more reliably than static reading, for example Maven effective POM/dependency tree, framework CLIs, package-manager metadata, test discovery, or Git history.
+
+### 2. Classify findings
+
+Separate important findings into:
+
+- **Confirmed** — directly supported by repository/runtime evidence;
+- **Inferred** — supported but not directly established; state the evidence and uncertainty;
+- **Unknown** — not established.
+
+An Unknown is blocking only when different answers would materially change the current task, safety, compatibility, or architecture.
+
+### 3. Map knowledge owners
+
+Identify which existing artifact already owns each responsibility:
 
 - repository working rules;
 - current architecture/system behavior;
 - domain language and durable business facts;
-- proposals/specs/plans;
-- stable design decisions;
-- tests and verification commands;
+- working proposals/specs/plans;
+- stable decisions and rationale;
+- executable behavior and contracts;
+- verification commands and CI;
 - delivery/history.
 
-Reuse them. Only when no equivalent exists, propose the smallest useful structure, typically a short `AGENTS.md`, a concise `CONTEXT.md`, and a decision/docs location appropriate to the repository.
+Prefer existing owners. Do not create parallel EVO-specific copies of facts the repository already owns.
 
-## Human review
+### 4. Propose only missing durable guidance
 
-Before writing new standing guidance, show the discoveries, proposed owners, and exact files to create/update. Do not rewrite existing project authorities merely to fit EVO.
+If repeated future work would otherwise require rediscovery, propose the smallest missing structure. Typical examples are a concise repository instruction file, domain/context note, architecture entry point, or decision location — but only when no equivalent already exists.
 
-## Completion
+Before writing standing guidance, show:
 
-Initialization is complete when a fresh Agent can answer: what this repository is, where current truth lives, how to build/test/run relevant parts, which patterns to reuse, where durable decisions live, and which important facts remain genuinely unknown.
+- what you found;
+- what already owns each fact;
+- genuine gaps;
+- exact files you propose to create or update.
+
+Get human confirmation before creating new standing repository rules or moving authority.
+
+### 5. Write and summarize
+
+Make only the approved knowledge changes. Keep instructions navigational and concise; put durable detail in the repository's normal docs.
+
+## Output
+
+Report:
+
+- repository purpose and major boundaries;
+- knowledge-owner map;
+- representative implementation patterns to reuse;
+- build/test/run paths that were actually confirmed;
+- durable guidance created or updated;
+- important remaining Unknowns and whether they block anything now.
+
+## Completion check
+
+Initialization is complete when a fresh Agent can determine:
+
+1. what the repository is;
+2. where current truth and rationale live;
+3. how to inspect/build/test/run relevant areas;
+4. which existing patterns should be reused;
+5. where unfinished work and durable decisions are recorded;
+6. which important facts remain genuinely unknown.

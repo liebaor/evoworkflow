@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Grill With Docs"
+  short_description: "Clarify material decisions and preserve durable knowledge"
+policy:
+  allow_implicit_invocation: false

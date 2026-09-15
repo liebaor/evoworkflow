@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Change"
+  short_description: "Reconcile changed intent without restarting valid work"
+policy:
+  allow_implicit_invocation: false

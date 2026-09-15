@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Review"
+  short_description: "Review intent, engineering quality, and evidence"
+policy:
+  allow_implicit_invocation: false

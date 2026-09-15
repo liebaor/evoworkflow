@@ -1,57 +1,89 @@
-# EVOworkflow v1 Working Model
+# EVOworkflow Working Model
 
 ## Default route
 
 ```text
 ask-evo
   ↓
-init / recover
+evo-init / evo-recover
   ↓
-grill or research when uncertainty matters
+evo-grill-with-docs
   ↓
-spec for substantial non-mechanical changes
+evo-research          (when current external facts matter)
   ↓
-plan bounded vertical slices
+evo-spec              (for substantial/revisitable changes)
   ↓
-implement one slice
+evo-plan
   ↓
-verify with project-native evidence
+evo-implement
   ↓
-independent review
+evo-verify
+  ↓
+evo-review
+  ↓
+evo-finish
 ```
 
 Requirement changes branch through `evo-change`. Observed failures branch through `evo-bug`.
 
-## Adaptive process
+The route is adaptive, not mandatory.
 
-Do not force every task through every stage.
+## Lightweight work
 
-### Lightweight
+For local, low-risk, mechanically obvious edits:
 
-Use for local, low-risk, mechanically obvious edits that do not change behavior, public contract, architecture, durable format, test strategy or rationale.
+```text
+inspect → edit → focused check
+```
 
-`inspect → edit → focused check`
+A separate Spec or Plan is unnecessary when the change does not materially alter behavior, public contract, architecture, durable format, test strategy, or rationale.
 
-### Standard
+## Standard work
 
-Use for ordinary features/behavior changes.
+For ordinary feature/behavior changes:
 
-`clarify → plan/spec as needed → implement → verify → review`
+```text
+clarify → plan/spec as needed → implement → verify → review → finish
+```
 
-### Strict
+## Strict work
 
-Use when the change affects security, permissions, privacy, irreversible data, compatibility, external cost, major architecture or another material trade-off.
+For security, permissions, privacy, irreversible data, compatibility, external cost, major architecture, public protocol, or another material trade-off:
 
-Add explicit human decision points, migration/rollback reasoning and stronger direct evidence through the real environment.
+- make important human decisions explicit;
+- use a working Spec/decision owner;
+- reason about migration/rollback/compatibility;
+- verify through the real failure surface and environment where possible;
+- preserve explicit unverified boundaries when access is unavailable.
+
+## Phase boundaries
+
+A Skill owns one kind of work. Crossing a boundary should be explicit:
+
+- implementation discovers changed intent → `evo-change`;
+- implementation needs a new human product/architecture choice → `evo-grill-with-docs`;
+- implementation needs a current external fact → `evo-research`;
+- verification finds an implementation failure → back to `evo-implement` or `evo-bug`;
+- review finds a Spec mismatch → `evo-change` or implementation depending on whether intent changed;
+- verified/reviewed work needing current-truth convergence → `evo-finish`.
 
 ## Unknowns
 
-Unknown does not automatically mean blocked. An unknown should stop work only when different answers materially change the current task or create unacceptable risk. Otherwise record the uncertainty and continue within the narrower claim that evidence supports.
+Unknown does not automatically mean blocked. Stop only when different answers materially change the current task, evidence claim, or risk. Otherwise record the narrower uncertainty and continue within what is actually known.
 
 ## Evidence discipline
 
-Every acceptance claim should have a direct falsifying path. Prefer existing project commands and real consumers. A static inspection proves source shape, not runtime behavior. A build pass proves buildability, not product correctness. An unavailable environment remains explicitly unverified.
+Every material acceptance claim should have a direct falsifying path. Prefer existing project commands and real consumers. Static inspection proves source facts, not runtime behavior. Build proves buildability, not product correctness. An unavailable environment remains `UNVERIFIED`.
 
 ## Convergence
 
-Before delivery, current implementation, current docs/contracts, stable decision rationale and relevant executable evidence should agree. Do not call work complete because a document status changed or a generic checker returned zero.
+The engineering loop ends when:
+
+- accepted intent and implementation agree;
+- direct evidence supports the claims being made;
+- independent review is resolved;
+- current docs describe current behavior;
+- durable decisions describe current rationale where needed;
+- working artifacts no longer misrepresent what is pending vs shipped.
+
+`evo-finish` owns this convergence step.

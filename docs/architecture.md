@@ -1,56 +1,64 @@
-# EVOworkflow v1 Architecture
+# EVOworkflow 1.0 Architecture
 
-## Architectural position
+## Position
 
-EVOworkflow is a **Skill-first, repository-native engineering method**, not a workflow engine.
+EVOworkflow is a repository-centered engineering method packaged as composable Agent Skills.
 
-There is no required `evo` executable, no EVO state machine, no scanner-owned project model, no Goal Runner, no central Gate/Evidence runtime, and no package-specific bootstrap dependency.
+Its job is to help Coding Agents participate in long-lived software projects without making chat history the source of truth.
 
 ## Responsibility split
 
-- **Human** — product, risk, trade-off, acceptance and authorization authority.
-- **Agent + Skills** — semantic understanding, repository archaeology, planning, implementation reasoning, change analysis, review and research.
-- **Repository** — durable knowledge and current truth.
-- **Project-native tools** — deterministic facts such as tests, build, lint, typecheck, migration checks and CI.
-- **Git** — chronology, diffs, branches and delivery history.
-- **Harness** — execution environment, sandboxing, tools, subagents and long-running orchestration.
+- **Human** — owns product direction, material trade-offs, risk acceptance, and final authority.
+- **Agent + EVO Skills** — performs semantic understanding, repository archaeology, clarification, research, planning, implementation reasoning, change analysis, verification strategy, and review.
+- **Repository** — owns durable knowledge and current project truth.
+- **Project-native tools** — prove mechanically decidable facts through tests, build, lint, typecheck, migrations, runtime checks, and CI.
+- **Git / issue / PR history** — owns chronology and delivery collaboration.
+- **Harness** — provides execution environment, sandboxing, tools, subagents, and orchestration.
 
-## Core rule
+Core rule:
 
-> Semantic judgment belongs to the model. Deterministic facts belong to tools. Business authority belongs to humans.
+> **Semantic judgment → Model · Deterministic fact → Tool · Material authority → Human**
 
-EVO does not reimplement Maven, npm, Git, CI, browser automation or the host Agent harness.
+## Authority model
 
-## Repository authority model
+EVO adapts to the host repository's existing forms. Typical responsibilities are:
 
-Use the host repository's existing forms first. Common responsibilities are:
+- repository instructions — working rules and navigation;
+- domain/context docs — shared language and durable business facts;
+- current architecture/API/package docs — what the system is now;
+- working Spec/RFC/issue/proposal — what an unfinished change intends to become;
+- ADR/decision record — why a stable choice was made;
+- source/config/schema — executable current behavior and contracts;
+- tests/runtime/CI — observable promises and mechanically decidable invariants;
+- Git/PR/issues — chronology and collaboration history.
 
-- `AGENTS.md` / repository instructions — durable working rules and navigation.
-- `CONTEXT.md` / glossary/domain docs — shared language and durable domain facts.
-- architecture/current docs — what the system is now.
-- working proposal/spec/issue — what an unfinished change intends to become.
-- ADR/decision records — why stable choices were made.
-- source/config/schema — executable current behavior and contracts.
-- tests/runtime evidence — observable promises.
-- CI/project scripts — mechanically decidable invariants.
-- Git/PR/issues — chronology and delivery collaboration.
+A mutable fact should have one canonical owner. Other surfaces may link or summarize, but should not evolve into competing detailed copies.
 
-One mutable fact should have one canonical owner. Other surfaces link or summarize rather than copy volatile detail.
+## Skill architecture
 
-## Minimal process
+EVO uses focused Skills instead of one monolithic workflow prompt:
 
-EVO applies the minimum process required by change risk. A local mechanical edit may need only inspect → edit → focused check. A substantial feature may need clarify/research → spec → plan → implement → verify → review. Security, data-loss, compatibility or architecture changes may require explicit human decisions and stronger project-native evidence.
+- `ask-evo` routes;
+- `evo-init` and `evo-recover` establish working context;
+- `evo-grill-with-docs` and `evo-research` resolve uncertainty;
+- `evo-spec` and `evo-plan` make intended work portable;
+- `evo-implement`, `evo-change`, and `evo-bug` execute/change/repair;
+- `evo-verify`, `evo-review`, and `evo-finish` prove, challenge, and converge the result.
 
-## Non-goals
+Each Skill has a narrow contract and explicit handoff boundaries so a stronger model retains freedom to reason inside the phase without having to infer the phase itself.
 
-EVO v1 does not provide:
+## Adaptive process
 
-- a central CLI or executable runtime;
-- a second project state database;
-- workflow phase locks or fingerprints;
-- repository-wide heuristic scanners with hard blocking authority;
-- autonomous multi-agent scheduling;
-- package-manager/dependency resolution reimplementations;
-- generic test/evidence storage engines.
+Process depth follows change risk rather than diff size.
 
-If deterministic automation is needed, prefer the host project's tests/CI. Add EVO-owned scripts only for maintaining the EVO skill repository itself, never as a mandatory runtime for user projects.
+- Mechanical/local edits may need only inspect → edit → focused check.
+- Ordinary behavior changes may use clarify → plan → implement → verify → review → finish.
+- Cross-session, high-risk, compatibility, security, privacy, data, or architecture changes should add explicit Spec/Decision work, stronger evidence, and human authority points.
+
+## Progressive disclosure
+
+Root guidance stays short and navigational. Skills read only the repository authorities relevant to the current task. Large rubrics/templates should live close to the Skill that consumes them and load only when needed.
+
+## Design goal
+
+A fresh capable Agent should be able to enter a repository, discover how that repository already works, recover the current task from durable evidence, make bounded progress, and leave the repository easier for the next Agent to understand.

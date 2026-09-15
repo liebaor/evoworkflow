@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Bug"
+  short_description: "Diagnose bugs through a failing feedback loop"
+policy:
+  allow_implicit_invocation: true

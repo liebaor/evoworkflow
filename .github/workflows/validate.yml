@@ -1,4 +1,4 @@
-name: Validate skill-first core
+name: Validate EVOworkflow
 
 on:
   push:
@@ -13,48 +13,64 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate version
+      - name: Validate version contract
         shell: bash
         run: |
           set -euo pipefail
-          test -f VERSION
           test "$(tr -d '\r\n' < VERSION)" = "1.0.0"
           grep -q '^# EVOworkflow 1.0$' README.md
           grep -q '当前版本：\*\*1.0.0\*\*' README.md
 
-      - name: Assert CLI-free architecture
+      - name: Validate canonical Skill set
         shell: bash
         run: |
           set -euo pipefail
-          test ! -d src
-          test ! -d .evo
-          test ! -d schemas
-          test ! -d templates
-          test ! -d tests
-          test ! -f package.json
-          test ! -f pnpm-lock.yaml
-          test ! -f tsconfig.json
-          ! grep -R -n -E 'EVO_CLI_REQUIRED|@evoworkflow/cli|evo --version|evo (init|status|doctor|gate|goal|evidence|finish)( |`|$)' skills AGENTS.md
-
-      - name: Validate Skill structure
-        shell: bash
-        run: |
-          set -euo pipefail
-          expected='ask-evo evo-init evo-grill-with-docs evo-research evo-spec evo-plan evo-implement evo-change evo-bug evo-verify evo-review evo-recover'
+          expected='ask-evo evo-init evo-grill-with-docs evo-research evo-spec evo-plan evo-implement evo-change evo-bug evo-verify evo-review evo-finish evo-recover'
           actual="$(find skills -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | tr '\n' ' ' | sed 's/ $//')"
           expected_sorted="$(for s in $expected; do echo "$s"; done | sort | tr '\n' ' ' | sed 's/ $//')"
           test "$actual" = "$expected_sorted"
           for skill in $expected; do
             test -f "skills/$skill/SKILL.md"
+            test -f "skills/$skill/agents/openai.yaml"
             grep -q "^name: $skill$" "skills/$skill/SKILL.md"
             grep -q '^description: ' "skills/$skill/SKILL.md"
+            grep -q '^interface:' "skills/$skill/agents/openai.yaml"
           done
 
-      - name: Ensure repository docs exist
+      - name: Validate router coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          for skill in evo-init evo-grill-with-docs evo-research evo-spec evo-plan evo-implement evo-change evo-bug evo-verify evo-review evo-finish evo-recover; do
+            grep -q "$skill" skills/ask-evo/SKILL.md
+          done
+
+      - name: Validate product docs
         shell: bash
         run: |
           set -euo pipefail
           test -f docs/architecture.md
           test -f docs/knowledge-model.md
           test -f docs/workflow.md
-          test -f docs/decisions/0001-skill-first-core.md
+          test -f docs/skill-contract.md
+          test -f docs/skill-evals.md
+          test ! -e docs/migration-from-cli.md
+          test ! -e docs/decisions/0001-skill-first-core.md
+          ! grep -R -n -E 'EVO_CLI_REQUIRED|@evoworkflow/cli|\.evo/state\.yml|Goal Runner|Evidence Engine|0\.4\.x|migration-from-cli' README.md AGENTS.md skills docs/architecture.md docs/knowledge-model.md docs/workflow.md docs/skill-contract.md docs/skill-evals.md
+
+      - name: Validate key phase boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'do not edit files' skills/ask-evo/SKILL.md
+          grep -q 'Do not use merely because a new session started' skills/evo-init/SKILL.md
+          grep -q 'do not use this Skill to interview the user' skills/evo-spec/SKILL.md
+          grep -q 'fresh Agent' skills/evo-plan/SKILL.md
+          grep -q 'Stop implementation and route' skills/evo-implement/SKILL.md
+          grep -q 'PASS' skills/evo-verify/SKILL.md
+          grep -q 'FAIL' skills/evo-verify/SKILL.md
+          grep -q 'UNVERIFIED' skills/evo-verify/SKILL.md
+          grep -q 'Intent' skills/evo-review/SKILL.md
+          grep -q 'Engineering' skills/evo-review/SKILL.md
+          grep -q 'Evidence' skills/evo-review/SKILL.md
+          grep -q 'Do not add new feature scope' skills/evo-finish/SKILL.md

@@ -1,40 +1,78 @@
 # EVOworkflow repository instructions
 
-EVOworkflow v1 is a **Skill-first, repository-native engineering workflow**. This repository ships Skills and documentation, not an EVO runtime.
+EVOworkflow 1.0 is a **Repository-centered, Skill-first AI software engineering workflow**.
 
-## Architectural rules
+## Product principles
 
-1. Do not introduce a required `evo` executable, CLI package, central state machine, repository scanner, Goal Runner, generic gate engine, or Evidence Engine.
-2. Semantic repository understanding belongs to the Agent/model. Deterministic facts belong to the host project's tests/build/lint/runtime/CI. Material authority belongs to humans.
-3. Adapt to the host repository's existing Spec/RFC/ADR/docs/test conventions before proposing EVO-specific structure.
-4. Unknown information is not automatically blocking. It blocks only when different answers materially change the current task or risk.
-5. Keep root guidance short. Durable detail belongs in `docs/`; runtime engineering behavior belongs in `skills/*/SKILL.md`.
-6. One mutable fact has one primary owner. Avoid parallel copies of current truth.
-7. Repository > Chat. Evidence > Claim. Change > Rewrite. Existing Pattern > Reinvent. Human Authority > Agent Autonomy. Minimum Necessary Process.
+1. Repository > Chat.
+2. Evidence > Claim.
+3. Existing Pattern > Reinvent.
+4. One Fact → One Owner.
+5. Change > Rewrite.
+6. Human Authority > Agent Autonomy.
+7. Minimum Necessary Process.
+8. Derived workflow status should be reconstructable from durable repository evidence.
 
-## Canonical layout
+Semantic engineering judgment belongs to the Agent/model. Mechanically decidable facts should be proven with the host project's tests, build, lint, typecheck, runtime paths, and CI. Material product/risk decisions belong to humans.
 
-- `README.md` — user-facing product positioning, installation and usage.
-- `skills/*/SKILL.md` — canonical Skill behavior.
-- `docs/architecture.md` — v1 architecture boundary.
+## Canonical repository layout
+
+- `README.md` — user-facing positioning, installation, workflow, and Skill index.
+- `skills/*/SKILL.md` — canonical cross-host Skill behavior.
+- `skills/*/agents/openai.yaml` — Codex/OpenAI-facing display and invocation policy metadata.
+- `docs/architecture.md` — product architecture and responsibility split.
 - `docs/knowledge-model.md` — repository authority and long-term knowledge model.
-- `docs/workflow.md` — adaptive workflow.
-- `docs/decisions/` — durable architectural rationale for EVO itself.
+- `docs/workflow.md` — adaptive workflow and phase boundaries.
+- `docs/skill-contract.md` — common contract for authoring EVO Skills.
+- `docs/skill-evals.md` — behavioral scenarios used to audit routing and Skill boundaries.
 - `examples/` — bounded usage examples.
-- `.github/workflows/validate.yml` — repository-maintenance validation only; it is not user runtime.
+- `.github/workflows/validate.yml` — repository-maintenance validation.
 
-## Skill design
+## Canonical Skill set
 
-- Keep each Skill focused and usable without an EVO CLI.
-- A Skill may use ordinary Agent tools and the host project's commands.
-- Prefer repository-native verification to EVO-owned validators.
-- `ask-evo` is the read-only router and recommended entry point.
-- `evo-init` performs repository archaeology with model reasoning and host tools; it must not force a fixed project layout.
-- `evo-verify` reports exact executed evidence and explicit unverified boundaries.
-- `evo-review` should be independent from implementation context when possible.
+The user-facing Skill set is exactly:
 
-## Change discipline
+`ask-evo`, `evo-init`, `evo-grill-with-docs`, `evo-research`, `evo-spec`, `evo-plan`, `evo-implement`, `evo-change`, `evo-bug`, `evo-verify`, `evo-review`, `evo-finish`, `evo-recover`.
 
-For substantive changes to EVO itself, update the relevant Skill/docs and record durable architectural rationale in `docs/decisions/` when the decision is likely to be revisited. Git is the chronology; do not recreate `.evo/state.yml` or another derived workflow database.
+When any Skill is added, removed, renamed, or changes responsibility boundaries, review and update all of:
 
-Before calling a change complete, confirm README, Skills and architecture docs agree and that the lightweight validation workflow still reflects the intended v1 boundaries.
+- `ask-evo` routing;
+- README Skill table and examples;
+- `skills/README.zh-CN.md`;
+- `docs/workflow.md`;
+- `docs/skill-evals.md`;
+- validation workflow.
+
+## Skill authoring rules
+
+Each user-facing Skill should make these explicit where relevant:
+
+- purpose;
+- use when;
+- do not use when;
+- inputs/read-first or preconditions;
+- executable workflow;
+- stop/escalation boundaries;
+- repository writes/authority effects;
+- output;
+- final checks.
+
+Descriptions must help discovery: say both what the Skill does and when it should be used. Adjacent Skills must state their boundary clearly.
+
+Prefer progressive disclosure. Keep the core Skill executable and concise; move large rubrics/templates into local `references/` only when repeated detail materially helps execution.
+
+## Responsibility boundaries
+
+- `ask-evo` is read-only and recommends exactly one next Skill.
+- `evo-init` is first-time repository archaeology; `evo-recover` is continuation of already-existing work.
+- `evo-grill-with-docs` owns human decisions; discoverable facts should be investigated by the Agent.
+- `evo-spec` synthesizes settled understanding; it must not become a second interview phase.
+- `evo-plan` produces fresh-Agent-sized executable slices.
+- `evo-implement` stops when implementation discovers a material intent/architecture/external-fact change.
+- `evo-verify` proves acceptance with direct evidence and does not silently fix code.
+- `evo-review` is read-only and reviews Intent, Engineering, and Evidence.
+- `evo-finish` converges current truth after verification/review; it does not add feature scope or perform delivery actions unless explicitly requested.
+
+## Change discipline for EVO itself
+
+For substantive changes, inspect the affected Skills as a system rather than editing one file in isolation. Before completion, confirm README, Skill descriptions, router, workflow docs, metadata, and validation rules still agree.

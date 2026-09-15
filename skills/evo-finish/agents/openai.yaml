@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Finish"
+  short_description: "Converge verified work into repository current truth"
+policy:
+  allow_implicit_invocation: false

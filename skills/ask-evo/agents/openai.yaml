@@ -1,0 +1,5 @@
+interface:
+  display_name: "Ask EVO"
+  short_description: "Route to the best next EVO workflow step"
+policy:
+  allow_implicit_invocation: false

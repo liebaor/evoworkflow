@@ -1,43 +1,76 @@
 ---
 name: ask-evo
-description: Read the repository and recommend exactly one next EVO workflow step. Use when the user asks what to do next, where work stands, or how to continue. Read-only.
+description: Route repository work to the single best next EVO Skill. Use when the user asks what to do next, how to continue, where work stands, or which EVO workflow applies. Read-only: do not edit files or execute the routed Skill.
+disable-model-invocation: true
 ---
 
 # Ask EVO
 
-## Objective
+## Purpose
 
-Reconstruct the real situation from repository evidence and recommend one next Skill. Do not depend on chat memory, an EVO CLI, or a workflow state file.
+Act as the read-only wayfinder for EVOworkflow. Reconstruct the current situation from repository evidence and recommend exactly one next Skill.
+
+## Use when
+
+- the user asks what to do next;
+- the user is unsure which EVO Skill fits;
+- work has paused and the next phase is unclear;
+- the user wants a quick status-and-next-step assessment.
+
+## Do not use when
+
+- the user already named the Skill they want;
+- the task is a direct factual question that does not need an engineering workflow;
+- you are expected to implement, edit, verify, or review in this same Skill.
 
 ## Read first
 
-Read applicable repository instructions, current docs, domain/context docs, active proposal/spec/plan if any, relevant decisions, Git status/history, changed files, tests and CI evidence relevant to the task.
+Read only enough evidence to route correctly:
 
-## Routing
+1. applicable repository instructions;
+2. active issue/spec/proposal/plan if one exists;
+3. relevant current docs and decisions;
+4. Git branch, status, recent commits, and diff when work is already in progress;
+5. relevant test/CI evidence when completion is being claimed.
 
-Choose exactly one primary next action:
+Do not reconstruct the entire repository if a smaller read answers the routing question.
 
-1. Repository conventions and knowledge owners are not understood → `evo-init`.
-2. User intent, product behavior, or a material choice is unclear → `evo-grill-with-docs`.
-3. A current external technology/solution question needs primary-source research → `evo-research`.
-4. A substantial change needs an explicit working proposal and acceptance criteria → `evo-spec`.
-5. Intent is understood but work is not broken into bounded vertical slices → `evo-plan`.
-6. Accepted intent changed during work → `evo-change`.
-7. An observed failure needs diagnosis → `evo-bug`.
-8. One bounded slice is ready to build → `evo-implement`.
-9. Implementation claims need direct evidence → `evo-verify`.
-10. Evidence exists and an independent quality/spec check is needed → `evo-review`.
-11. A fresh/interrupted session or another Agent must continue existing work → `evo-recover`.
+## Routing order
 
-Small mechanical edits may skip spec and plan when they change no behavior, contract, architecture, durable format, test strategy, or rationale.
+Recommend exactly one primary next action:
+
+1. **`evo-recover`** — active work exists but the current session/Agent has lost working context.
+2. **`evo-init`** — the repository's conventions, knowledge owners, build/test paths, or representative patterns are not yet understood.
+3. **`evo-bug`** — an observed failure, regression, flake, or performance problem needs diagnosis.
+4. **`evo-change`** — already accepted intent changed during ongoing work.
+5. **`evo-research`** — a material external or freshness-sensitive fact must be established from current sources.
+6. **`evo-grill-with-docs`** — product behavior, scope, terminology, or another material human decision is still ambiguous.
+7. **`evo-spec`** — a non-trivial change is understood but needs one explicit working owner with acceptance and trade-offs.
+8. **`evo-plan`** — intent is clear but the work is not yet divided into fresh-Agent-sized executable slices.
+9. **`evo-implement`** — one bounded unit has clear scope and acceptance and is ready to build.
+10. **`evo-verify`** — implementation claims need direct evidence against acceptance.
+11. **`evo-review`** — evidence exists and an independent intent/engineering/evidence review is needed.
+12. **`evo-finish`** — verification and review are complete and repository current truth must converge.
+
+For a tiny mechanical edit, `evo-implement` may be the correct next step without a separate Spec or Plan.
 
 ## Output
 
-Report: current objective, verified facts, relevant unknowns, active owner documents, observed progress, blockers, and one recommended next Skill with a short reason.
+Keep the response compact:
 
-## Rules
+- **Current objective**
+- **What is known** — only facts relevant to routing
+- **Material unknown/blocker** — only if it changes the next action
+- **Recommended Skill** — exactly one
+- **Why this Skill now** — one short paragraph
 
-- Repository evidence outranks historical chat.
-- Unknown does not equal blocker. Block only when the missing fact materially changes the current task.
-- Do not invent workflow state that is not present in repository evidence.
-- Do not edit files or invoke the destination Skill.
+## Final checks
+
+Before answering:
+
+- repository evidence outranks chat recollection;
+- unknown does not mean blocker unless different answers materially change the next step;
+- do not invent workflow state;
+- do not edit files;
+- do not invoke the destination Skill;
+- do not recommend multiple equal next steps.

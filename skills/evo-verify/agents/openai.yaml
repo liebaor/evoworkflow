@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Verify"
+  short_description: "Verify acceptance with direct project evidence"
+policy:
+  allow_implicit_invocation: false
