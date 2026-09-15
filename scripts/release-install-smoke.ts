@@ -21,14 +21,27 @@ function argumentValue(name: string): string | null {
 }
 
 async function run(command: string, args: readonly string[], cwd: string, env: NodeJS.ProcessEnv): Promise<CommandResult> {
-  const result = await execFile(command, args, {
-    cwd,
-    env,
-    timeout: 300_000,
-    maxBuffer: 8_000_000,
-    shell: process.platform === 'win32',
-  })
-  return {stdout: String(result.stdout), stderr: String(result.stderr)}
+  try {
+    const result = await execFile(command, args, {
+      cwd,
+      env,
+      timeout: 300_000,
+      maxBuffer: 8_000_000,
+      shell: process.platform === 'win32',
+    })
+    return {stdout: String(result.stdout), stderr: String(result.stderr)}
+  } catch (error) {
+    const failure = error as {readonly code?: unknown; readonly signal?: unknown; readonly stdout?: unknown; readonly stderr?: unknown}
+    const stdout = String(failure.stdout ?? '').trim()
+    const stderr = String(failure.stderr ?? '').trim()
+    const details = [
+      `exit=${String(failure.code ?? 'unknown')}`,
+      `signal=${String(failure.signal ?? 'none')}`,
+      ...(stdout.length > 0 ? [`stdout=${stdout.slice(-4000)}`] : []),
+      ...(stderr.length > 0 ? [`stderr=${stderr.slice(-4000)}`] : []),
+    ].join(' | ')
+    throw new Error(`command failed: ${command} ${args.join(' ')} (${details})`)
+  }
 }
 
 async function snapshotFiles(root: string): Promise<string[]> {
