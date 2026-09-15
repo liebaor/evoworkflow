@@ -40,8 +40,18 @@ jobs:
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+          set -o pipefail
           pnpm exec tsx scripts/release-install-smoke.ts \
-            --artifact "release-artifacts/evoworkflow-cli-${VERSION}.tgz"
+            --artifact "release-artifacts/evoworkflow-cli-${VERSION}.tgz" \
+            2>&1 | tee release-artifacts/global-install-smoke.log
+
+      - name: Upload release diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-diagnostics-${{ github.run_id }}
+          path: release-artifacts/global-install-smoke.log
+          if-no-files-found: error
 
       - name: Write release notes
         shell: bash
