@@ -8,6 +8,8 @@ description: Continuously execute a prepared multi-slice plan to completion in o
 ## Purpose
 Provide controlled continuous execution without a separate workflow runtime.
 
+The orchestration boundary is explicit: **one repository, one active goal, one writer**. EVO Goal is not a fleet scheduler or multi-repository runtime.
+
 ## Preconditions
 - `.evo/` is initialized;
 - owning Spec and `.evo/plans/<change>.md` exist and material human decisions are settled;
