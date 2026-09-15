@@ -1,6 +1,6 @@
 {
   "name": "@evoworkflow/cli",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "private": true,
   "description": "Human-controlled, repository-centered AI software engineering workflow",
   "type": "module",
@@ -44,6 +44,9 @@
     "generate:skill-manifest": "tsx scripts/generate-skill-manifest.ts",
     "smoke:cli": "tsx scripts/smoke-cli.ts",
     "smoke:package": "tsx scripts/package-smoke.ts",
+    "check:release-version": "tsx scripts/check-release-version.ts",
+    "release:pack": "tsx scripts/release-artifact.ts",
+    "smoke:release-install": "tsx scripts/release-install-smoke.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit",

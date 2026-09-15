@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Release ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@v7
+
+      - name: Set up Node and pnpm
+        uses: pnpm/setup@v2
+        with:
+          runtime: node@22
+          cache: true
+          require-lockfile: true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate tag and package version
+        run: pnpm exec tsx scripts/check-release-version.ts --tag "${GITHUB_REF_NAME}"
+
+      - name: Run the full repository check
+        run: pnpm run check
+
+      - name: Build release artifacts
+        run: pnpm run release:pack
+
+      - name: Smoke-test the global install path
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          pnpm exec tsx scripts/release-install-smoke.ts \
+            --artifact "release-artifacts/evoworkflow-cli-${VERSION}.tgz"
+
+      - name: Write release notes
+        shell: bash
+        run: |
+          cat > release-artifacts/RELEASE_NOTES.md <<'EOF'
+          ## Highlights
+
+          - Install the EVO CLI directly from this GitHub Release.
+          - The package includes the canonical CLI templates and Skills distribution.
+
+          ## Install
+
+          ```sh
+          npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz
+          ```
+
+          ## Upgrade
+
+          Re-run the latest install command, then verify with `evo --version` and `evo skills doctor`.
+
+          ## Rollback
+
+          Install the versioned asset from the desired GitHub Release.
+
+          ## Verification
+
+          Compare the downloaded asset with `SHA256SUMS.txt` before installation.
+
+          ## Known Limitations
+
+          v0.4.2 is distributed through GitHub Releases and is not published to the npm Registry.
+          EOF
+
+      - name: Create the GitHub Release and upload assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          gh release create "${GITHUB_REF_NAME}" \
+            "release-artifacts/evoworkflow-cli-${VERSION}.tgz" \
+            release-artifacts/evoworkflow-cli.tgz \
+            release-artifacts/SHA256SUMS.txt \
+            --title "evoworkflow ${GITHUB_REF_NAME}" \
+            --notes-file release-artifacts/RELEASE_NOTES.md

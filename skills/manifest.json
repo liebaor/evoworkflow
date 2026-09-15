@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "evoVersion": "0.4.1",
+  "evoVersion": "0.4.2",
   "skills": [
     {
       "name": "ask-evo",
       "category": "router",
-      "sha256": "17ad8033df70764ff748383aaf744d275b72587e3b90d1a155bf150548a74cc6"
+      "sha256": "1a26953e7b8990609b519e60c25f9fae3de8c27009bc9314bfb7e11bab9b58b0"
     },
     {
       "name": "ask-evo-architect",
@@ -35,7 +35,7 @@
     {
       "name": "evo-doctor",
       "category": "workflow",
-      "sha256": "cfaf147a59fe98bd726995e74e7ae65aa2139402a1403da05e959ec158892a5a"
+      "sha256": "1265798d1a0e433dbdc3908ddfc5cd7f10644fbe10fe61d6203ed18cbad67550"
     },
     {
       "name": "evo-engineering",
@@ -45,12 +45,12 @@
     {
       "name": "evo-finish",
       "category": "delivery",
-      "sha256": "8eb7164242738ce3cb42989aeff6ea99f1e73b708c7180323543d71378b33fdc"
+      "sha256": "5c5168b27a6708a8df0fadc6a4c77e913aeaf841ace0c4fd4dc5c6ba013a1ea0"
     },
     {
       "name": "evo-goal",
       "category": "planning",
-      "sha256": "c09dec47966230dced7c826dd35ad83f362291ea3ea3f1694e6d08128ec02275"
+      "sha256": "5eb1f27a695cf6f4a6c38f6b03d556c9671b7411873046c460e974e0cd7b1664"
     },
     {
       "name": "evo-grill-with-docs",
@@ -65,7 +65,7 @@
     {
       "name": "evo-init",
       "category": "workflow",
-      "sha256": "40f2ba9521b77fad3307a8a50b3cb91c32301d6989f815690048c342f35c88dd"
+      "sha256": "a3a3bad6c370a06adb7ddfa3f5f245ba75aa8d18bdd0514ae8958eed0d383a28"
     },
     {
       "name": "evo-plan",
@@ -75,7 +75,7 @@
     {
       "name": "evo-recover",
       "category": "workflow",
-      "sha256": "cec9cd971d2f9b682f5cb622949b3d3e225c61ad486140584d655472f01d5998"
+      "sha256": "2c57f8a722918726e5a426e9e96c2fef5f00662e798fb1c1dc108828aa417fde"
     },
     {
       "name": "evo-review",
@@ -90,7 +90,7 @@
     {
       "name": "evo-status",
       "category": "workflow",
-      "sha256": "263d41822ed2847d273acb945b0615c4ca0bff0874ff5fb2a9bee9ea740d45a5"
+      "sha256": "ae4691c8f3f6ccc9d3318cc01da3b2632c899f65eba98f5f0df3722234188b05"
     },
     {
       "name": "evo-to-spec",

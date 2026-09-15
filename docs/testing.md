@@ -26,6 +26,25 @@
 - v0.4.1 `eval:codex-native` 是独立现场评估：在 clean HOME 中真实安装 Skills，向 Codex 只发送用户级请求 `Use ask-evo and continue the current approved work.`，再独立检查 native discovery、router、bounded changed paths、测试和 Finish/commit 边界；外部超时只能记录 `UNVERIFIED`。
 - v0.4 真实 continuity 评估是独立现场测试：在临时固定 revision 中启动全新的 Codex、Claude Code、OpenCode 和 Fresh Agent invocation，独立检查实际 product-code changes、changed-path boundary、验证结果、恢复输入和跨任务工程语言；它不把 Agent 自报当作证据，也不作为普通 CI hard gate。
 
+## v0.4.2 GitHub Release 分发验证
+
+- E401 检查 `vX.Y.Z` tag 与 `package.json.version` 精确一致，并保持 `private: true`。
+- E402/E403 生成 versioned/stable `.tgz` 和 `SHA256SUMS.txt`，检查 CLI、templates、manifest、全部 canonical Skills 和无 vendor duplicate。
+- E404/E405 在 Ubuntu/Windows 临时 npm prefix 中执行真正的 `npm install -g <tgz>`；不从 source checkout 调用 CLI。
+- E406/E407 从 temporary global bin 执行 `evo --version`、`--help`、`init` preview/apply、`check`、`doctor` 和 `recover`。
+- E408 在 CLI 缺失文案 fixture/validator 中检查 `EVO_CLI_REQUIRED`、官方 GitHub Release URL 和 source-build 禁止项。
+- E409/E410 只有在真实 GitHub Release 已生成后，才从 exact URL 和 latest URL 安装并执行 `evo --version`、`evo --help`、`evo skills doctor`。
+
+Release 前的本地验证：
+
+```sh
+pnpm run check:release-version --tag v0.4.2
+pnpm run release:pack
+pnpm exec tsx scripts/release-install-smoke.ts --artifact release-artifacts/evoworkflow-cli-0.4.2.tgz
+```
+
+E404/E405 和 E409/E410 不能用互相替代：前者证明本地平台的安装路径，后者证明真实 GitHub 网络分发路径。
+
 自动化测试不得调用真实 coding model、外部系统、部署或生产写入。此类证据必须单独标注。
 
 ## 命令

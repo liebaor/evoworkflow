@@ -9,6 +9,14 @@ description: Recover an interrupted evoworkflow session from repository state, a
 
 Give a new agent enough verified context to hand control back to the human at the correct phase boundary.
 
+## CLI bootstrap guard
+
+Before the first CLI operation, run `evo --version`. If unavailable, report `EVO_CLI_REQUIRED`, print the official installation command, and stop:
+
+`npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz`
+
+After installation, rerun this Skill. Do not clone or build the EVO source repository. Do not run `pnpm install`, install or upgrade Corepack, or build TypeScript source as a fallback. Do not vendor EVO source into the business repository or invent an alternative installation URL.
+
 ## Inputs and authorities
 
 Read `AGENTS.md`, project map, state, active Change/Specification/Plan, Working Context, working Decisions, active Goal checkpoints, Evidence, review state, and current Git status/diff. Use `evo check`, `evo status`, and `evo recover` first.

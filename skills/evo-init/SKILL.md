@@ -9,6 +9,14 @@ description: Initialize an existing or empty repository for evoworkflow by disco
 
 Make a repository legible to a new agent without claiming complete understanding or replacing existing project authorities.
 
+## CLI bootstrap guard
+
+Run `evo --version` before `evo init`. If the CLI is unavailable, report `EVO_CLI_REQUIRED`, print the official installation command, and stop:
+
+`npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz`
+
+After installation, rerun this Skill. Do not clone or build the EVO source repository. Do not run `pnpm install`, install or upgrade Corepack, or build TypeScript source as a fallback. Do not vendor EVO source into the business repository or invent an alternative installation URL.
+
 ## Inputs and authorities
 
 Use the repository root, existing instructions, README and docs, dependency and build metadata, CI, source, tests, Git, and observable run/test paths. Run `evo init --root <repository>` first.

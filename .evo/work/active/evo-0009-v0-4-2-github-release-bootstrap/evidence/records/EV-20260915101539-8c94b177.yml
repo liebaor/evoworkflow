@@ -1,0 +1,76 @@
+schemaVersion: 2
+id: EV-20260915101539-8c94b177
+change: evo-0009-v0-4-2-github-release-bootstrap
+acceptance:
+  - AC-9.10
+kind: unit
+label: Final user installation documentation contract
+status: PASS
+command:
+  executable: C:\Users\lzcoffice\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe
+  args:
+    - C:\lzc\code\codex\evoworkflow\node_modules\tsx\dist\cli.mjs
+    - C:\lzc\code\codex\evoworkflow\node_modules\vitest\vitest.mjs
+    - run
+    - tests/release-contract.test.ts
+  cwd: C:\lzc\code\codex\evoworkflow
+exitCode: 0
+summary: exit=0; RUN  v4.1.11 C:/lzc/code/codex/evoworkflow
+outputHash: f3729ab444ee3be623d6b338529fed5f831bafce4c26fae549b14e084bbebd6d
+git:
+  branch: v0.4.2/github-release-bootstrap
+  head: 51919d4d049627835f74f3619e5947da5215ba40
+  treeFingerprint: 2edbe3ddbe9fe1b0412919d572d78d8a6fae779fe00bdc689c0b15f7d2c3104d
+  dirty: true
+  changedPaths:
+    - .evo/state.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/change.md
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236438-0-evoworkflow-cli-0.4.2.tgz
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236461-1-evoworkflow-cli.tgz
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236503-2-SHA256SUMS.txt
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101258-61602617.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101356-5b62f243.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101445-b5362ae3.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101500-55a1fb9d.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101523-08b8cc4b.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/plan.md
+    - .github/workflows/release.yml
+    - .tmp-evidence-release-artifacts/evoworkflow-cli-0.4.2.tgz
+    - .tmp-evidence-release-artifacts/evoworkflow-cli.tgz
+    - .tmp-evidence-release-artifacts/SHA256SUMS.txt
+    - .tmp-final-release-artifacts/evoworkflow-cli-0.4.2.tgz
+    - .tmp-final-release-artifacts/evoworkflow-cli.tgz
+    - .tmp-final-release-artifacts/SHA256SUMS.txt
+    - docs/distribution/github-release.md
+    - docs/installation.md
+    - docs/operations.md
+    - docs/skills/installation.md
+    - docs/testing.md
+    - package.json
+    - README.md
+    - scripts/check-release-version.ts
+    - scripts/package-smoke.ts
+    - scripts/release-artifact.ts
+    - scripts/release-install-smoke.ts
+    - scripts/validate-skills.ts
+    - skills/ask-evo/SKILL.md
+    - skills/evo-doctor/SKILL.md
+    - skills/evo-finish/SKILL.md
+    - skills/evo-goal/SKILL.md
+    - skills/evo-init/SKILL.md
+    - skills/evo-recover/SKILL.md
+    - skills/evo-status/SKILL.md
+    - skills/manifest.json
+    - src/repository/plan-slices.ts
+    - src/repository/skill-manifest.ts
+    - tests/artifacts.test.ts
+    - tests/release-contract.test.ts
+    - tests/skills-installation.test.ts
+  changedPathsFingerprint: fc53895e9bd7bd122e964a081a9a020e6d59eabf60a42ffcd9c76d5cc4900468
+  capturedAt: 2026-09-15T10:15:39.010Z
+artifacts: []
+startedAt: 2026-09-15T10:15:37.343Z
+endedAt: 2026-09-15T10:15:39.008Z
+inputFingerprint: 7d913cb072a2d4473625cb4884964be51b28513e6dbc8af30e97c4e2dba4bdc8
+freshness: CURRENT

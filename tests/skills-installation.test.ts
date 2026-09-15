@@ -23,7 +23,7 @@ describe('canonical EVO Skill installation', () => {
     const applied = await applySkillInstallation(preview)
     expect(applied.mode).toBe('APPLIED')
     expect(applied.applied.filter((item) => !item.startsWith('claude:'))).toHaveLength(20)
-    expect((await readSkillReceipt(path.join(home, '.agents', 'skills')))?.evoVersion).toBe('0.4.1')
+    expect((await readSkillReceipt(path.join(home, '.agents', 'skills')))?.evoVersion).toBe('0.4.2')
     expect((await planSkillInstallation({homeDirectory: home, sourceRoot: process.cwd()})).actions.every((item) => item.action === 'SAME')).toBe(true)
 
     const repeat = await applySkillInstallation(await planSkillInstallation({homeDirectory: home, sourceRoot: process.cwd()}))

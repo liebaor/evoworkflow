@@ -19,6 +19,38 @@ evoworkflow 是一套由人工驱动、AI 辅助执行、仓库持久化知识�
 - `evo status` 只给出一个下一步建议，不会替用户进入下一阶段。
 - 没有证据、人工接受或文档收敛时，系统不会自动 Finish、提交、合并、发布或部署。
 
+## Quick Start / 普通用户安装
+
+EVO CLI 从 GitHub Release 分发。普通用户不需要 clone 或构建 evoworkflow 源码。
+
+前置条件：Node.js 22 或更高版本，以及 npm。
+
+```sh
+# 1. 安装 EVO CLI
+npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz
+
+# 2. 安装并检查 EVO Skills
+evo skills install --apply
+evo skills doctor
+
+# 3. 初始化业务项目
+cd /path/to/my-project
+evo init --root .
+evo init --root . --apply
+
+# 4. 启动你的 Coding Agent，然后使用 ask-evo
+codex
+```
+
+检查安装结果：
+
+```sh
+evo --version
+evo --help
+```
+
+更新、回滚、卸载和 checksum 校验请参阅[安装指南](docs/installation.md)；Release 运维约定请参阅[GitHub Release 分发说明](docs/distribution/github-release.md)。
+
 ## 当前能力
 
 - `evo init`：先报告仓库发现结果，再以不破坏现有文件的方式初始化。
@@ -44,13 +76,13 @@ evoworkflow 是一套由人工驱动、AI 辅助执行、仓库持久化知识�
 - 三期的最终 verified boundary 是：`F1` 偏差诊断、`F2` Feature → Requirement Delta → Bug/Regression → Fresh Agent 的 Brownfield continuity、`F3` 脱敏 durable trace + Evidence SHA-256、`F4` deterministic Project HARD promotion。RuoYi runtime、数据库、浏览器和宿主环境缺失的 Java 17/frontend build 仍单独标记为 `UNVERIFIED`。
 - Greenfield 指导：先比较成熟方案，再决定是否需要自建基础设施。
 
-v0.4.1 采用 Codex-first、harness-portable 的 Skill 分发：`skills/*/SKILL.md` 是唯一 authoring source，`~/.agents/skills` 是唯一 canonical runtime installation，OpenCode 直接共享，Claude Code 使用安全 symlink/junction 或明确的 COPY fallback。`AGENTS.md` 仍是唯一的仓库级 standing-rule authority；`evo agents` 负责仓库兼容性，`evo skills` 负责 Skill 安装、更新和漂移诊断。
+v0.4.2 继续采用 Codex-first、harness-portable 的 Skill 分发：`skills/*/SKILL.md` 是唯一 authoring source，`~/.agents/skills` 是唯一 canonical runtime installation，OpenCode 直接共享，Claude Code 使用安全 symlink/junction 或明确的 COPY fallback。`AGENTS.md` 仍是唯一的仓库级 standing-rule authority；`evo agents` 负责仓库兼容性，`evo skills` 负责 Skill 安装、更新和漂移诊断。
 
 evoworkflow v0.3 仍不包含多 Agent 并行执行、云控制面板、中央数据库、自动产品或架构决策，也不会自动提交、合并、发布、部署或完成 Change。多仓库 Change Set 只是只读聚合检查；真实人工身份系统仍不在命令行测试范围内，人工批准继续由显式测试协议模拟。
 
-## 开发要求
+## Development / 开发者模式
 
-需要 Node.js 22 或更高版本，以及 pnpm。
+以下命令用于开发 evoworkflow 本身，不是普通用户安装方式。需要 Node.js 22 或更高版本，以及 pnpm。
 
 ```sh
 pnpm install
@@ -58,7 +90,7 @@ pnpm run generate:schemas
 pnpm run check
 ```
 
-## 运行 CLI
+### 开发时运行 CLI
 
 ```sh
 pnpm evo --help
@@ -93,9 +125,9 @@ pnpm evo completion inspect --root /path/to/project <change-id>
 pnpm evo change-set check --root /path/to/project <change-set-id>
 ```
 
-## v0.4.1 Codex-first 最短路径
+## Skills 与 Agent 适配
 
-先安装一份 canonical EVO Skill source：
+Quick Start 已安装 CLI。接下来安装一份 canonical EVO Skill source：
 
 ```sh
 evo skills install

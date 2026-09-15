@@ -1,0 +1,70 @@
+schemaVersion: 2
+id: EV-20260915101556-c37c9804
+change: evo-0009-v0-4-2-github-release-bootstrap
+acceptance:
+  - AC-9.11
+kind: build
+label: Final full regression subcommands
+status: PASS
+command: null
+exitCode: null
+summary: "Executed the fixed subcommands equivalent to package.json check: typecheck, test (33 files / 126 tests), build, smoke:cli, validate:skills, check:schemas, eval:phase2, eval:phase3 deterministic suite, eval:hardening, eval:cross-agent, eval:skill-install, and smoke:package; every subcommand exited 0. The separate real-Agent behavioral field evaluation remains outside this deterministic suite and is not claimed here."
+outputHash: null
+git:
+  branch: v0.4.2/github-release-bootstrap
+  head: 51919d4d049627835f74f3619e5947da5215ba40
+  treeFingerprint: 2edbe3ddbe9fe1b0412919d572d78d8a6fae779fe00bdc689c0b15f7d2c3104d
+  dirty: true
+  changedPaths:
+    - .evo/state.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/change.md
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236438-0-evoworkflow-cli-0.4.2.tgz
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236461-1-evoworkflow-cli.tgz
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236503-2-SHA256SUMS.txt
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101258-61602617.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101356-5b62f243.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101445-b5362ae3.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101500-55a1fb9d.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101523-08b8cc4b.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/records/EV-20260915101539-8c94b177.yml
+    - .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/plan.md
+    - .github/workflows/release.yml
+    - .tmp-evidence-release-artifacts/evoworkflow-cli-0.4.2.tgz
+    - .tmp-evidence-release-artifacts/evoworkflow-cli.tgz
+    - .tmp-evidence-release-artifacts/SHA256SUMS.txt
+    - .tmp-final-release-artifacts/evoworkflow-cli-0.4.2.tgz
+    - .tmp-final-release-artifacts/evoworkflow-cli.tgz
+    - .tmp-final-release-artifacts/SHA256SUMS.txt
+    - docs/distribution/github-release.md
+    - docs/installation.md
+    - docs/operations.md
+    - docs/skills/installation.md
+    - docs/testing.md
+    - package.json
+    - README.md
+    - scripts/check-release-version.ts
+    - scripts/package-smoke.ts
+    - scripts/release-artifact.ts
+    - scripts/release-install-smoke.ts
+    - scripts/validate-skills.ts
+    - skills/ask-evo/SKILL.md
+    - skills/evo-doctor/SKILL.md
+    - skills/evo-finish/SKILL.md
+    - skills/evo-goal/SKILL.md
+    - skills/evo-init/SKILL.md
+    - skills/evo-recover/SKILL.md
+    - skills/evo-status/SKILL.md
+    - skills/manifest.json
+    - src/repository/plan-slices.ts
+    - src/repository/skill-manifest.ts
+    - tests/artifacts.test.ts
+    - tests/release-contract.test.ts
+    - tests/skills-installation.test.ts
+  changedPathsFingerprint: 6f037c3386be76d18a029f4fd9e3960a4b5b2dcb9a8877484cac830548ef549a
+  capturedAt: 2026-09-15T10:15:56.857Z
+artifacts: []
+startedAt: 2026-09-15T10:15:56.857Z
+endedAt: 2026-09-15T10:15:56.857Z
+inputFingerprint: 7d913cb072a2d4473625cb4884964be51b28513e6dbc8af30e97c4e2dba4bdc8
+freshness: CURRENT

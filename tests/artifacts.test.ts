@@ -33,6 +33,24 @@ describe('narrative artifact approval', () => {
     expect(extractPlanSliceIds(plan)).toEqual(['S1', 'S2'])
   })
 
+  it('supports alternate execution heading levels without promoting multiline narrative headings', () => {
+    const plan = `# Execution Slices / 执行切片
+
+## S0 — Release contract
+### Verification
+- The artifact is valid.
+
+## S1 — Global install
+### Safety
+- The install is isolated.
+
+# 2. Documentation
+## P0 — Out of scope priority
+`
+
+    expect(extractPlanSliceIds(plan)).toEqual(['S0', 'S1'])
+  })
+
   it('detects an approved Plan changed after human approval', async () => {
     const root = await temporaryRepository('artifact-drift')
     await initializeRepository(root)

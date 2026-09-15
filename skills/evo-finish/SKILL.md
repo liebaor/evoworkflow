@@ -9,6 +9,14 @@ description: Finish an EVO Change only after explicit human acceptance by checki
 
 Restore agreement between approved intent, current Decisions, implementation, tests, Evidence, and current documentation.
 
+## CLI bootstrap guard
+
+Before the first CLI operation, run `evo --version`. If unavailable, report `EVO_CLI_REQUIRED`, print the official installation command, and stop:
+
+`npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz`
+
+After installation, rerun this Skill. Do not clone or build the EVO source repository. Do not run `pnpm install`, install or upgrade Corepack, or build TypeScript source as a fallback. Do not vendor EVO source into the business repository or invent an alternative installation URL.
+
 ## Inputs and authorities
 
 Read the accepted Change/Specification/Plan, Working Context and consistency observations, review disposition, all acceptance Evidence, working Decisions, current docs, code/tests, Goal state, and Git diff. Confirm explicit human acceptance of the current content.

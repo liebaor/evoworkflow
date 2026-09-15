@@ -1,5 +1,37 @@
 # 运行手册
 
+## GitHub Release 安装与运维
+
+普通用户通过 GitHub Release 安装 CLI，不需要 clone 或构建源码：
+
+```sh
+npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz
+evo --version
+evo --help
+evo skills install --apply
+evo skills doctor
+```
+
+更新使用同一条 latest URL；精确回滚使用目标 Release 的 versioned asset。安装、回滚、卸载和 checksum 校验的完整说明见 [安装指南](installation.md)。
+
+发布操作只允许从 `vX.Y.Z` tag 触发 `.github/workflows/release.yml`。工作流会先校验 tag/package 版本、运行完整检查、打包、校验 checksum 和执行全局安装 smoke，再创建 Release。发布失败不会上传可用 Release；v0.4.2 不执行 `npm publish`。
+
+发布后必须分别从 exact URL 和 latest URL 执行：
+
+```sh
+npm install -g https://github.com/liebaor/evoworkflow/releases/download/v0.4.2/evoworkflow-cli-0.4.2.tgz
+evo --version
+evo --help
+evo skills doctor
+
+npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz
+evo --version
+evo --help
+evo skills doctor
+```
+
+这两条路径分别形成 E409 和 E410 Evidence；本地 `.tgz` smoke 不能替代真实网络验证。
+
 ## 本地 CLI
 
 构建和运行：
@@ -104,7 +136,7 @@ evo migrate --root /path/to/project
 evo migrate --root /path/to/project --apply
 ```
 
-evoworkflow v0.3 不提供自动 release、deploy 或生产回滚；只读恢复报告也不代表外部运行已验证。
+Release artifact、CLI 安装和项目初始化是三个独立边界；CLI 卸载或回滚不会删除项目 `.evo/`、`AGENTS.md` 或机器级 `~/.agents/skills`。只读恢复报告也不代表外部运行已验证。
 
 ## v0.4 跨 Agent 兼容与交接
 

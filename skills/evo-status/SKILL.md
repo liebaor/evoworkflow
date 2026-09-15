@@ -9,6 +9,14 @@ description: Report deterministic evoworkflow machine state, protocol validity, 
 
 Present the current machine-readable workflow state without inference-driven execution.
 
+## CLI bootstrap guard
+
+Before the first CLI operation, run `evo --version`. If unavailable, report `EVO_CLI_REQUIRED`, print the official installation command, and stop:
+
+`npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz`
+
+After installation, rerun this Skill. Do not clone or build the EVO source repository. Do not run `pnpm install`, install or upgrade Corepack, or build TypeScript source as a fallback. Do not vendor EVO source into the business repository or invent an alternative installation URL.
+
 ## Inputs and authorities
 
 Run `evo status --root <repository>` and, when needed, `evo check --root <repository>`. Read only the referenced files needed to explain reported errors.

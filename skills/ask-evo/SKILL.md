@@ -9,6 +9,14 @@ description: Navigate an EVO-managed repository when the user asks where work st
 
 Reconstruct the current workflow state from repository evidence and recommend one next action with a concrete reason.
 
+## CLI bootstrap guard
+
+Run `evo --version` before using the CLI to inspect state. If the CLI is unavailable, report `EVO_CLI_REQUIRED`, print the official installation command, and stop:
+
+`npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz`
+
+After installation, rerun this Skill. Do not clone or build the EVO source repository. Do not run `pnpm install`, install or upgrade Corepack, or build TypeScript source as a fallback. Do not vendor EVO source into the business repository or invent an alternative installation URL.
+
 ## Inputs and authorities
 
 Read `AGENTS.md`, `.evo/project.md`, `.evo/state.yml`, the active Change, working Decisions, active Goal, latest evidence, and relevant Git state. Prefer `evo status --root <repository>` for deterministic state validation.

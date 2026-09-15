@@ -6,7 +6,7 @@ import {EvoError} from '../core/errors.js'
 import {sha256} from './git-snapshot.js'
 import {pathExists, writeTextAtomic} from './io.js'
 
-const DEFAULT_EVO_VERSION = '0.4.1'
+const DEFAULT_EVO_VERSION = '0.4.2'
 
 /** Returns the derived manifest location; canonical Skill files remain authoritative. */
 export function skillManifestPath(root: string): string {

@@ -1,6 +1,6 @@
 # EVO Skill Installation
 
-v0.4.1 keeps `skills/*` as the authoring source and installs one machine-level runtime copy at `~/.agents/skills`.
+v0.4.2 keeps `skills/*` as the authoring source and installs one machine-level runtime copy at `~/.agents/skills`.
 
 ```text
 EVO package skills/*

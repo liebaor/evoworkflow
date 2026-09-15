@@ -9,6 +9,14 @@ description: Audit an EVO-managed repository for stale work, zombie Decisions, d
 
 Identify repository-knowledge entropy and recommend bounded gardening without silently rewriting authority documents.
 
+## CLI bootstrap guard
+
+Before the first CLI operation, run `evo --version`. If unavailable, report `EVO_CLI_REQUIRED`, print the official installation command, and stop:
+
+`npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz`
+
+After installation, rerun this Skill. Do not clone or build the EVO source repository. Do not run `pnpm install`, install or upgrade Corepack, or build TypeScript source as a fallback. Do not vendor EVO source into the business repository or invent an alternative installation URL.
+
 ## Inputs and authorities
 
 Run `evo doctor --root <repository>`. Inspect the exact files behind reported diagnostics, current Git state, completed work, Decisions, docs, tests, and review evidence relevant to confirmed findings.

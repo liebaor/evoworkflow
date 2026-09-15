@@ -31,6 +31,8 @@ const expected = new Set([
   'evo-to-spec',
   'evo-verify',
 ])
+const cliBootstrapSkills = new Set(['ask-evo', 'evo-doctor', 'evo-finish', 'evo-goal', 'evo-init', 'evo-recover', 'evo-status'])
+const officialCliInstall = 'npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz'
 const frontmatterSchema = z.object({name: z.string().min(1).max(63), description: z.string().min(20).max(500)}).strict()
 const directories = (await readdir(skillsRoot, {withFileTypes: true}))
   .filter((entry) => entry.isDirectory())
@@ -67,6 +69,17 @@ for (const name of directories) {
     if (/(?:^|\s)\/evo(?:-[a-z0-9-]+)?\b/iu.test(body)) errors.push(`${name}: assumes a vendor slash-command invocation; use repository-neutral Skill wording`)
     if (/\b(?:claude|codex|opencode)\s+(?:tool|slash|command)\b/iu.test(body)) errors.push(`${name}: assumes a vendor-specific command or tool`)
     if (/^\s*(?:codex|claude|opencode)\s*:/imu.test(source)) errors.push(`${name}: uses vendor-specific frontmatter`)
+    if (cliBootstrapSkills.has(name)) {
+      const required = [
+        '## CLI bootstrap guard',
+        'EVO_CLI_REQUIRED',
+        officialCliInstall,
+        'Do not clone or build the EVO source repository.',
+        'Do not run `pnpm install`, install or upgrade Corepack, or build TypeScript source as a fallback.',
+        'Do not vendor EVO source into the business repository or invent an alternative installation URL.',
+      ]
+      for (const marker of required) if (!body.includes(marker)) errors.push(`${name}: missing canonical CLI bootstrap marker: ${marker}`)
+    }
   } catch (error) {
     errors.push(`${name}: cannot read SKILL.md: ${error instanceof Error ? error.message : String(error)}`)
   }
