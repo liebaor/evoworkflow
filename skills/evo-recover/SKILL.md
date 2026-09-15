@@ -1,40 +1,30 @@
 ---
 name: evo-recover
-description: Recover an interrupted evoworkflow session from repository state, active work, Decisions, Goals, Evidence, and Git without relying on historical chat or automatically continuing work.
+description: Reconstruct enough repository context for a fresh or interrupted Agent/session to continue safely without relying on private chat history or an EVO state file.
 ---
 
 # EVO Recover
 
 ## Objective
 
-Give a new agent enough verified context to hand control back to the human at the correct phase boundary.
+Recover current working context from durable repository evidence.
 
-## CLI bootstrap guard
+## Reconstruct
 
-Before the first CLI operation, run `evo --version`. If unavailable, report `EVO_CLI_REQUIRED`, print the official installation command, and stop:
+Read applicable instructions, domain/context docs, current architecture/public docs, active working proposal/spec/plan or issue, relevant stable decisions, Git branch/status/recent commits/diff, tests or CI results available in the repository, and the source areas currently changing.
 
-`npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz`
+Determine:
 
-After installation, rerun this Skill. Do not clone or build the EVO source repository. Do not run `pnpm install`, install or upgrade Corepack, or build TypeScript source as a fallback. Do not vendor EVO source into the business repository or invent an alternative installation URL.
+- current objective and non-goals;
+- which document/issue owns the active work;
+- completed vs pending slices inferred from repository/Git evidence;
+- relevant decisions and patterns;
+- changed files and likely next seam;
+- verified results vs claims not yet checked;
+- blockers that materially affect the next step.
 
-## Inputs and authorities
+Do not require `.evo/state.yml` or reproduce stale chat summaries as authority. Derived workflow state should be disposable and recoverable from the repository.
 
-Read `AGENTS.md`, project map, state, active Change/Specification/Plan, Working Context, working Decisions, active Goal checkpoints, Evidence, review state, and current Git status/diff. Use `evo check`, `evo status`, and `evo recover` first.
+## Output
 
-## Required outcomes
-
-Report current objective, phase, approved content, completed Slices, pending Slices, blockers, modified paths, latest evidence, unknowns, protocol drift, Working Context references, and one recommended next human-controlled action. Link repository paths instead of copying durable knowledge.
-
-## Constraints and decision rules
-
-- Repository state outranks chat and prior summaries.
-- Revalidate drift-prone facts and do not assume a previously running process still exists.
-- Do not reinterpret drafts as approvals or self-reports as Evidence.
-
-## Stop conditions
-
-Stop after the recovery report. Do not resume a Goal, edit code, change phase, or resolve human Decisions.
-
-## Repository writes
-
-None unless the user separately authorizes repairing a proven state-file defect.
+Produce a compact handoff and recommend one next EVO Skill. Do not begin implementation unless explicitly asked.

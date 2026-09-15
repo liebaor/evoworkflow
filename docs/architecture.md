@@ -1,65 +1,56 @@
-# 架构
+# EVOworkflow v1 Architecture
 
-## 系统上下文
+## Architectural position
 
-evoworkflow v0.2 没有服务器和数据库。它把 Markdown Skill、一个本地确定性 CLI 和每个受管理 Git 仓库中的工作流状态组合起来。
+EVOworkflow is a **Skill-first, repository-native engineering method**, not a workflow engine.
 
-```text
-人工
-  -> 调用一个 Skill 或 CLI 命令
-  -> 审阅结果并明确批准
+There is no required `evo` executable, no EVO state machine, no scanner-owned project model, no Goal Runner, no central Gate/Evidence runtime, and no package-specific bootstrap dependency.
 
-Skill
-  -> 调查、建议、规划、实现、验证、评审或完成一个阶段
+## Responsibility split
 
-TypeScript CLI
-  -> 发现仓库
-  -> 验证 YAML 和仓库不变量
-  -> 原子化保存状态
-  -> 顺序运行已批准的 Goal
+- **Human** — product, risk, trade-off, acceptance and authorization authority.
+- **Agent + Skills** — semantic understanding, repository archaeology, planning, implementation reasoning, change analysis, review and research.
+- **Repository** — durable knowledge and current truth.
+- **Project-native tools** — deterministic facts such as tests, build, lint, typecheck, migration checks and CI.
+- **Git** — chronology, diffs, branches and delivery history.
+- **Harness** — execution environment, sandboxing, tools, subagents and long-running orchestration.
 
-受管理仓库
-  -> 保存 .evo 状态、当前项目知识、Decision、工作记录和证据
-```
+## Core rule
 
-## 依赖方向
+> Semantic judgment belongs to the model. Deterministic facts belong to tools. Business authority belongs to humans.
 
-`src/core` 负责 Schema、批准指纹、导航和 Goal 状态转换。`src/repository` 负责文件系统、仓库发现、初始化、模板和持久化 Goal 操作。`src/agents` 实现 Agent Adapter 约定，但不拥有工作流状态。`src/validation` 读取 core 和 repository 数据，报告协议与知识问题。`src/commands` 是薄的 oclif 展示层。
+EVO does not reimplement Maven, npm, Git, CI, browser automation or the host Agent harness.
 
-核心逻辑不依赖 oclif。测试可以使用确定性 Adapter 和内存持久化来验证状态转换。
+## Repository authority model
 
-## 权威来源与状态
+Use the host repository's existing forms first. Common responsibilities are:
 
-`src/core/schemas.ts` 中的 Zod Schema 是机器数据权威；`schemas/*.schema.json` 是自动生成的投影。`templates/` 是安装权威，CLI 运行时读取它，不在源代码中复制模板文本。Config/State 同时读取 v1 和 v2，初始化写入 v2；`evo migrate` 负责保守升级旧仓库。
+- `AGENTS.md` / repository instructions — durable working rules and navigation.
+- `CONTEXT.md` / glossary/domain docs — shared language and durable domain facts.
+- architecture/current docs — what the system is now.
+- working proposal/spec/issue — what an unfinished change intends to become.
+- ADR/decision records — why stable choices were made.
+- source/config/schema — executable current behavior and contracts.
+- tests/runtime evidence — observable promises.
+- CI/project scripts — mechanically decidable invariants.
+- Git/PR/issues — chronology and delivery collaboration.
 
-YAML 写入先写临时文件再 rename，避免中断留下半个状态文件。初始化使用排他创建并保留所有已有路径。可选的工作、Decision、Goal 和 Postmortem 目录只在使用时创建。Standard 和 Large 的 Plan 拥有 Slice 定义；`state.yml` 只保存 Slice id、状态、阻塞原因和当前 Slice。Goal 执行期间，State 是经过检查的 Goal YAML 投影。
+One mutable fact should have one canonical owner. Other surfaces link or summarize rather than copy volatile detail.
 
-## Agent 执行
+## Minimal process
 
-`AgentAdapter` 每次接收一个已批准 Slice。内置进程 Adapter 直接使用参数数组启动 Codex、Claude Code 或 OpenCode，不经过 shell。Agent 自报不能单独产生 PASS；Goal Runner 随后执行批准的验证命令并保存退出结果。
+EVO applies the minimum process required by change risk. A local mechanical edit may need only inspect → edit → focused check. A substantial feature may need clarify/research → spec → plan → implement → verify → review. Security, data-loss, compatibility or architecture changes may require explicit human decisions and stronger project-native evidence.
 
-Change、Specification 和 Plan 的批准分别绑定规范化 frontmatter 与正文的 SHA-256 指纹。Goal 批准另外绑定：
+## Non-goals
 
-- Goal 目标、验收、依赖、验证和停止条件；
-- 选定 Adapter 的命令与参数；
-- 活动 `change.md`、可选 `spec.md` 和 `plan.md` 内容。
+EVO v1 does not provide:
 
-批准命令会把机器状态记录为 `APPROVED`，但不会改变阶段。Goal 批准还会拒绝不在已批准 Plan 中的 Slice id，防止只通过 Goal YAML 添加计划外工作。
+- a central CLI or executable runtime;
+- a second project state database;
+- workflow phase locks or fingerprints;
+- repository-wide heuristic scanners with hard blocking authority;
+- autonomous multi-agent scheduling;
+- package-manager/dependency resolution reimplementations;
+- generic test/evidence storage engines.
 
-同一个 Goal 不能并发执行，因为它有排他锁。Goal 可以结束为 `BLOCKED`、`CANCELLED` 或 `READY_FOR_REVIEW`；没有任何 Goal 状态代表 Change 已被接受完成。
-
-## Working Context 与一致性
-
-`buildWorkingContext` 根据当前 Change、项目地图、活动工作、Decision、能力、参考实现、测试和 Git 快照返回路径、优先级与选择理由。它默认只读，不复制源代码或文档正文；明确使用 `evo context --write` 时，才把同一份路径化结果写入活动 Change 的 `context.md`。
-
-`analyzeRepositoryConsistency` 将当前实现与项目已有的响应、权限、命名和实际区域进行比较，输出候选漂移、重复机制和实际影响范围扩大的警告。它是 Review 的证据输入，不拥有架构 Decision，也不会自动重写实现。
-
-Evidence v2 由三层组成：`evidence.yml` 保存验收项到记录的精确映射，`evidence/records/*.yml` 保存不可覆盖的执行观察，`evidence.md` 保存面向人的解释。命令执行使用参数数组和 `shell: false`，捕获输出有上限，记录绑定排除证据 bookkeeping 后的 Git 源工作树指纹；Finish 的 `completion.yml` 单独表达“流程已归档”和“源代码是否已绑定提交”，不把它们混成一个状态。
-
-`classifyChange` 依据请求中的影响信号建议 Small、Standard 或 Large；分类结果只用于选择流程强度，人工仍可在 Change 中确认或调整。Requirement Delta、Bug 调查和 `evo recover` 都通过仓库文件与确定性解析保留可恢复信息。
-
-## 信任边界
-
-仓库 YAML、Markdown frontmatter、Adapter 输出、子进程退出结果、文件路径和外部固定归档都跨越运行时边界，因此必须验证。批准的验证命令使用可执行文件加参数数组，绝不使用 shell 命令字符串。捕获输出有大小上限，常见的密钥赋值会在保存前脱敏。RuoYi 与跨框架评估只读取临时副本，不把静态扫描结果写成真实运行时结论。
-
-人工仍负责批准可执行命令和 Adapter 权限。默认 Adapter 配置不使用绕过权限的参数。
+If deterministic automation is needed, prefer the host project's tests/CI. Add EVO-owned scripts only for maintaining the EVO skill repository itself, never as a mandatory runtime for user projects.

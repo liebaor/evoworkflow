@@ -1,34 +1,33 @@
 ---
 name: evo-verify
-description: Verify an EVO Change by mapping every acceptance criterion to observed evidence across the relevant static, unit, integration, real-entry, end-to-end, and operational paths.
+description: Verify accepted outcomes using the repository's real tests, builds, runtime paths, and direct observations. Separate what was executed from what remains unverified.
 ---
 
 # EVO Verify
 
 ## Objective
 
-Determine what is proven, contradicted, or still unknown using current observable evidence.
+Test claims, not documents. Verification is repository-native; there is no EVO Evidence Engine.
 
-## Inputs and authorities
+## Evidence map
 
-Read approved acceptance, Decisions, Plan/Slices, changed code and tests, Working Context and consistency observations, project test/run/observe paths, previous Evidence, and relevant environment boundaries.
+For each acceptance claim identify:
 
-## Required outcomes
+1. observable behavior or absence;
+2. where it can fail;
+3. the direct evidence that can falsify it;
+4. the exact project-native command, inspection, browser/API/runtime path, or external environment used.
 
-For every acceptance criterion, record exactly `PASS`, `FAIL`, or `UNVERIFIED`; the command or observation; scope; date; result; and why the evidence is sufficient. Re-read generated artifacts and exercise the real user entry path when feasible.
+Match evidence to risk: focused unit tests for local logic, integration/composition tests for wiring, replay/recovery for persistence, real application paths for user-visible behavior, real external checks when access exists, and negative search plus relevant tests for deletion.
 
-## Constraints and decision rules
+## Report precisely
 
-- Verify the world, not agent self-report.
-- Match evidence scope to the claim; focused checks cannot prove repository-wide or production behavior.
-- Distinguish local/test, browser, external-system, deployment, migration, and operational verification.
-- Preserve `UNVERIFIED` for unavailable real paths; a static cross-project evaluator does not prove runtime compatibility.
-- Do not change implementation while acting as verifier; return failures to Implement.
+Use language such as:
 
-## Stop conditions
+- `Passed: <command>` only when it was executed successfully.
+- `Failed: <command>` with the relevant failure.
+- `Inspected: <path>` for static source/doc evidence.
+- `Not run: requires <condition>` for unavailable checks.
+- `Inferred from <evidence>` only for a narrower inference.
 
-Stop with `FAIL` or `UNVERIFIED` when evidence is missing, unreliable, blocked, or outside authorized environments. Do not weaken acceptance to obtain PASS.
-
-## Repository writes
-
-Update only `evidence.md` and matching Slice verification state. Preserve Plan-owned Slice meaning; State stores only ids and checkpoint status. Do not fix code, approve Review, finish, commit, merge, or deploy.
+A format/lint/build pass proves only the rule it checks. Do not equate mechanical success with semantic correctness. Route verified work to `evo-review` for independent quality/spec review.

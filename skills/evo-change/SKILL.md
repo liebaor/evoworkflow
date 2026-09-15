@@ -1,34 +1,28 @@
 ---
 name: evo-change
-description: Handle a requirement change during or after EVO work by recording the old-to-new Delta, analyzing impact, invalidating stale approvals, and replanning after human confirmation.
+description: Reconcile a requirement or direction change by updating the correct current owner, preserving valid work, and invalidating only the evidence and implementation actually affected by the delta.
 ---
 
 # EVO Change
 
 ## Objective
 
-Make changed intent explicit and propagate it through every affected authority without silently rewriting history.
+Handle changed intent without silently rewriting stable history or restarting unaffected work.
 
-## Inputs and authorities
+## Classify the change
 
-Read the old approved Change/Specification, the user's proposed new intent, current Decisions, Plan, implementation, tests, current docs, data and API contracts, Evidence, and Git state.
+- **Clarification** — wording is more precise; outcome/acceptance unchanged.
+- **Living revision** — unfinished work changes scope, behavior, or acceptance; revise the same working proposal.
+- **Evidence-driven refinement** — an unknown is resolved by observed evidence.
+- **Stable reversal** — a decision already shipped is reversed; create a new cross-linked replacement decision.
+- **Independent decision** — a new problem has its own alternatives/consequences and deserves its own owner.
 
-## Required outcomes
+## Reconcile the delta
 
-Record `OLD`, `NEW`, `RETAIN`, `MODIFY`, `REMOVE`, and `ADD` in the active `delta.md` (or use the repository recorder). Analyze effects on acceptance, Decisions, Plan and Slices, code, tests, docs, data, API, compatibility, migration, and Goal delegation. Recommend the smallest replan.
+Compare previous and new accepted intent across outcome/non-goals, constraints, acceptance, rationale, code/contracts, tests/evidence, current docs, migration/compatibility, and authority. Mark each affected item as retain, revise, remove, or add.
 
-## Constraints and decision rules
+Preserve already valid implementation and evidence where the delta does not affect them. Rerun only evidence invalidated by the change.
 
-- The user approves the Delta before affected implementation continues.
-- Material changes invalidate Specification, Plan, and Goal approvals bound to previous content.
-- A changed durable Decision supersedes its predecessor; it is not silently edited.
-- Preserve already valid work and evidence where the Delta does not affect them.
-- A recorded Delta is a pause signal: affected work returns to `NEEDS_INFO` until the human approves the revised intent.
+Ask the human before accepting a new product direction, external cost/service, privacy/security exposure, compatibility loss, destructive data change, or major architecture boundary.
 
-## Stop conditions
-
-Stop for human confirmation of the Delta and any new product, security, compatibility, destructive-data, or architecture Decision. Do not continue implementation automatically.
-
-## Repository writes
-
-Write `delta.md`, update working Change/Specification/Plan after approval, create successor working Decisions when required, and set affected state to `AWAITING_APPROVAL`.
+Do not maintain a parallel permanent `delta` state system; keep the reconciliation in the active proposal/task/decision convention already used by the repository.

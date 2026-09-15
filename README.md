@@ -1,783 +1,502 @@
-# evoworkflow
+# EVOworkflow
 
-> 让 AI Coding 从“会写代码”，进一步变成“能够按项目规则持续开发、可验证、可恢复、可交接”的软件工程工作流。
+> **让 AI 按软件工程方式长期开发，而不是靠一次聊天记住整个项目。**
 
-![CI](https://github.com/liebaor/evoworkflow/actions/workflows/ci.yml/badge.svg)
+EVOworkflow 是一套 **Skill-first、Repository-native** 的 AI 软件工程工作流。
 
-`evoworkflow` 是一套 **Repository-centered AI Software Engineering Workflow**。
+它的目标不是给 AI 再套一层复杂运行时，而是把长期开发中最重要的工程习惯变成可复用的 Skills：理解已有项目、澄清需求、查最新方案、形成规格、拆小步、实现、处理需求变化、诊断 Bug、验证结果、独立 Review，以及在新 Session / 新 Agent 中恢复上下文。
 
-它不替代 Codex、Claude Code、OpenCode 等 Coding Agent，也不试图重新开发一个 Agent Runtime。它主要解决的是另一层问题：
-
-> **当 AI 真正参与一个持续数周、数月的项目时，怎么保证它不丢上下文、不重复造轮子、不随意扩大范围，并且每次“完成”都有证据。**
-
-一句话理解：
+v1 开始，EVO **不再需要任何 EVO CLI**。
 
 ```text
-人负责决策
-AI 负责执行
 Repository 负责记忆
-Evidence 负责证明
+Skills     负责方法
+Project Tools / Tests / CI 负责机械证明
+Git        负责历史
+Human      负责决策
+Harness    负责执行
 ```
+
+## 为什么重构成 Skill-first
+
+EVO 0.4.x 曾经实现过一个 TypeScript/oclif CLI，用来管理 Scanner、State、Goal、Constraint、Gate、Evidence 和安装发布。它提高了确定性，但真实 Brownfield 项目暴露了一个根本问题：
+
+```text
+项目本身是合法的
+↓
+扫描器理解不了某种工程习惯
+↓
+UNKNOWN
+↓
+被提升成 HARD BLOCK
+↓
+AI 反而不能继续工作
+```
+
+例如 Spring Boot BOM、传递依赖、非标准 CI、已有但命名不同的架构文档，都可能被简单扫描器误判。
+
+所以 v1 重新划分责任：
+
+- **语义理解**交给大模型和 Skill；
+- **机械事实**交给项目自己的测试、构建、Lint、类型检查、CI 和真实运行路径；
+- **重要取舍**交给人；
+- EVO 不再重新实现 Maven、npm、Git、CI 或 Agent Harness。
+
+详细原因见 [`docs/decisions/0001-skill-first-core.md`](docs/decisions/0001-skill-first-core.md)。
 
 ---
 
-## 为什么需要 EVOworkflow
+# 1. EVO 解决什么问题
 
-AI 写一个页面、一个接口、一个脚本已经很快，但长期项目会出现另外一类问题：
+AI 写代码很快，但长期项目真正容易失控的是：
 
-- 换一个 Session 后，又要重新解释项目；
-- 不同任务逐渐出现不同的命名、API、权限和异常处理方式；
-- 项目已有能力没有复用，Agent 又重新实现一套；
-- 需求开发一半发生变化，旧计划、测试和文档容易一起失效；
-- Bug 修到“不报错”为止，但根因和回归测试没有留下；
-- Agent 说“已经完成”，但没有真实 Build、Test、Runtime 或 CI 证据；
-- Codex、Claude Code、OpenCode 切换以后，项目上下文容易断裂。
+- 新 Session 又要重新解释项目；
+- 换一个 Agent 后上下文断掉；
+- AI 不知道现有项目已经有一套实现方式，又造一套；
+- 项目做到一半需求变了，旧代码、测试、文档开始互相矛盾；
+- AI 说“完成了”，但没有真实运行、测试或用户路径证据；
+- 临时聊天里的重要决定几周后没人记得为什么；
+- 查技术方案时使用了模型旧知识，而不是当前官方资料。
 
-EVOworkflow 希望把这些问题从“靠一个更长的 Prompt 提醒”变成一套可以长期维护的工程机制。
+EVO 的核心不是“让 AI 写更多代码”，而是：
 
----
-
-## EVOworkflow 是什么，不是什么
-
-### 它是什么
-
-EVOworkflow 由两部分组成：
-
-```text
-EVOworkflow
-│
-├── EVO Skills
-│   └── 告诉 Agent“应该怎么工作”
-│
-└── EVO CLI
-    └── 负责可机械执行和检查的工程规则
-```
-
-### EVO Skills
-
-Skill 是 Agent 的工作方法，例如：
-
-- 开始前怎么理解 Repository；
-- 怎么澄清需求；
-- 怎么拆 Plan；
-- 怎么处理 Requirement Change；
-- 怎么修 Bug；
-- 怎么验证结果；
-- 什么情况下可以 Finish。
-
-### EVO CLI
-
-CLI 负责那些不应该只靠自然语言提醒的事情，例如：
-
-- 初始化 `.evo/`；
-- 查看状态；
-- 检查 Approval / Freshness / Gate；
-- 记录 Evidence；
-- 恢复 Context；
-- 检查是否满足 Finish；
-- 创建受控 Git checkpoint；
-- 安装、更新和诊断 EVO Skills。
-
-可以把它们理解成：
-
-```text
-Skill = AI 的工作说明书
-CLI   = 工程流程的执行器 / 检查器
-```
-
-### 它不是什么
-
-EVOworkflow 不是：
-
-- 一个“大 Prompt”；
-- 一个新的大模型；
-- Codex / Claude Code / OpenCode 的替代品；
-- 无人值守自动决定需求、架构、合并、发布的系统；
-- 多 Agent 在同一 working tree 并发写代码的调度器。
+> **让不同 Session、不同 Agent 都能从 Repository 恢复当前事实，并沿着同一套工程方法继续工作。**
 
 ---
 
-## 核心原则
+# 2. 安装
 
-EVOworkflow 当前重点遵循以下原则：
+推荐把 Skills 安装到**项目范围**，让工程方法跟仓库走，而不是全局污染所有项目。
 
-| 原则 | 含义 |
-|---|---|
-| `Repository > Chat` | 项目事实尽量保存在仓库，而不是依赖聊天记录。 |
-| `Evidence > Claim` | Agent 说完成不算，真实证据才算。 |
-| `Reuse > Reinvent` | 先找已有能力，再决定是否新建。 |
-| `Existing Pattern > New Abstraction` | Brownfield 项目优先延续现有工程语言。 |
-| `Change > Rewrite` | 需求变化优先识别变化范围，而不是推倒重来。 |
-| `Gate > Reminder` | 能机械判断的规则，尽量交给 CLI Gate。 |
-| `Human Authority > Agent Autonomy` | 需求、关键 Decision、风险接受和最终验收属于人。 |
-| `Minimum Necessary Process` | 小任务不套重流程，大任务才增加 Spec / Slice / Review。 |
-| `One Fact -> One Owner` | 同一个工程事实只保留一个权威来源。 |
-| `Worker Cannot Accept Its Own Work` | 实现者不能只靠自己的判断完成最终验收。 |
+最简单的方式：
 
-## Quick Start / 普通用户安装
-
-EVO CLI 从 GitHub Release 分发。普通用户不需要 clone 或构建 evoworkflow 源码。
-
-前置条件：Node.js 22 或更高版本，以及 npm。
-
-```sh
-# 1. 安装 EVO CLI
-npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz
-
-# 2. 安装并检查 EVO Skills
-evo skills install --apply
-evo skills doctor
-
-# 3. 初始化业务项目
-cd /path/to/my-project
-evo init --root .
-evo init --root . --apply
-
-# 4. 启动你的 Coding Agent，然后使用 ask-evo
-codex
-```
-
-检查安装结果：
-
-```sh
-evo --version
-evo --help
-```
-
-更新、回滚、卸载和 checksum 校验请参阅[安装指南](docs/installation.md)；Release 运维约定请参阅[GitHub Release 分发说明](docs/distribution/github-release.md)。
-
----
-
-## 项目知识放在哪里
-
-EVOworkflow 不把长期项目知识放在 Agent 的私有记忆里，而是放回 Repository：
-
-```text
-my-project/
-├── AGENTS.md
-│   └── 项目长期规则、入口和权威地图
-│
-├── .evo/
-│   ├── project.md
-│   ├── state.yml
-│   ├── work/
-│   ├── decisions/
-│   ├── goals/
-│   └── evidence/
-│
-├── src/
-└── tests/
-```
-
-核心分工：
-
-```text
-AGENTS.md        项目长期 Standing Rules
-.evo/project.md  项目地图与当前事实
-.evo/work        Change / Plan / 当前工作
-.evo/decisions   重要工程 Decision
-Evidence         验收证据
-Git              持久工程历史
-```
-
-新 Session 或新 Agent 不应该依赖旧聊天恢复项目，而应该从这些 Repository Facts 重新恢复。
-
----
-
-## 标准工作流程
-
-一个典型任务可以是：
-
-```text
-Understand
-  ↓
-Grill / 澄清需求
-  ↓
-Spec（仅复杂 Change）
-  ↓
-Plan
-  ↓
-Human Approval
-  ↓
-Implement
-  ↓
-Verify
-  ↓
-Review
-  ↓
-Human Acceptance
-  ↓
-Finish
-  ↓
-Commit
-```
-
-其中：
-
-- `Verify` 关注：**功能有没有真实证据证明做成了？**
-- `Review` 关注：**实现方式、范围、复用、文档和风险是否合理？**
-- `Finish` 关注：**这个 Change 是否真的已经收敛完成？**
-- `Commit` 关注：**如何把已经完成的工程事实记录进 Git？**
-
-简单任务可以缩短流程，EVO 不要求每个小改动都执行完整重流程。
-
----
-
-# 快速开始
-
-## 当前状态先说明
-
-当前版本已经具备：
-
-- EVO CLI 源码与完整命令体系；
-- 20 个 EVO Skills；
-- `evo skills install / update / doctor`；
-- Codex-first Skill 分发；
-- Claude Code thin adapter；
-- OpenCode shared-source compatibility；
-- 跨 Session / 跨 Agent Repository continuity；
-- package smoke 与真实 Codex native behavioral eval。
-- GitHub Release `.tgz` CLI distribution and global-install smoke。
-
-普通用户应先按上面的 Quick Start 从 GitHub Release 安装 CLI；`npx skills@latest add liebaor/evoworkflow` 仍然只安装 Skills，不安装 CLI。CLI 缺失时，Skill 必须报告 `EVO_CLI_REQUIRED` 并给出官方 Release 安装命令，不得自动 clone/build 源码。
-
----
-
-## 方式 A：完整使用 EVOworkflow（当前推荐给测试/开发用户）
-
-### 1. 环境要求
-
-- Node.js `>= 22`
-- pnpm `>= 11`
-- Git
-
-### 2. 获取 EVOworkflow
-
-```sh
-git clone https://github.com/liebaor/evoworkflow.git
-cd evoworkflow
-pnpm install
-pnpm run build
-```
-
-先确认 CLI 可以运行：
-
-```sh
-pnpm evo --help
-```
-
-### 3. 安装 EVO Skills
-
-先预览：
-
-```sh
-pnpm evo skills install
-```
-
-确认后执行：
-
-```sh
-pnpm evo skills install --apply
-pnpm evo skills doctor
-```
-
-默认模型是：
-
-```text
-~/.agents/skills
-      │
-      ├── Codex：直接使用
-      ├── OpenCode：共享 canonical source
-      └── Claude Code：symlink / junction / safe copy adapter
-```
-
-### 4. 初始化你的业务项目
-
-假设业务项目路径为：
-
-```text
-/path/to/my-project
-```
-
-先预览：
-
-```sh
-pnpm evo init --root /path/to/my-project
-```
-
-确认初始化内容后：
-
-```sh
-pnpm evo init --root /path/to/my-project --apply
-```
-
-`evo init` 不会静默覆盖已有项目文件。
-
-### 5. 查看项目状态
-
-```sh
-pnpm evo status --root /path/to/my-project
-pnpm evo doctor --root /path/to/my-project
-pnpm evo recover --root /path/to/my-project
-```
-
-### 6. 启动 Codex
-
-进入业务项目：
-
-```sh
-cd /path/to/my-project
-codex
-```
-
-然后直接告诉 Agent：
-
-```text
-Use ask-evo and tell me what I should do next.
-```
-
-或者直接描述你的需求：
-
-```text
-我要在现有系统中增加供应商管理，请使用 EVOworkflow 帮我推进。
-```
-
-`ask-evo` 会读取 Repository 状态并推荐一个下一步 Skill，而不是自己吞并整个开发流程。
-
----
-
-## 方式 B：只安装 EVO Skills
-
-如果你只想体验 Skill，不需要 EVO CLI，可以使用：
-
-```sh
+```bash
 npx skills@latest add liebaor/evoworkflow
 ```
 
-然后在 Codex / Claude Code / OpenCode 中使用相应 Skill。
-
-再次强调：
+在安装器里选择当前项目 / repository scope，并选择需要的 EVO Skills。建议至少安装：
 
 ```text
-npx skills add
-=
-安装 Skills
-
-它不会安装 evo CLI
+ask-evo
+evo-init
+evo-grill-with-docs
+evo-research
+evo-spec
+evo-plan
+evo-implement
+evo-change
+evo-bug
+evo-verify
+evo-review
+evo-recover
 ```
 
-如果某个 Skill 需要 `evo` CLI，而本机没有 CLI，正确行为应该是停止并提示安装方式，而不是自动 clone EVOworkflow 源码并在业务项目环境中构建 EVO。
+你也可以手动把对应 Skill 目录复制到宿主支持的项目级目录，例如 Codex 常用：
+
+```text
+<project>/.agents/skills/<skill-name>/SKILL.md
+```
+
+Claude Code 等宿主按各自的 repository-local Skill 目录放置即可。
+
+**不需要：**
+
+```text
+npm install -g @evoworkflow/cli
+
+evo init
+evo doctor
+evo gate
+evo goal
+```
+
+v1 没有 EVO CLI。
 
 ---
 
-# 一个实际例子
+# 3. 第一次怎么用
 
-假设你有一个 RuoYi 项目，需要新增“供应商管理”。
-
-你不需要先记住 20 个 Skill，只需要：
+进入你的业务项目后，最推荐的入口只有一个：
 
 ```text
 ask-evo
 ```
 
-可能的工作链路是：
+你可以直接说：
+
+```text
+使用 ask-evo 看一下这个项目，我现在下一步应该做什么。
+```
+
+`ask-evo` 会读取 Repository，而不是依赖过去聊天，然后只推荐一个最合适的下一步。
+
+如果这是一个刚接手、还没有被 AI 系统理解过的项目，通常会进入：
+
+```text
+evo-init
+```
+
+`evo-init` 会让 Agent 真正阅读：
+
+- `AGENTS.md` / 现有项目指令；
+- README、架构/API/业务文档；
+- Maven/Gradle/npm/pnpm 等真实依赖元数据；
+- 代表性源码与现有实现模式；
+- 测试、构建、运行与 CI；
+- Git 历史；
+- 已有 Spec/RFC/ADR/Issue 规范。
+
+必要时 Agent 可以直接调用项目自己的工具，例如：
+
+```bash
+mvn help:effective-pom
+mvn dependency:tree
+npm test
+pytest
+```
+
+而不是依靠 EVO 自己写一个扫描器去猜。
+
+最终它会区分：
+
+```text
+Confirmed  已确认事实
+Inferred   有依据的推断
+Unknown    尚未建立的事实
+```
+
+**Unknown 不等于 Blocker。** 只有这个未知项会实质影响当前任务或风险时，才需要停下来确认。
+
+---
+
+# 4. 一条典型开发路径
+
+对于普通功能开发：
 
 ```text
 ask-evo
-  ↓
+   ↓
+evo-init / evo-recover
+   ↓
 evo-grill-with-docs
-问清字段、权限、页面、范围和验收条件
-  ↓
+   ↓
+evo-research          ← 需要最新外部方案时
+   ↓
+evo-spec              ← 较大变更才需要
+   ↓
 evo-plan
-找到已有 CRUD / 权限 / 分页实现并拆成 Slice
-  ↓
-人工批准
-  ↓
+   ↓
 evo-implement
-只实现当前一个批准的 Slice
-  ↓
+   ↓
 evo-verify
-运行 Build / Test / API 等真实验证
-  ↓
+   ↓
 evo-review
-检查是否跑偏、重复造轮子、超出范围
-  ↓
-人工验收
-  ↓
-evo-finish
-  ↓
-evo-commit
 ```
 
-如果开发一半需求变了：
+这不是强制状态机。
+
+一个按钮文案修改可能只需要：
+
+```text
+Inspect → Edit → Focused Check
+```
+
+一个普通业务功能可能需要：
+
+```text
+Clarify → Plan → Implement → Verify → Review
+```
+
+权限、支付、数据迁移、兼容性、重大架构变化则应该增加明确的人类决策和更强的真实环境 Evidence。
+
+原则是：
+
+> **Minimum Necessary Process — 只使用当前风险真正需要的流程。**
+
+---
+
+# 5. 长期知识怎么管理
+
+EVO 不要求业务项目建立固定 `.evo/` 目录。
+
+先复用项目已有的知识体系。没有同等机制时，可以采用下面这个最小模型：
+
+```text
+PROJECT/
+├── AGENTS.md
+├── CONTEXT.md
+├── docs/
+│   ├── architecture/
+│   ├── decisions/
+│   ├── plans/
+│   └── research/
+├── src/
+├── tests/
+└── Git
+```
+
+它们负责不同问题：
+
+| 内容 | 负责什么 |
+|---|---|
+| `AGENTS.md` | 工作规则、项目地图、去哪里找知识 |
+| `CONTEXT.md` | 领域词汇、稳定业务事实、共享语言 |
+| Current docs | 系统现在是什么样 |
+| Decision / ADR | 为什么做这个选择 |
+| Working Spec / Plan / Issue | 当前准备做什么 |
+| Source / Config / Schema | 系统实际做什么 |
+| Tests / Runtime / CI | 哪些可观察行为被真正证明 |
+| Git | 历史上发生过什么 |
+
+核心规则：
+
+> **One Fact → One Owner。**
+
+不要把同一个会变化的事实复制到五份文档里，再靠工具同步它们。
+
+详见 [`docs/knowledge-model.md`](docs/knowledge-model.md)。
+
+---
+
+# 6. 需求做到一半变了怎么办
+
+使用：
 
 ```text
 evo-change
 ```
 
-如果出现 Bug：
+它不会让你“推倒重来”。
+
+它会先判断变化属于：
+
+- Clarification；
+- Living revision；
+- Evidence-driven refinement；
+- Stable reversal；
+- Independent decision。
+
+然后把旧/新需求对照，判断哪些：
+
+```text
+retain
+revise
+remove
+add
+```
+
+未完成的工作直接修改当前 Working Proposal；已经稳定交付、后来被反转的 Decision 才建立新的 replacement record，并链接旧 Decision。
+
+这样既不会篡改历史，也不会因为需求变了一点就把已经正确的代码和验证全部作废。
+
+---
+
+# 7. Bug 怎么处理
+
+使用：
 
 ```text
 evo-bug
 ```
 
-如果换了 Session 或 Agent：
+核心闭环：
+
+```text
+Reproduce
+↓
+Failing feedback loop
+↓
+Minimize
+↓
+Hypotheses / Instrument
+↓
+Root Cause
+↓
+Minimal Fix
+↓
+Regression Test
+↓
+Real Consumer Verification
+```
+
+EVO 不鼓励“看见报错 → 猜一段代码 → 改完说好了”。
+
+无法复现、生产环境不可访问、第三方系统不可验证时，要明确写：
+
+```text
+UNVERIFIED
+```
+
+而不是用静态代码检查冒充真实运行结果。
+
+---
+
+# 8. Verification 不再需要 Evidence Engine
+
+使用：
+
+```text
+evo-verify
+```
+
+Skill 负责回答：
+
+> 每条 Acceptance 到底应该用什么直接证据证明？
+
+真正执行的仍然是项目自己的：
+
+```text
+mvn test
+pytest
+pnpm test
+tsc
+eslint
+Playwright
+curl
+真实 UI / API / Runtime
+GitHub Actions / Jenkins
+```
+
+报告时严格区分：
+
+```text
+Passed: <真实执行过的命令>
+Failed: <真实失败的命令>
+Inspected: <只能证明静态事实的路径>
+Not run: <缺少什么环境>
+Inferred from: <只能支持较窄结论的证据>
+```
+
+> **Evidence > Claim，但 Evidence 不是越多越好，而是要匹配真正的 failure surface。**
+
+---
+
+# 9. 为什么还要独立 Review
+
+测试通过不代表：
+
+- 需求理解一定正确；
+- 页面真的符合用户想法；
+- 没有重复造一套机制；
+- 权限/兼容性/架构没有漂移；
+- Feature 已经接到真实 consumer path；
+- 文档与当前实现已经一致。
+
+所以最后使用：
+
+```text
+evo-review
+```
+
+Review 最好在 fresh context / fresh Agent 中进行。它先重新读原始需求/Spec，再看实现和 Diff，避免被实现者自己的假设污染。
+
+---
+
+# 10. 换 Session / 换 Agent 怎么接力
+
+使用：
 
 ```text
 evo-recover
 ```
 
----
+它从 Repository 重建：
 
-# CLI 能做什么
+- 当前目标；
+- 当前 Working Proposal / Issue / Plan；
+- 关键 Decision；
+- Git branch/status/diff/recent commits；
+- 已完成和待完成工作；
+- 已验证结果与未验证边界；
+- 下一步最小动作。
 
-常用 CLI 可以按职责理解，不需要一次记住所有命令。
+不需要 `.evo/state.yml`。
 
-## 初始化与状态
-
-```sh
-evo init
-evo status
-evo check
-evo doctor
-evo context
-evo recover
-```
-
-## 约束与审批
-
-```sh
-evo constraints
-evo gate
-evo admission
-evo approve
-```
-
-## Evidence
-
-```sh
-evo evidence run
-evo evidence record
-evo evidence inspect
-evo evidence reconcile
-```
-
-## Goal
-
-```sh
-evo goal create
-evo goal approve
-evo goal run
-evo goal resume
-evo goal inspect
-evo goal cancel
-```
-
-## 完成与 Git Delivery
-
-```sh
-evo finish
-evo commit
-evo completion inspect
-evo completion bind-commit
-```
-
-## Skill / Agent compatibility
-
-```sh
-evo skills inspect
-evo skills install
-evo skills update
-evo skills doctor
-
-evo agents inspect
-evo agents setup
-evo agents doctor
-```
-
-EVO 的写操作通常遵循：
-
-```text
-Preview by default
-        ↓
-Human checks
-        ↓
---apply
-```
+> **Derived State Is Disposable。真正重要的状态应该能从 Repository + Git 恢复。**
 
 ---
 
-# Codex / Claude Code / OpenCode
+# 11. 所有 Skills
 
-EVOworkflow 当前正式采用：
-
-> **Codex-first, harness-portable**
-
-也就是说：
-
-- **Codex**：默认、第一优先级执行 Harness；
-- **Claude Code**：兼容，通过 thin repository / Skill adapter 使用同一工程协议；
-- **OpenCode**：兼容，共享同一 canonical Skill source；
-- **Repository Protocol**：不绑定某一个 Agent。
-
-三个 Agent 真正共享的是：
-
-```text
-AGENTS.md
-+
-.evo/
-+
-Git
-+
-Evidence
-```
-
-而不是聊天记录。
-
-### 并发边界
-
-一个 checkout 同时只允许一个 executing writer。
-
-如果需要两个 Agent 并行开发：
-
-```text
-使用不同 Git branch / worktree
-```
-
-不要让两个 Agent 同时修改同一个 working tree。
+| Skill | 一句话说明 |
+|---|---|
+| `ask-evo` | 读取真实仓库，告诉你现在最应该做哪一步；只读 Router |
+| `evo-init` | 理解已有项目、现有规范和知识 Owner，建立最小缺失结构 |
+| `evo-grill-with-docs` | 把需求问清楚，同时沉淀领域语言和 durable decisions |
+| `evo-research` | 查当前官方/高可信资料，把有长期价值的结论带引用写进仓库 |
+| `evo-spec` | 把较大变更写成有范围、选项、Acceptance 和 Evidence 路径的 Working Proposal |
+| `evo-plan` | 拆成 fresh Agent 也能完成和验证的 bounded vertical slices |
+| `evo-implement` | 按项目现有模式实现一个 bounded slice |
+| `evo-change` | 处理需求变化，只使真正受影响的代码/测试/知识失效 |
+| `evo-bug` | Reproduce → Root Cause → Minimal Fix → Regression |
+| `evo-verify` | 对每条 Acceptance 找直接、真实、可反驳的 Evidence |
+| `evo-review` | 独立检查 Spec、代码、项目规范、真实 consumer path 和 Evidence |
+| `evo-recover` | 新 Session / 新 Agent 从 Repository + Git 恢复当前工作 |
 
 ---
 
-# 全部 EVO Skills
+# 12. EVO 的核心原则
 
-当前项目共有 20 个稳定 Skill。
+```text
+Repository > Chat
+Evidence > Claim
+One Fact → One Owner
+Change > Rewrite
+Existing Pattern > Reinvent
+Human Authority > Agent Autonomy
+Minimum Necessary Process
+Derived State Is Disposable
+```
 
-## 导航与角色辅助
+再加上 v1 新的边界：
 
-| Skill | 用途 |
-|---|---|
-| `ask-evo` | 统一入口。读取 Repository 和 EVO 状态，推荐一个最合适的下一步 Skill。 |
-| `ask-evo-architect` | 根据真实仓库证据分析架构、边界和已有机制，不套通用模板。 |
-| `ask-evo-pm` | 把宽泛产品想法整理成目标、范围、风险和可审阅交付建议。 |
-
-## 初始化与方案发现
-
-| Skill | 用途 |
-|---|---|
-| `evo-init` | 调查现有仓库，生成安全初始化报告并建立 EVO 项目基础。 |
-| `evo-solution-discovery` | 新项目或新能力自建前，先比较框架、成熟方案、Library 和 OSS。 |
-
-## 需求与计划
-
-| Skill | 用途 |
-|---|---|
-| `evo-grill-with-docs` | 澄清需求、范围、验收条件和需要人工决定的问题。 |
-| `evo-to-spec` | 为较大的 Change 编写行为 Specification。 |
-| `evo-plan` | 找复用点、分析影响范围、拆 Vertical Slice、设计验证方式。 |
-
-## 开发执行
-
-| Skill | 用途 |
-|---|---|
-| `evo-implement` | 只实现当前已经批准的一个 Slice，避免 Scope Creep。 |
-| `evo-goal` | 把已批准的执行工作交给有边界、可暂停、可恢复的 Goal。 |
-| `evo-engineering` | 根据当前 Change 类型加载相关工程原则和启发。 |
-
-## 变化与问题处理
-
-| Skill | 用途 |
-|---|---|
-| `evo-change` | 处理 Requirement Delta，记录 OLD / NEW / RETAIN / MODIFY / REMOVE / ADD，并判断旧批准是否失效。 |
-| `evo-bug` | 管理 Bug 的复现、失败证据、Root Cause、最小修复和 Regression。 |
-
-## 验证与评审
-
-| Skill | 用途 |
-|---|---|
-| `evo-verify` | 把 Acceptance 映射成真实 `PASS` / `FAIL` / `UNVERIFIED` Evidence。重点回答“功能有没有被证据证明做成”。 |
-| `evo-review` | 检查范围、复用、实现方式、文档和 Evidence 质量。重点回答“实现是否合理、有没有跑偏”。 |
-
-## 完成与交付
-
-| Skill | 用途 |
-|---|---|
-| `evo-finish` | 在 Evidence、Review、Human Acceptance 和文档收敛后，判断 Change 是否真的完成并归档。 |
-| `evo-commit` | 为已经形成的工程事实创建结构化 Git checkpoint；Commit 记录状态，不创造完成状态。 |
-
-## 状态、恢复与健康检查
-
-| Skill | 用途 |
-|---|---|
-| `evo-status` | 报告当前 Phase、Change、Slice、Blocker 和一个下一步建议。 |
-| `evo-recover` | 让新的 Session / Agent 只依赖 Repository 恢复工作上下文。 |
-| `evo-doctor` | 只读检查陈旧知识、锁、Evidence、未知入口和协议健康度。 |
-
-完整中文 Skill 索引见：[`skills/README.zh-CN.md`](skills/README.zh-CN.md)。
+> **Semantic judgment → Model**  
+> **Deterministic fact → Project Tools**  
+> **Business authority → Human**
 
 ---
 
-# Verify 和 Review 为什么分开
+# 13. EVO 不是什么
 
-这是比较容易混淆的一点。
+EVO v1 不是：
 
-```text
-evo-verify
-=
-证明“有没有做成”
+- Agent Harness；
+- autonomous orchestrator；
+- workflow engine；
+- CLI framework；
+- 第二套 Issue Tracker；
+- 第二套 CI；
+- 第二套 Maven/npm；
+- 用复杂文档替代代码和测试的 SDD 模板。
 
-例如：
-Build 是否通过？
-接口是否真的可用？
-Acceptance 是否有 Evidence？
-```
-
-而：
-
-```text
-evo-review
-=
-检查“做得是否合理”
-
-例如：
-有没有重复造轮子？
-有没有超出范围？
-有没有破坏项目已有写法？
-Evidence 是否足够可信？
-```
-
-所以：
-
-> **Verify 是验结果，Review 是验实现与工程质量。**
-
-二者互补，不冲突。
+Harness 负责执行环境、工具、sandbox、subagent 和长任务；EVO 只负责**如何以更好的软件工程方式使用这些能力**。
 
 ---
 
-# 项目当前能力边界
+# 14. 一个 RuoYi 示例
 
-EVOworkflow 当前已经覆盖：
+参见 [`examples/ruoyi-brownfield.md`](examples/ruoyi-brownfield.md)。
 
-- Brownfield Repository grounding；
-- Existing Pattern / Reference Implementation 发现；
-- Requirement Delta；
-- Bug / Regression；
-- Working Context；
-- Fresh Session Recovery；
-- Resolved Constraints；
-- Approval fingerprint；
-- Protocol / Project Gate；
-- Evidence v2；
-- Candidate Admission；
-- bounded Goal；
-- Finish / Git Delivery 分离；
-- Codex-first Skill installation；
-- Claude / OpenCode compatibility；
-- deterministic eval；
-- packed-artifact smoke；
-- native Codex behavioral proof。
+它特别展示了一个原则：
 
-当前明确不包含：
-
-- 自动产品或关键架构决策；
-- 自动替用户接受风险；
-- 自动 Finish / Merge / Release / Deploy；
-- 同一 checkout 多 Agent 并发写；
-- 云控制面板；
-- 中央数据库；
-- 后台自动更新 daemon；
-- 通用 Agent Runtime / Subagent scheduler。
+> **Repository 不应该为了让 EVO Scanner 看懂而修改自己；EVO 应该使用模型推理和宿主工具去理解 Repository。**
 
 ---
 
-# 项目开发
+# 15. 项目自身如何开发
 
-如果你开发的是 EVOworkflow 本身，而不是使用 EVO 管理其他项目：
+EVOworkflow v1 自己也是一个 Skills/Docs 仓库，没有 Node CLI build。
 
-```sh
-pnpm install
-pnpm run generate:schemas
-pnpm run check
-```
+仓库 CI 只做很轻的维护检查：
 
-主要检查包括：
+- 当前树不能重新出现 EVO CLI/runtime；
+- Skill 目录和 frontmatter 必须一致；
+- 核心架构文档必须存在。
 
-- TypeScript typecheck；
-- unit / deterministic tests；
-- build；
-- CLI smoke；
-- Skill validation；
-- Schema consistency；
-- Phase 2 / Phase 3 / hardening regression；
-- cross-agent eval；
-- package smoke。
-
-真实 Agent behavioral eval 与普通 deterministic CI 分开保存，避免把没有真实执行的结果写成 PASS。
+它不会尝试证明这些 Skills 在所有业务语境中都“语义正确”。真正质量来自真实项目实践、独立 Review 和持续改进。
 
 ---
 
-# 当前版本方向
+## 一句话总结
 
-## v0.4.1
-
-已经完成：
-
-- Codex-first canonical Skill installation；
-- `evo skills inspect/install/update/doctor`；
-- Claude shared-link adapter；
-- Codex native metadata；
-- Skill drift / conflict protection；
-- real Codex `ask-evo -> target Skill -> bounded work` behavioral proof。
-
-## v0.4.2
-
-已完成：
-
-> **GitHub Release CLI Distribution & Bootstrap**
-
-目标是让普通用户最终不再需要：
-
-```text
-git clone evoworkflow
-pnpm install
-pnpm build
-```
-
-而是直接安装 GitHub Release 中已经构建好的 CLI，然后：
-
-```text
-安装 EVO CLI
-  ↓
-evo skills install
-  ↓
-evo init
-  ↓
-启动 Codex
-  ↓
-ask-evo
-```
-
-普通用户安装、更新、回滚、卸载和 checksum 校验见[安装指南](docs/installation.md)；发布流程和真实 exact/latest URL 验证见[GitHub Release 分发说明](docs/distribution/github-release.md)。
-
----
-
-# 设计目标
-
-EVOworkflow 不追求让 AI “完全自由地自主开发”。
-
-它更希望达到：
-
-```text
-模型可以变
-Session 可以变
-Agent 可以变
-
-但：
-项目规则不变
-工程状态不断
-验收证据可复查
-关键决策仍由人掌握
-```
-
-最终目标：
-
-> **换模型、换 Session、换 Agent，但不换工程体系。**
+> **仓库负责记忆，Skill 负责方法，测试负责证明，Git 负责历史，人负责决策，Harness 负责执行。**

@@ -1,34 +1,29 @@
 ---
 name: evo-grill-with-docs
-description: Clarify a non-trivial EVO Change by investigating repository facts, resolving material ambiguity with the human, modeling domain language, and creating the active Change artifact.
+description: Clarify a feature, product, or architecture request through focused questioning while improving the repository's shared domain language and durable decisions.
 ---
 
 # EVO Grill With Docs
 
 ## Objective
 
-Produce a precise Change intent whose scope, non-goals, acceptance, reuse, boundaries, and unresolved Decisions are visible before planning or implementation.
+Close material ambiguity before implementation and turn durable understanding into repository knowledge rather than chat-only memory.
 
-## Inputs and authorities
+## Method
 
-Read the project map, current product/domain authorities, relevant Decisions, source, tests, similar features, and current state. Investigate every answer available from the repository.
+Read current repository instructions, domain/context docs, relevant decisions, source and existing behavior first. Ask questions only where different answers would materially change behavior, scope, compatibility, security, data, cost, ownership, or architecture.
 
-## Required outcomes
+Prefer concrete scenarios and edge cases over abstract questionnaires. Distinguish routine implementation choices from decisions that require human authority.
 
-Create or update `.evo/work/active/<change-id>/change.md` with the problem, user outcome, Change weight, scope, non-goals, rules, acceptance criteria, existing mechanisms, primary/affected/unaffected modules, expected blast radius, and open Decisions. Use repository evidence to suggest Small/Standard/Large, but leave the final weight to the human. Promote durable domain terms to `CONTEXT.md` only when needed. Set reviewable content to `AWAITING_APPROVAL`; only the human runs `evo approve <change-id> change`.
+## Knowledge updates
 
-## Constraints and decision rules
+During or after the discussion:
 
-- Ask only questions whose answers materially change behavior or engineering direction.
-- Ask one consequential human Decision at a time when practical and include a recommendation with trade-offs.
-- A proposed answer is not approval.
-- Do not decide response, permission, framework, or architecture consistency from a generic profile when the checkout provides evidence.
-- Standard and Large Changes remain `NEEDS_INFO` while any required Decision is unresolved.
+- update the repository's existing domain/context document for stable terminology and durable business facts;
+- update an existing decision owner when one already governs the choice;
+- create a new narrow decision record only for a genuinely revisitable decision with alternatives and consequences;
+- do not turn temporary task notes into permanent global rules.
 
-## Stop conditions
+## Stop condition
 
-Stop after the Change intent is reviewable. Do not plan or implement. Stop immediately on unresolved business, product, security, destructive-data, compatibility, or major architecture Decisions.
-
-## Repository writes
-
-The active `change.md`, `.evo/state.yml`, necessary working Decisions, and genuinely durable domain terms. Do not update current truth with unimplemented behavior.
+Stop when the outcome, non-goals, material constraints, unresolved choices, and shared vocabulary are clear enough for `evo-spec`, `evo-plan`, or a small direct implementation. Do not implement code in this Skill.

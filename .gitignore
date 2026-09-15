@@ -1,5 +1,5 @@
-node_modules/
-dist/
-coverage/
-*.log
 .DS_Store
+.idea/
+.vscode/
+*.tmp
+*.log

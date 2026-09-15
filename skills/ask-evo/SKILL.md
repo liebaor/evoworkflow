@@ -1,64 +1,43 @@
 ---
 name: ask-evo
-description: Navigate an EVO-managed repository when the user asks where work stands, what is blocked, or what human-controlled action should happen next. Read-only; do not use it to execute the recommendation.
+description: Read the repository and recommend exactly one next EVO workflow step. Use when the user asks what to do next, where work stands, or how to continue. Read-only.
 ---
 
 # Ask EVO
 
 ## Objective
 
-Reconstruct the current workflow state from repository evidence and recommend one next action with a concrete reason.
+Reconstruct the real situation from repository evidence and recommend one next Skill. Do not depend on chat memory, an EVO CLI, or a workflow state file.
 
-## CLI bootstrap guard
+## Read first
 
-Run `evo --version` before using the CLI to inspect state. If the CLI is unavailable, report `EVO_CLI_REQUIRED`, print the official installation command, and stop:
+Read applicable repository instructions, current docs, domain/context docs, active proposal/spec/plan if any, relevant decisions, Git status/history, changed files, tests and CI evidence relevant to the task.
 
-`npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz`
+## Routing
 
-After installation, rerun this Skill. Do not clone or build the EVO source repository. Do not run `pnpm install`, install or upgrade Corepack, or build TypeScript source as a fallback. Do not vendor EVO source into the business repository or invent an alternative installation URL.
+Choose exactly one primary next action:
 
-## Inputs and authorities
+1. Repository conventions and knowledge owners are not understood → `evo-init`.
+2. User intent, product behavior, or a material choice is unclear → `evo-grill-with-docs`.
+3. A current external technology/solution question needs primary-source research → `evo-research`.
+4. A substantial change needs an explicit working proposal and acceptance criteria → `evo-spec`.
+5. Intent is understood but work is not broken into bounded vertical slices → `evo-plan`.
+6. Accepted intent changed during work → `evo-change`.
+7. An observed failure needs diagnosis → `evo-bug`.
+8. One bounded slice is ready to build → `evo-implement`.
+9. Implementation claims need direct evidence → `evo-verify`.
+10. Evidence exists and an independent quality/spec check is needed → `evo-review`.
+11. A fresh/interrupted session or another Agent must continue existing work → `evo-recover`.
 
-Read `AGENTS.md`, `.evo/project.md`, `.evo/state.yml`, the active Change, working Decisions, active Goal, latest evidence, and relevant Git state. Prefer `evo status --root <repository>` for deterministic state validation.
+Small mechanical edits may skip spec and plan when they change no behavior, contract, architecture, durable format, test strategy, or rationale.
 
-## Required outcomes
+## Output
 
-Report the current objective, phase, status, completed work, pending work, blockers, protocol errors, and one recommended next action. Separate verified facts, unknowns, and advice.
+Report: current objective, verified facts, relevant unknowns, active owner documents, observed progress, blockers, and one recommended next Skill with a short reason.
 
-## Universal routing
-
-Choose exactly one destination Skill from the first matching condition below:
-
-1. The repository is not managed by EVO: `evo-init`.
-2. The requirement is ambiguous or the recorded blocker needs a human Decision: `evo-grill-with-docs`.
-3. A Large Change needs behavior specified before planning: `evo-to-spec`.
-4. Approved intent has no executable Plan: `evo-plan`.
-5. A requirement changed after approval: `evo-change`.
-6. A reproducible bug is being investigated: `evo-bug`.
-7. A persisted current Slice is ready for bounded implementation: `evo-implement`.
-8. A Slice is complete and needs acceptance evidence: `evo-verify`.
-9. A fresh or interrupted session needs repository reconstruction: `evo-recover`.
-10. Evidence is ready for independent findings: `evo-review`.
-11. Review is human-accepted and convergence can be checked: `evo-finish`.
-12. A trusted engineering checkpoint needs Git chronology: `evo-commit`.
-
-The routing result is a recommendation only. The destination Skill owns its
-phase outcome, and the human owns approval, phase transition, acceptance, and
-side-effect authorization.
-
-## Constraints and decision rules
+## Rules
 
 - Repository evidence outranks historical chat.
-- Investigate missing facts before asking the user.
-- Advice does not become a Decision or approval.
-- Explain why the recommendation is allowed by the current phase and gates.
-- Do not select a destination from the order of prose headings or from a remembered session.
-- Do not depend on a vendor command, tool name, or invocation syntax.
-
-## Stop conditions
-
-Stop after navigation. Do not invoke another Skill, edit files, approve work, or advance phase state.
-
-## Repository writes
-
-None.
+- Unknown does not equal blocker. Block only when the missing fact materially changes the current task.
+- Do not invent workflow state that is not present in repository evidence.
+- Do not edit files or invoke the destination Skill.

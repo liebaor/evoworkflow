@@ -1,44 +1,44 @@
 ---
 name: evo-init
-description: Initialize an existing or empty repository for evoworkflow by discovering actual conventions, producing a reviewable report, and applying only approved non-destructive scaffolding.
+description: Understand a repository, discover its existing engineering conventions and knowledge owners, and establish only the minimum missing repository guidance needed for durable AI-assisted development.
 ---
 
 # EVO Init
 
 ## Objective
 
-Make a repository legible to a new agent without claiming complete understanding or replacing existing project authorities.
+Make the repository legible to a fresh Agent without introducing an EVO runtime or forcing a new directory scheme.
 
-## CLI bootstrap guard
+## Repository archaeology
 
-Run `evo --version` before `evo init`. If the CLI is unavailable, report `EVO_CLI_REQUIRED`, print the official installation command, and stop:
+Inspect the actual repository: root and nested instructions, README/docs, manifests and lockfiles, source layout, representative implementations, tests, CI/build files, Git history, runtime entry paths, public contracts, issue/spec/ADR conventions, and domain vocabulary.
 
-`npm install -g https://github.com/liebaor/evoworkflow/releases/latest/download/evoworkflow-cli.tgz`
+Use the host project's own tools when they reveal facts better than static reading. Examples include Maven effective POM/dependency tree, package-manager metadata, test discovery, framework CLIs, or Git history. Do not reimplement package managers with heuristics.
 
-After installation, rerun this Skill. Do not clone or build the EVO source repository. Do not run `pnpm install`, install or upgrade Corepack, or build TypeScript source as a fallback. Do not vendor EVO source into the business repository or invent an alternative installation URL.
+Separate findings into:
 
-## Inputs and authorities
+- **Confirmed** — directly supported by repository/runtime evidence.
+- **Inferred** — likely, with the evidence and uncertainty stated.
+- **Unknown** — not established. Unknown is not automatically blocking.
 
-Use the repository root, existing instructions, README and docs, dependency and build metadata, CI, source, tests, Git, and observable run/test paths. Run `evo init --root <repository>` first.
+## Reuse before creating
 
-## Required outcomes
+Find which existing artifacts already own:
 
-Classify the checkout as `GREENFIELD`, `BROWNFIELD`, or `EVO_MANAGED`; report technology and framework evidence, confirmed/inferred version confidence, repository areas, authority candidates, build/run/test/observe paths, reusable capabilities, reference implementations, confidence, unknowns, and exact proposed writes.
+- repository working rules;
+- current architecture/system behavior;
+- domain language and durable business facts;
+- proposals/specs/plans;
+- stable design decisions;
+- tests and verification commands;
+- delivery/history.
 
-For Brownfield work, perform repository archaeology against the actual checkout. For Greenfield work, stop before framework bootstrap and route to `evo-solution-discovery` after requirements are understood.
+Reuse them. Only when no equivalent exists, propose the smallest useful structure, typically a short `AGENTS.md`, a concise `CONTEXT.md`, and a decision/docs location appropriate to the repository.
 
-## Constraints and decision rules
+## Human review
 
-- Facts come from repository or runtime evidence; label inference and unknowns.
-- Existing `AGENTS.md`, documentation, source, tests, and configuration are preserved.
-- One fact has one primary authority; `.evo/project.md` links instead of copying.
-- Record navigation paths and evidence references; do not turn initialization into a copied project encyclopedia.
-- Apply with `evo init --root <repository> --apply` only after the human reviews the report.
+Before writing new standing guidance, show the discoveries, proposed owners, and exact files to create/update. Do not rewrite existing project authorities merely to fit EVO.
 
-## Stop conditions
+## Completion
 
-Stop on conflicting authorities, unknown application entry paths, an unresolved foundation Decision, or any proposed overwrite. Do not begin feature development.
-
-## Repository writes
-
-After approval, create only missing `AGENTS.md`, `.evo/config.yml`, `.evo/project.md`, and `.evo/state.yml`. Optional directories remain lazy.
+Initialization is complete when a fresh Agent can answer: what this repository is, where current truth lives, how to build/test/run relevant parts, which patterns to reuse, where durable decisions live, and which important facts remain genuinely unknown.

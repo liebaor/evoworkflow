@@ -1,6 +1,0 @@
-interface:
-  display_name: evo-init
-  short_description: Initialize or inspect a repository without overwriting existing authority.
-  default_prompt: Use evo-init to inspect the repository and preview only missing EVO files.
-policy:
-  allow_model_invocation: false

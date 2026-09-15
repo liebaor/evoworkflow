@@ -1,33 +1,25 @@
 ---
 name: evo-review
-description: Review an implemented EVO Change for specification fidelity, repository-pattern compliance, scope discipline, reuse, locality, contract leakage, complexity, and evidence quality.
+description: Independently review a change against user intent, its owning proposal/decision, repository standards, real consumer paths, and verification evidence.
 ---
 
 # EVO Review
 
 ## Objective
 
-Identify actionable defects and residual risks before human acceptance, grounded in the actual diff and current repository authorities.
+Provide an independent review after implementation/verification. Prefer a fresh context or fresh reviewer so implementation assumptions do not dominate the review.
 
-## Inputs and authorities
+## Review order
 
-Read the approved Change/Specification/Plan, current Decisions, diff, affected source/tests/docs, Working Context, consistency observations, reference implementations, Evidence, and expected blast radius. Inspect current Git state.
+1. Re-read the original user outcome and active proposal/spec before reading the implementation details.
+2. Inspect the diff from a fixed Git point.
+3. Check acceptance against the evidence actually executed.
+4. Trace at least one real assembled consumer path for user/model-visible behavior.
+5. Check repository conventions, reuse, architecture boundaries, naming, permissions/security, data/compatibility, deletion/negative guarantees, docs/current truth, and unnecessary scope expansion.
+6. Distinguish blocking findings, important non-blocking findings, and optional improvements.
 
-## Required outcomes
+A passing test suite does not override a spec mismatch, duplicated mechanism, unsafe migration, or unreachable feature. Conversely, do not manufacture findings simply because a template expects them.
 
-Report findings ordered by severity with exact paths and behavior impact. Compare expected versus actual modules, identify out-of-scope edits, missing reuse, response/permission/naming drift, leaked internals, unnecessary complexity, actual blast-radius expansion, unproven claims, and required follow-up verification. State explicitly when no actionable findings remain.
+## Output
 
-## Constraints and decision rules
-
-- Review behavior and obligations, not personal style.
-- Existing tests do not excuse divergence from approved intent.
-- Do not rewrite code while reviewing.
-- A self-review is evidence of inspection, not independent human acceptance.
-
-## Stop conditions
-
-Stop after the review report. Any finding returns to its owning phase; do not silently fix or finish.
-
-## Repository writes
-
-Write `review.md` and review state only. Do not edit implementation, approve acceptance, or complete the Change.
+Lead with findings and evidence. Then state what appears ready, what remains uncertain, and whether current docs/decision rationale now describe what actually shipped. Do not silently edit implementation during a read-only review.

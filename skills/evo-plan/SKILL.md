@@ -1,33 +1,28 @@
 ---
 name: evo-plan
-description: Plan an approved EVO Change into reusable, localized, verifiable vertical Slices. Use after ambiguity is resolved; do not implement the Plan.
+description: Break accepted intent into bounded vertical slices that a fresh Agent can implement and verify using repository-native patterns and tools.
 ---
 
 # EVO Plan
 
 ## Objective
 
-Produce an implementation Plan that follows actual repository patterns and bounds each independently verifiable user behavior.
+Produce the smallest executable plan that preserves intent and gives fast feedback. Reuse the repository's existing issue tracker, plan format, or task files.
 
-## Inputs and authorities
+## Slice design
 
-Read the approved Change or Specification, current Decisions, project map, Working Context, relevant source/tests, dependency metadata, capability map, consistency observations, and at least one applicable reference implementation when available.
+Each slice should deliver a coherent vertical result through the real path that exists, not merely modify one architectural layer. For every slice record:
 
-## Required outcomes
+- objective and acceptance covered;
+- relevant existing pattern/reference implementation;
+- likely files/areas, without pretending exact paths are known when they are not;
+- dependencies/blocking edges;
+- implementation seam;
+- direct verification commands or runtime checks;
+- current docs/decision surfaces that must converge if facts change.
 
-Record existing mechanisms to reuse, the primary and affected modules, unaffected behavior, existing and new contracts, Working Context references, expected blast radius, migration and rollback concerns, and ordered vertical Slices. Each Slice defines a stable id, objective, acceptance, expected paths, dependencies, verification, and stop conditions. Initialize the same Slice ids as `PENDING` checkpoints in `.evo/state.yml`; Plan owns their meaning and State owns only execution status.
+Prefer slices small enough for a fresh Agent/session. Avoid a giant checklist and avoid artificial micro-tasks that cannot be verified independently.
 
-## Constraints and decision rules
+## Authority
 
-- Slice by user behavior, not database/backend/frontend layers.
-- Prefer the smallest local change that satisfies approved intent.
-- Do not add infrastructure, dependencies, or abstractions without present evidence.
-- Compare expected blast radius during Review.
-
-## Stop conditions
-
-Stop with the Plan at `AWAITING_APPROVAL`. The human may record exact-content approval with `evo approve <change-id> plan`. Return to Grill or Spec on new ambiguity, acceptance change, security choice, breaking contract, destructive migration, or major architecture deviation.
-
-## Repository writes
-
-Write `.evo/work/active/<change-id>/plan.md`, related working Decisions, and planning state only. Do not edit product code.
+The plan coordinates work; it does not become permanent architecture authority. Current docs own current facts, decisions own rationale, tests own executable promises, and Git owns chronology.

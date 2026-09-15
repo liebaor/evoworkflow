@@ -1,48 +1,40 @@
-# AGENTS.md
+# EVOworkflow repository instructions
 
-evoworkflow 是一套由人工控制、以仓库为中心的 AI 辅助软件工程工作流。修改产品行为前，先阅读[产品规格](docs/product-spec.md)、[工作流协议](docs/workflow-protocol.md)和[仓库协议](docs/repository-protocol.md)。
+EVOworkflow v1 is a **Skill-first, repository-native engineering workflow**. This repository ships Skills and documentation, not an EVO runtime.
 
-## 产品不变量
+## Architectural rules
 
-- 人工拥有产品决策、批准、阶段转换、风险接受和副作用授权。
-- Agent 调查仓库事实，只执行当前已授权的工作。
-- 没有命令或 Skill 会自动完成 Change、commit、merge、deploy 或扩大范围。
-- Goal 只接受已批准且没有歧义的 Slice；遇到问题会停止，成功结束于 `READY_FOR_REVIEW`，永远不是 `DONE`。
-- 批准绑定精确内容；实质编辑会使批准失效。
-- Standard 和 Large 工作只能执行 `.evo/state.yml` 或活动 Goal 持久化的 `currentSlice`，不能根据文档顺序猜测。
-- 长期知识必须进入仓库。一个事实只能有一个主权威，其他文档链接到它。
-- 当前文档描述当前行为；历史进入 Git、Decision、Postmortem 和已完成 Change 证据。
-- Evidence v2 记录 `PASS`、`FAIL`、`BLOCKED` 或 `NOT_RUN`；旧版 `UNVERIFIED` 仅在迁移期间兼容。声明不是证据。
-- 除非已有批准 Decision，否则已有仓库模式和成熟能力优先于新抽象。
-- 初始化不破坏数据并且幂等；不覆盖已有项目指令和权威文档。
+1. Do not introduce a required `evo` executable, CLI package, central state machine, repository scanner, Goal Runner, generic gate engine, or Evidence Engine.
+2. Semantic repository understanding belongs to the Agent/model. Deterministic facts belong to the host project's tests/build/lint/runtime/CI. Material authority belongs to humans.
+3. Adapt to the host repository's existing Spec/RFC/ADR/docs/test conventions before proposing EVO-specific structure.
+4. Unknown information is not automatically blocking. It blocks only when different answers materially change the current task or risk.
+5. Keep root guidance short. Durable detail belongs in `docs/`; runtime engineering behavior belongs in `skills/*/SKILL.md`.
+6. One mutable fact has one primary owner. Avoid parallel copies of current truth.
+7. Repository > Chat. Evidence > Claim. Change > Rewrite. Existing Pattern > Reinvent. Human Authority > Agent Autonomy. Minimum Necessary Process.
 
-## 源码目录
+## Canonical layout
 
-- `src/core/`：Schema、状态转换、批准指纹、导航和 Goal 执行。
-- `src/repository/`：文件协议、仓库发现、初始化和模板。
-- `src/agents/`：Agent Adapter 约定和本地 CLI Adapter。
-- `src/validation/`：确定性项目检查和 Doctor 诊断。
-- `src/commands/`：oclif 命令入口。
-- `skills/`：面向结果的 Agent Skill；保持 `SKILL.md` 简洁，把条件性内容放到 references。
-- `templates/`：安装到受管理仓库的文件。
-- `schemas/`：Zod 权威生成的 JSON Schema 投影。
-- `src/repository/evidence.ts`：验收项精确映射、追加式证据记录和迁移兼容。
+- `README.md` — user-facing product positioning, installation and usage.
+- `skills/*/SKILL.md` — canonical Skill behavior.
+- `docs/architecture.md` — v1 architecture boundary.
+- `docs/knowledge-model.md` — repository authority and long-term knowledge model.
+- `docs/workflow.md` — adaptive workflow.
+- `docs/decisions/` — durable architectural rationale for EVO itself.
+- `examples/` — bounded usage examples.
+- `.github/workflows/validate.yml` — repository-maintenance validation only; it is not user runtime.
 
-## 常用命令
+## Skill design
 
-```sh
-pnpm install
-pnpm run generate:schemas
-pnpm run typecheck
-pnpm run test
-pnpm run build
-pnpm run validate:skills
-pnpm run eval:hardening
-pnpm run check
-```
+- Keep each Skill focused and usable without an EVO CLI.
+- A Skill may use ordinary Agent tools and the host project's commands.
+- Prefer repository-native verification to EVO-owned validators.
+- `ask-evo` is the read-only router and recommended entry point.
+- `evo-init` performs repository archaeology with model reasoning and host tools; it must not force a fixed project layout.
+- `evo-verify` reports exact executed evidence and explicit unverified boundaries.
+- `evo-review` should be independent from implementation context when possible.
 
-迭代时运行聚焦测试，声称仓库可用前运行 `pnpm run check`。不要在测试中运行真实 Agent Adapter；使用确定性假 Adapter。
+## Change discipline
 
-## 变更纪律
+For substantive changes to EVO itself, update the relevant Skill/docs and record durable architectural rationale in `docs/decisions/` when the decision is likely to be revisited. Git is the chronology; do not recreate `.evo/state.yml` or another derived workflow database.
 
-保持协议文档、Zod Schema、生成的 Schema、模板、CLI、Skill 和测试一致。新增行为必须有可观察测试。保留用户已有改动，除非用户明确要求，不要 commit。
+Before calling a change complete, confirm README, Skills and architecture docs agree and that the lightweight validation workflow still reflects the intended v1 boundaries.

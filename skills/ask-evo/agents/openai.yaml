@@ -1,6 +1,0 @@
-interface:
-  display_name: ask-evo
-  short_description: Navigate the current EVO repository state to exactly one next Skill.
-  default_prompt: Use ask-evo to inspect the repository and recommend the single next bounded EVO Skill.
-policy:
-  allow_model_invocation: false

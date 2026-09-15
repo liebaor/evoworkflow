@@ -1,35 +1,26 @@
 ---
 name: evo-bug
-description: Diagnose and fix a bug through reproduction, failing evidence, root cause, existing-pattern reuse, regression coverage, and real-entry-path verification.
+description: Diagnose and fix a bug through reproduction, a failing feedback loop, root-cause analysis, minimal repair, regression coverage, and verification through the real consumer path.
 ---
 
 # EVO Bug
 
 ## Objective
 
-Repair the proven cause of an observed failure and preserve evidence that prevents recurrence.
+Fix the proven cause, not only the visible symptom, and leave a regression signal that would fail if the bug returns.
 
-## Inputs and authorities
+## Loop
 
-Read the bug report, project map, current behavior and Decisions, relevant logs, source, tests, Git history, and comparable correct implementations. Reproduce through the narrowest real entry path available.
+1. State observed vs expected behavior and environment.
+2. Reproduce through the narrowest real entry path available.
+3. Build a feedback loop that is red on the bug.
+4. Minimize the reproduction when useful.
+5. Form competing hypotheses from code/runtime evidence; instrument before guessing when needed.
+6. Identify the root cause and the existing repository rule/pattern it should follow.
+7. Make the smallest coherent fix.
+8. Add or strengthen regression coverage.
+9. Re-run focused checks and at least one relevant assembled/consumer path.
 
-## Required outcomes
+If the failure cannot be reproduced or a production/external boundary is unavailable, state `UNVERIFIED` for that boundary rather than substituting static inspection as proof.
 
-Record observed and expected behavior, deterministic reproduction, failing evidence, root cause, existing rule or capability, bounded fix, regression test, real-entry-path result, environment unknowns, and any warranted knowledge promotion in the active `bug.md` (or use the repository recorder).
-
-## Constraints and decision rules
-
-- Diagnose before changing code.
-- Fix the cause, not only the visible symptom.
-- Reuse the repository's established security, permission, error, data, and transaction mechanisms.
-- Do not infer that a clean current run proves intermittent or operational failures resolved.
-- Promote a rule only when the failure reveals durable future decision value.
-- Keep unavailable real entry paths as `UNVERIFIED`; do not replace them with a static fixture result.
-
-## Stop conditions
-
-Stop if reproduction is unavailable, root cause remains unverified, the fix changes approved behavior, or a security, compatibility, data-loss, architecture, or scope Decision is required.
-
-## Repository writes
-
-Write the active bug artifact, scoped fix, regression test, and Evidence. Do not finish or promote current knowledge without verification and human acceptance.
+If the bug reveals a durable design rule or reverses a stable decision, update the appropriate current docs/decision owner; otherwise avoid permanent process documentation for a one-off defect.

@@ -1,6 +1,0 @@
-interface:
-  display_name: evo-commit
-  short_description: Create an explicitly scoped Git chronology checkpoint for an EVO Change.
-  default_prompt: Use evo-commit to preview a scoped checkpoint; require explicit human authorization to create it.
-policy:
-  allow_model_invocation: false

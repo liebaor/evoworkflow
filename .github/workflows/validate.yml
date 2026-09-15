@@ -1,0 +1,46 @@
+name: Validate skill-first core
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assert CLI-free architecture
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -d src
+          test ! -d .evo
+          test ! -f package.json
+          test ! -f pnpm-lock.yaml
+          test ! -f tsconfig.json
+          ! grep -R -n -E 'EVO_CLI_REQUIRED|@evoworkflow/cli|evo --version|evo (init|status|doctor|gate|goal|evidence|finish)( |`|$)' README.md AGENTS.md docs skills examples
+      - name: Validate Skill structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='ask-evo evo-init evo-grill-with-docs evo-research evo-spec evo-plan evo-implement evo-change evo-bug evo-verify evo-review evo-recover'
+          actual="$(find skills -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | tr '\n' ' ' | sed 's/ $//')"
+          expected_sorted="$(for s in $expected; do echo "$s"; done | sort | tr '\n' ' ' | sed 's/ $//')"
+          test "$actual" = "$expected_sorted"
+          for skill in $expected; do
+            test -f "skills/$skill/SKILL.md"
+            grep -q "^name: $skill$" "skills/$skill/SKILL.md"
+            grep -q '^description: ' "skills/$skill/SKILL.md"
+          done
+      - name: Ensure repository docs exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f docs/architecture.md
+          test -f docs/knowledge-model.md
+          test -f docs/workflow.md
+          test -f docs/migration-from-cli.md
+          test -f docs/decisions/0001-skill-first-core.md
