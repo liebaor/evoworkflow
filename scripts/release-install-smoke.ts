@@ -96,7 +96,10 @@ async function main(): Promise<void> {
     await writeFile(path.join(businessRoot, 'README.md'), '# Release install smoke repository\n', 'utf8')
     await run(npmCommand, ['install', '--global', '--prefix', prefix, '--ignore-scripts', '--no-audit', '--no-fund', '--no-package-lock', artifact], smokeRoot, environment)
 
-    const installedCli = path.join(prefix, 'node_modules', '@evoworkflow', 'cli', 'dist', 'index.js')
+    const installedPackageRoot = process.platform === 'win32'
+      ? path.join(prefix, 'node_modules')
+      : path.join(prefix, 'lib', 'node_modules')
+    const installedCli = path.join(installedPackageRoot, '@evoworkflow', 'cli', 'dist', 'index.js')
     const installedBin = path.join(globalBin, cliCommand)
     if (!(await pathExists(installedCli)) || !(await pathExists(installedBin))) throw new Error('GLOBAL_INSTALL_FAILED: npm global install did not create the installed CLI and bin entry.')
 

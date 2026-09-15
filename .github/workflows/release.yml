@@ -45,27 +45,6 @@ jobs:
             --artifact "release-artifacts/evoworkflow-cli-${VERSION}.tgz" \
             2>&1 | tee release-artifacts/global-install-smoke.log
 
-      - name: Upload release diagnostics
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-diagnostics-${{ github.run_id }}
-          path: release-artifacts/global-install-smoke.log
-          if-no-files-found: error
-
-      - name: Publish temporary release diagnostics branch
-        if: ${{ failure() }}
-        shell: bash
-        run: |
-          DIAGNOSTIC_BRANCH="diagnostics/release-${GITHUB_REF_NAME}-${GITHUB_RUN_ID}"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan "$DIAGNOSTIC_BRANCH"
-          git reset
-          git add -f release-artifacts/global-install-smoke.log
-          git commit -m "ci: publish temporary release smoke diagnostics"
-          git push origin "HEAD:refs/heads/${DIAGNOSTIC_BRANCH}"
-
       - name: Write release notes
         shell: bash
         run: |
