@@ -1,0 +1,25 @@
+schemaVersion: 2
+id: EV-20260915111725-12455659
+change: evo-0009-v0-4-2-github-release-bootstrap
+acceptance:
+  - AC-9.4
+kind: external
+label: Final Ubuntu GitHub Release workflow
+status: PASS
+command: null
+exitCode: null
+summary: GitHub Release run 34961915490 completed successfully on ubuntu-latest; release:pack and the global-install smoke path passed. https://github.com/liebaor/evoworkflow/actions/runs/34961915490
+outputHash: null
+git:
+  branch: v0.4.2/github-release-bootstrap
+  head: 595db48019ed883a69140f42c19a8b990869687a
+  treeFingerprint: cff337e1f49b19c77c7c025aebfc71a098ad564049ab9226977b17df9f48a38a
+  dirty: false
+  changedPaths: []
+  changedPathsFingerprint: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  capturedAt: 2026-09-15T11:17:25.654Z
+artifacts: []
+startedAt: 2026-09-15T11:17:25.654Z
+endedAt: 2026-09-15T11:17:25.654Z
+inputFingerprint: 7d913cb072a2d4473625cb4884964be51b28513e6dbc8af30e97c4e2dba4bdc8
+freshness: CURRENT

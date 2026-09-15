@@ -1,6 +1,6 @@
 schemaVersion: 2
 change: evo-0009-v0-4-2-github-release-bootstrap
-updatedAt: 2026-09-15T10:15:57.066Z
+updatedAt: 2026-09-15T11:19:29.544Z
 acceptance:
   - id: AC-9.1
     status: PASS
@@ -28,8 +28,9 @@ acceptance:
       - EV-20260915101356-5b62f243
     limitations: []
   - id: AC-9.4
-    status: NOT_RUN
-    evidenceRefs: []
+    status: PASS
+    evidenceRefs:
+      - EV-20260915111725-12455659
     limitations: []
   - id: AC-9.5
     status: PASS
@@ -37,12 +38,14 @@ acceptance:
       - EV-20260915101445-b5362ae3
     limitations: []
   - id: AC-9.6
-    status: NOT_RUN
-    evidenceRefs: []
+    status: PASS
+    evidenceRefs:
+      - EV-20260915111728-c098a087
     limitations: []
   - id: AC-9.7
-    status: NOT_RUN
-    evidenceRefs: []
+    status: PASS
+    evidenceRefs:
+      - EV-20260915111731-8bfb180f
     limitations: []
   - id: AC-9.8
     status: PASS

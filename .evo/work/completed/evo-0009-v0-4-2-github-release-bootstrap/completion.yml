@@ -1,0 +1,115 @@
+schemaVersion: 1
+change: evo-0009-v0-4-2-github-release-bootstrap
+workflowStatus: COMPLETED
+finishedAt: 2026-09-15T11:19:29.544Z
+baselineCommit: 595db48019ed883a69140f42c19a8b990869687a
+finishedTreeFingerprint: 620da2ae35564964207910eece49d3ee043a51ec860a95c58bafef07e31d025c
+sourceStatus: READY_TO_COMMIT
+commit: null
+currentTruth:
+  required:
+    - path: .github/workflows/release.yml
+      action: CREATE
+      reason: Build, verify and publish versioned GitHub Release artifacts from tags.
+    - path: scripts/check-release-version.ts
+      action: CREATE
+      reason: Enforce tag/package version equality before release.
+    - path: scripts/release-install-smoke.ts
+      action: CREATE
+      reason: Verify true global installation and direct evo execution from packed artifact.
+    - path: scripts/package-smoke.ts
+      action: UPDATE
+      reason: Reuse existing packed-artifact checks and align release artifact contract.
+    - path: scripts/release-artifact.ts
+      action: CREATE
+      reason: Produce versioned and stable GitHub Release tarballs with deterministic checksums.
+    - path: package.json
+      action: UPDATE
+      reason: Set the v0.4.2 package version and expose release contract scripts.
+    - path: skills/manifest.json
+      action: UPDATE
+      reason: Keep the derived canonical Skill manifest version aligned with the CLI package.
+    - path: src/repository/skill-manifest.ts
+      action: UPDATE
+      reason: Keep the fallback Skill manifest version aligned with the v0.4.2 release package.
+    - path: tests/skills-installation.test.ts
+      action: UPDATE
+      reason: Keep the existing Skill installation regression aligned with the v0.4.2 manifest version.
+    - path: src/repository/plan-slices.ts
+      action: UPDATE
+      reason: Parse explicit execution Slice headings across supported Markdown hierarchy without cross-line false positives.
+    - path: tests/artifacts.test.ts
+      action: UPDATE
+      reason: Regress Plan Slice checkpoint extraction for v0.4.2 heading levels and multiline narrative headings.
+    - path: tests/release-contract.test.ts
+      action: CREATE
+      reason: Keep tag/package version and private-package release invariants under unit-test coverage.
+    - path: skills/evo-init/SKILL.md
+      action: UPDATE
+      reason: Add uniform EVO_CLI_REQUIRED bootstrap guard and prohibit source-build fallback.
+    - path: skills/ask-evo/SKILL.md
+      action: UPDATE
+      reason: Route CLI-missing situations to the official bootstrap contract instead of improvising installation.
+    - path: skills/evo-doctor/SKILL.md
+      action: UPDATE
+      reason: Apply the canonical CLI bootstrap guard before repository diagnostics.
+    - path: skills/evo-finish/SKILL.md
+      action: UPDATE
+      reason: Apply the canonical CLI bootstrap guard before convergence operations.
+    - path: skills/evo-goal/SKILL.md
+      action: UPDATE
+      reason: Apply the canonical CLI bootstrap guard before Goal operations.
+    - path: skills/evo-recover/SKILL.md
+      action: UPDATE
+      reason: Apply the canonical CLI bootstrap guard before recovery commands.
+    - path: skills/evo-status/SKILL.md
+      action: UPDATE
+      reason: Apply the canonical CLI bootstrap guard before deterministic status commands.
+    - path: scripts/validate-skills.ts
+      action: UPDATE
+      reason: Enforce consistent CLI bootstrap guidance across CLI-dependent Skills.
+    - path: README.md
+      action: UPDATE
+      reason: Make GitHub Release install the default Quick Start and move source development commands out of user onboarding.
+    - path: docs/installation.md
+      action: CREATE
+      reason: Document installation, update, rollback and verification flows.
+    - path: docs/distribution/github-release.md
+      action: CREATE
+      reason: Record GitHub Release distribution contract and release operations.
+    - path: docs/testing.md
+      action: UPDATE
+      reason: Document global-install and post-release black-box evidence.
+    - path: docs/operations.md
+      action: UPDATE
+      reason: Document release creation, rollback and post-release verification.
+    - path: docs/skills/installation.md
+      action: UPDATE
+      reason: Keep the existing Skill distribution documentation aligned with the v0.4.2 package.
+  verified:
+    - .github/workflows/release.yml
+    - scripts/check-release-version.ts
+    - scripts/release-install-smoke.ts
+    - scripts/package-smoke.ts
+    - scripts/release-artifact.ts
+    - package.json
+    - skills/manifest.json
+    - src/repository/skill-manifest.ts
+    - tests/skills-installation.test.ts
+    - src/repository/plan-slices.ts
+    - tests/artifacts.test.ts
+    - tests/release-contract.test.ts
+    - skills/evo-init/SKILL.md
+    - skills/ask-evo/SKILL.md
+    - skills/evo-doctor/SKILL.md
+    - skills/evo-finish/SKILL.md
+    - skills/evo-goal/SKILL.md
+    - skills/evo-recover/SKILL.md
+    - skills/evo-status/SKILL.md
+    - scripts/validate-skills.ts
+    - README.md
+    - docs/installation.md
+    - docs/distribution/github-release.md
+    - docs/testing.md
+    - docs/operations.md
+    - docs/skills/installation.md

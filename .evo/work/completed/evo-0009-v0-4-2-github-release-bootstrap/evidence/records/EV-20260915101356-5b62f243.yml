@@ -63,11 +63,11 @@ git:
   changedPathsFingerprint: cd3fa789a0c0e371b040bfb66f4661a81513911e86ec34b47d7ebac2e6d28a11
   capturedAt: 2026-09-15T10:13:56.269Z
 artifacts:
-  - path: .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236438-0-evoworkflow-cli-0.4.2.tgz
+  - path: .evo/work/completed/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236438-0-evoworkflow-cli-0.4.2.tgz
     sha256: 1cedea5cabeb5e51332b5595a480260a555088c41140e978123496a1e85d48ff
-  - path: .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236461-1-evoworkflow-cli.tgz
+  - path: .evo/work/completed/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236461-1-evoworkflow-cli.tgz
     sha256: 1cedea5cabeb5e51332b5595a480260a555088c41140e978123496a1e85d48ff
-  - path: .evo/work/active/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236503-2-SHA256SUMS.txt
+  - path: .evo/work/completed/evo-0009-v0-4-2-github-release-bootstrap/evidence/artifacts/1789467236503-2-SHA256SUMS.txt
     sha256: c8d0bfda143fcc4d468b26ba61ff6cd9b7ce859bc712a1fc288ce0c1f17d317f
 startedAt: 2026-09-15T10:13:53.125Z
 endedAt: 2026-09-15T10:13:56.267Z
