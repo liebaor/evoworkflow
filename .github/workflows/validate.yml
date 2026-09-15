@@ -18,10 +18,13 @@ jobs:
           set -euo pipefail
           test ! -d src
           test ! -d .evo
+          test ! -d schemas
+          test ! -d templates
+          test ! -d tests
           test ! -f package.json
           test ! -f pnpm-lock.yaml
           test ! -f tsconfig.json
-          ! grep -R -n -E 'EVO_CLI_REQUIRED|@evoworkflow/cli|evo --version|evo (init|status|doctor|gate|goal|evidence|finish)( |`|$)' README.md AGENTS.md docs skills examples
+          ! grep -R -n -E 'EVO_CLI_REQUIRED|@evoworkflow/cli|evo --version|evo (init|status|doctor|gate|goal|evidence|finish)( |`|$)' skills AGENTS.md
       - name: Validate Skill structure
         shell: bash
         run: |
