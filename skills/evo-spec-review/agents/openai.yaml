@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Spec Review"
+  short_description: "Check a Spec against repository architecture and native capabilities"
+policy:
+  allow_implicit_invocation: false
