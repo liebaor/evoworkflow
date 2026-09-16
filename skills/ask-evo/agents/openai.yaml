@@ -1,5 +1,5 @@
 interface:
   display_name: "Ask EVO"
-  short_description: "Route to the best next EVO Skill"
+  short_description: "Route to the best next Matt or EVO capability"
 policy:
   allow_implicit_invocation: false

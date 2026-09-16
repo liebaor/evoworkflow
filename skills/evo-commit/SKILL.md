@@ -1,52 +1,76 @@
 ---
 name: evo-commit
-description: Create an AI-readable Git commit for the current bounded EVO work and optionally push when explicitly authorized. Use after verified work, for Goal checkpoints, or when the user asks to commit/push. Commit records state; it does not prove correctness.
+description: Record a coherent, already-understood engineering checkpoint in Git and perform only explicitly authorized push behavior; commit describes state and never creates correctness.
+compatibility: "Codex, Claude Code, OpenCode; Git required"
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: "false"
 ---
 
 # EVO Commit
 
+## Core rule
+
+**Commit describes state. It does not create state.**
+
+A commit records implementation/evidence/review facts that already exist. It cannot turn FAIL/UNVERIFIED/WIP into completed work.
+
 ## Read first
-`git status`, diff from the intended base/checkpoint, `.evo/goal.md` if present, current Plan/Spec and the verification/review results that actually exist.
+
+Read Git status/diff, the owning Spec/ticket, actual verification/review results, repository commit conventions and any active Goal Execution Envelope.
 
 ## Preflight
-1. Confirm the diff belongs to one coherent Goal/slice; do not sweep unrelated user work into the commit.
-2. Look for obvious secrets, credentials, generated junk or accidental large files.
-3. Distinguish verified completion from WIP. Missing evidence does not forbid an explicitly requested checkpoint commit, but the message must not claim completion.
-4. Respect repository commit conventions when they exist.
+
+- Bound the checkpoint to one understandable ticket/stage/fix/final convergence.
+- Exclude unrelated user changes when safely separable; stop if scope cannot be separated.
+- Check obvious credentials/secrets, generated junk and accidental large files.
+- Distinguish verified completion from deliberate WIP/error checkpoint.
+- Respect the repository's existing commit convention when one exists.
 
 ## Message
-Prefer an outcome-oriented subject:
+
+Prefer a concise outcome-oriented subject, for example:
 
 ```text
 <type>(<scope>): <outcome>
 ```
 
-When useful, body sections make history easy for humans and future Agents:
+Add only useful body sections when needed:
 
 ```text
-Implements:
-- S3 ...
-- AC-4 ...
+Context:
+- <owning ticket/spec>
+
+Completed:
+- <observable outcome>
 
 Verified:
-- <executed command/path>
+- <actual executed command/path/status>
 
-Context:
-- .evo/specs/...
-- .evo/plans/...
+Limitations:
+- <meaningful limitation>
+
+Next:
+- <next tracker work or human action>
 ```
 
-Do not fabricate `Verified` entries.
+Never fabricate `Verified` entries.
 
-## Commit
-Stage only intended files and commit. Re-read status afterward.
+## Commit authorization
 
-## Push
-Default is **no push**. Push only when:
-- the user explicitly asks, or
-- active `.evo/goal.md` explicitly authorizes `push: true`.
+An explicit user request to commit, or execution inside an already approved `evo-goal` commit policy, authorizes ordinary scoped commits. Otherwise prepare the message/scope and request authorization before creating the commit.
 
-For normal feature branches use a non-force push, setting upstream when needed. Never force-push, push an unexpected/default protected branch, rewrite history or bypass hooks without separate explicit authorization.
+## Push policy
+
+Default is **no push**.
+
+Push only when:
+
+- the user explicitly requests it; or
+- the active Goal Execution Envelope already authorizes `final-only` or `per-ticket` push for the intended feature branch/remote.
+
+Normal authorized push is non-force. Force-push, history rewrite, unexpected/default/protected branch, merge, tag, release and deploy require separate explicit authorization even if a Goal may push ordinary feature commits.
 
 ## Output
-Return commit SHA/subject, files/scope, verification represented in the message, remaining working-tree changes and push result/remote branch if performed.
+
+Report commit SHA/subject, included scope, represented verification/limitations, remaining worktree changes, and push remote/branch/result when push occurred.

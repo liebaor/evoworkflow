@@ -1,38 +1,39 @@
-# EVO Repository Knowledge Model
+# Repository knowledge model
 
-EVO uses a fixed `.evo/` workspace so every Agent knows where engineering memory lives without rediscovery.
+EVOworkflow 2.0 follows **One Fact → One Owner** and reuses the repository's existing knowledge system instead of moving everything into an EVO directory.
 
-## Canonical owners
-
-| Question | Canonical owner |
+| Question | Primary owner |
 |---|---|
-| What is this project and how do I navigate/build/test/run it? | `.evo/project.md` |
-| What do domain terms and stable business facts mean? | `.evo/context.md` |
-| Why was a durable technical/architecture choice made? | `.evo/decisions/` |
-| What unfinished behavior/design are we trying to create? | `.evo/specs/` |
-| What bounded slices execute the work? | `.evo/plans/` |
-| What current external knowledge supports a choice? | `.evo/research/` |
-| What long-running objective is being executed? | `.evo/goal.md` |
-| What does the product expose now? | Project source/contracts/current docs |
-| What mechanically proves behavior? | Project tests/runtime/CI |
-| What happened historically? | Git/PR history |
+| What are the project's standing agent instructions? | `AGENTS.md` / existing host instruction root |
+| What do domain terms mean? | `CONTEXT.md` or the layout configured by Matt setup |
+| Why was a durable technical choice made? | ADRs configured by Matt setup |
+| What should this change accomplish? | Canonical Spec / parent issue |
+| What work remains and what blocks it? | Configured issue tracker / local ticket files |
+| How is this repository structured and what should new code resemble? | `docs/agents/repository.md` plus linked authorities/source |
+| What does the product do now? | Source, contracts, current product docs |
+| What proves behavior? | Tests, runtime observation, CI and persisted tracker verification notes |
+| What happened historically? | Git / PR / tracker history |
 
-## Brownfield migration
+## `docs/agents/repository.md`
 
-EVO does not keep path mappings for prior engineering-memory layouts. `evo-setup` migrates existing ADR/decision records, working specs/RFCs, implementation plans, research notes and domain context into the canonical locations and updates references.
+`evo-init` creates or refreshes this guide. It should contain pointers and concise conclusions about:
 
-Do not migrate product documentation merely because it contains technical material. API references, deployment instructions, operator/user guides and current public architecture documentation remain project docs. If such a document contains a durable decision rationale that belongs in `.evo/decisions/`, extract the rationale while leaving the current-state documentation in place.
+- authority documents;
+- build/test/run commands;
+- architecture and module boundaries;
+- representative consumer paths;
+- reusable capabilities;
+- reference implementations by concern;
+- known inconsistencies and meaningful unknowns.
 
-## One fact, one owner
+It must not duplicate whole coding standards, domain glossaries, ADR rationale, or source code.
 
-Avoid parallel mutable copies. Current behavior belongs to source/contracts/current docs; rationale belongs to decisions; unfinished intent belongs to specs; execution decomposition belongs to plans; external evidence belongs to research.
+## Tracker owns progress
 
-## Goal is not hidden state
+Ticket status, dependencies, claims and completion live in one tracker. EVO Goal recomputes the frontier from that source rather than mirroring `[x]` state elsewhere.
 
-`.evo/goal.md` is deliberately readable. It may contain Objective, linked Spec/Plan, Execution Policy, Progress, Current Slice, recent verification and blockers. It is an execution artifact, not a machine-only state store.
+A concise Execution Envelope may be persisted on the parent Spec/task so another session can resume the same delivery policy without inventing a second workflow database.
 
-One checkout should have at most one active Goal. A completed Goal may remain until the next Goal replaces it; Git preserves prior versions.
+## Knowledge convergence
 
-## Fresh-session rule
-
-A fresh Agent should be able to reconstruct work by reading `AGENTS.md`, `.evo/project.md`, `.evo/context.md`, `.evo/goal.md` when relevant, linked Spec/Plan/Decisions, Git diff/history and current tests/CI evidence.
+`evo-finish` performs knowledge gardening after final evidence/review: update current docs, domain language and ADRs only when the shipped behavior actually changes them; close or reconcile tracker artifacts; remove stale future-tense claims. Git preserves history.

@@ -1,5 +1,5 @@
 interface:
   display_name: "EVO Review"
-  short_description: "Review Intent, Engineering and Evidence"
+  short_description: "Review worktree changes for conformance, intent and evidence"
 policy:
   allow_implicit_invocation: false

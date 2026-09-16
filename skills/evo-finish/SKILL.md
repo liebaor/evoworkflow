@@ -1,27 +1,35 @@
 ---
 name: evo-finish
-description: Converge verified and reviewed work into coherent repository current truth. Use after implementation passes required verification and review, before final delivery/commit.
+description: Converge verified/reviewed delivered work into repository current truth by updating only the real owners: current docs, domain context, ADRs and tracker state.
+compatibility: "Codex, Claude Code, OpenCode; repository/tracker aware"
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: "false"
 ---
 
 # EVO Finish
 
 ## Preconditions
-Required acceptance is PASS or explicitly accepted as UNVERIFIED by the responsible human; blocking Review findings are resolved.
+
+Required parent acceptance is PASS or explicitly accepted UNVERIFIED, and no blocking `evo-review` findings remain.
 
 ## Read first
-`.evo/project.md`, `.evo/context.md`, `.evo/goal.md` when active, owning Spec/Plan, relevant Decisions, diff, current project docs and verification/review results.
+
+Read the source Spec/parent task, ticket graph/comments, final verification/review, current docs/contracts, `CONTEXT.md`/configured domain docs, ADR convention, repository guide and Git diff/history.
 
 ## Workflow
-1. Update current project docs/contracts when shipped behavior changed.
-2. Update `.evo/context.md` only for stable domain facts/vocabulary learned.
-3. Create/update `.evo/decisions/` for durable rationale that should survive the working Spec.
-4. Remove stale future-tense claims and reconcile the Working Spec/Plan with what actually shipped. When their unique durable information has been absorbed by Decisions/current docs/Goal, they may be removed; Git preserves history.
-5. Update `.evo/project.md` if navigation, modules, commands or stable entry paths changed.
-6. Mark `.evo/goal.md` COMPLETE when it owns the completed objective, including final evidence summary and remaining accepted limitations.
-7. Check references/links after any Spec/Plan cleanup.
+
+1. Update current product/API/architecture/operator docs only where shipped behavior changed them.
+2. Update domain context only for stable domain vocabulary/facts; do not turn it into a feature log.
+3. Create/supersede ADRs only when the repository's durable-decision threshold is met.
+4. Reconcile or close the parent Spec/task and remaining tickets using the configured tracker protocol. Remove stale future-tense claims that now contradict shipped reality; preserve historical discussion through tracker/Git history rather than copying it elsewhere.
+5. Refresh `docs/agents/repository.md` only if commands, module boundaries, authorities or representative patterns materially changed.
+6. Check references after any document/task cleanup.
 
 ## Boundary
-Finish does not create missing implementation evidence, perform code review or make Git delivery claims.
+
+Finish does not manufacture missing implementation evidence, perform code review, commit, push, merge, tag, release or deploy.
 
 ## Output
-Report current-truth surfaces changed, durable Decisions retained, working artifacts removed/retained and anything deliberately left unresolved. Route delivery to `evo-commit`.
+
+Report current-truth owners changed, durable decisions retained/created, tracker artifacts reconciled, repository-guide changes and intentionally accepted limitations. Next: `evo-commit` when Finish produced a deliverable diff.

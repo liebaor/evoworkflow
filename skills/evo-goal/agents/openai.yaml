@@ -1,5 +1,5 @@
 interface:
   display_name: "EVO Goal"
-  short_description: "Continuously execute a prepared plan to completion"
+  short_description: "Continuously execute a prepared tracker frontier"
 policy:
   allow_implicit_invocation: false
