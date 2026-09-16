@@ -35,11 +35,45 @@ An intentional Matt upgrade must replace the upstream snapshot, update the pinne
 
 ## Repository-conformance contract
 
+The consumer repository's `docs/agents/repository.md` is the compact conformance map. It should identify authorities, module boundaries, representative implementations, operating paths and reusable repository/framework capabilities.
+
+Two standing rules apply:
+
+- **Reference Before Edit** — a non-mechanical implementation identifies the nearest existing pattern and classifies the approach `REUSE`, `EXTEND`, or `NEW`.
+- **Capability Before Creation** — before creating a shared helper/utility/component/base abstraction/framework-like mechanism, confirm that the repository/framework does not already provide an adequate owner.
+
+Repository-specific framework usage outranks generic framework tutorials. A justified `NEW` abstraction is possible, but it is the last option rather than the default.
+
+## Planning-conformance contract
+
+Matt `to-spec` and `to-tickets` remain unchanged upstream methods.
+
+EVO inserts:
+
+```text
+to-spec
+→ evo-spec-review
+→ to-tickets
+→ evo-plan-review
+→ execution
+```
+
+`evo-spec-review` checks architecture/framework fit at Spec granularity. It must not turn the Spec into brittle file-by-file instructions.
+
+`evo-plan-review` is the execution gate. Every executable planned ticket should have enough Repository Fit information to identify its module/boundary, representative pattern, reusable capabilities, `REUSE/EXTEND/NEW` strategy and repository-native verification approach.
+
+Neither Skill creates a second review database. When a correction is unambiguous and product intent is unchanged, update the canonical Spec/ticket directly. Material unresolved architecture/security/data/compatibility decisions block execution rather than being silently normalized.
+
+A later `evo-change` invalidates only the conformance assumptions affected by the delta; rerun only the stale gate(s).
+
+## Implementation contract
+
 Before non-mechanical implementation, `evo-implement` must:
 
 - read the repository guide and relevant authorities;
 - inspect the real affected consumer path;
 - identify the nearest representative implementation;
+- inspect the existing capability owner before creating a reusable mechanism;
 - classify the approach `REUSE`, `EXTEND`, or `NEW`;
 - treat unexplained `NEW` architecture as an escalation, not a default.
 
