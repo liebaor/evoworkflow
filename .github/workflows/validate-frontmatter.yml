@@ -1,0 +1,40 @@
+name: Validate Skill frontmatter
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate-frontmatter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse every SKILL.md frontmatter as YAML
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby <<'RUBY'
+          require 'yaml'
+
+          files = Dir['skills/*/SKILL.md'].sort
+          abort 'No Skill files found' if files.empty?
+
+          files.each do |path|
+            text = File.read(path, encoding: 'UTF-8')
+            parts = text.split(/^---\s*$\n?/, 3)
+            abort "Missing YAML frontmatter: #{path}" unless parts.length >= 3
+
+            begin
+              data = YAML.safe_load(parts[1], aliases: false)
+            rescue Psych::SyntaxError => e
+              abort "Invalid YAML frontmatter in #{path}: #{e.message}"
+            end
+
+            abort "Frontmatter is not a mapping: #{path}" unless data.is_a?(Hash)
+            abort "Missing name: #{path}" unless data['name'].is_a?(String) && !data['name'].empty?
+            abort "Missing description: #{path}" unless data['description'].is_a?(String) && !data['description'].empty?
+          end
+
+          puts "Validated #{files.length} Skill frontmatters"
+          RUBY

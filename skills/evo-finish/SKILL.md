@@ -1,6 +1,6 @@
 ---
 name: evo-finish
-description: Converge verified/reviewed delivered work into repository current truth by updating only the real owners: current docs, domain context, ADRs and tracker state.
+description: "Converge verified/reviewed delivered work into repository current truth by updating only the real owners: current docs, domain context, ADRs and tracker state."
 compatibility: "Codex, Claude Code, OpenCode; repository/tracker aware"
 disable-model-invocation: true
 metadata:

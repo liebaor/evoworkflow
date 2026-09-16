@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Plan Review"
+  short_description: "Check tickets against repository structure and reusable capabilities"
+policy:
+  allow_implicit_invocation: false
