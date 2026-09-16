@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Test"
+  short_description: "Run an explicit broad test pass with critical user journeys"
+policy:
+  allow_implicit_invocation: false
