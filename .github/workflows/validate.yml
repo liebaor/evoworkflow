@@ -73,7 +73,7 @@ jobs:
           grep -Fq 'Selective Invalidation' skills/evo-change/SKILL.md
           grep -Fq 'Promotion test' skills/evo-learn/SKILL.md
           grep -Fq 'chat history' skills/evo-recover/SKILL.md
-          grep -Fq 'Repository-aware senior engineering advisor' skills/evo-advisor/SKILL.md
+          grep -Fq 'repository-aware senior engineering advisor' skills/evo-advisor/SKILL.md
           grep -Fq 'Reference Before Edit' skills/evo-advisor/SKILL.md
           grep -Fq 'Capability Before Creation' skills/evo-advisor/SKILL.md
           grep -Fq 'Repository fact' skills/evo-advisor/SKILL.md
