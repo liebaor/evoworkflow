@@ -1,6 +1,6 @@
 # Workflow
 
-EVOworkflow participates only when long-lived project context needs to be created, refreshed, evolved, learned or recovered.
+EVOworkflow participates when long-lived project context needs to be created, refreshed, evolved, learned or recovered, and when repository-aware engineering judgment is needed before normal engineering work continues.
 
 ## First entry
 
@@ -86,6 +86,32 @@ Git status + recent history + worktree + tests/CI
 confirmed current state + uncertainty + next action
 ```
 
+## Engineering advisory
+
+Use `evo-advisor` when the main question is not a lifecycle transition but an engineering judgment:
+
+```text
+engineering question
+       ↓
+evo-advisor
+       ↓
+repository facts + constraints
+       ↓
+references + capabilities
+       ↓
+options / tradeoffs
+       ↓
+current external technical facts when needed
+       ↓
+repository-specific recommendation
+       ↓
+normal spec / plan / implementation workflow continues
+```
+
+Typical advisory questions include module ownership, architecture/design direction, REUSE vs EXTEND vs NEW, implementation tradeoffs, blast radius, hidden dependencies, and adapting current framework/library guidance to the repository.
+
+`evo-advisor` is read-only by default. Accepted durable conclusions are persisted only through their canonical owner after the user/project accepts them.
+
 ## Routing
 
 `ask-evo` is useful when the user is unsure whether EVO is needed:
@@ -96,11 +122,12 @@ Relevant knowledge may be stale → evo-refresh
 Accepted intent changed → evo-change
 Durable project lesson emerged → evo-learn
 Session/model continuity needed → evo-recover
+Repository-aware engineering judgment needed → evo-advisor
 Otherwise → normal engineering workflow
 ```
 
 ## Integration principle
 
-EVO produces context for engineering workflows; it does not require those workflows to know EVO implementation details.
+EVO produces context and repository-aware guidance for engineering workflows; it does not require those workflows to know EVO implementation details.
 
 The stable integration surface is the repository's standing agent instruction file plus the `.evo/` knowledge contract.
