@@ -2,7 +2,7 @@
 
 > A compatibility-first extension layer for long-running AI software engineering, built **on top of** Matt Pocock's engineering Skills without modifying them.
 
-EVOworkflow 2.0 deliberately stops trying to own the whole software-engineering workflow. Matt's mature methods are carried here as a pinned, **vendored read-only upstream**; EVO adds the pieces needed for long-lived projects: semantic repository onboarding, repository-conformant planning and implementation, requirement evolution, acceptance evidence, continuous goal execution, knowledge convergence, recovery, and controlled Git delivery.
+EVOworkflow 2.0 deliberately stops trying to own the whole software-engineering workflow. Matt's mature methods are carried here as a pinned, **vendored read-only upstream**; EVO adds the pieces needed for long-lived projects: semantic repository onboarding, repository-conformant planning and implementation, requirement evolution, acceptance evidence, continuous goal execution, knowledge convergence, recovery, controlled Git delivery, and optional manual acceptance testing.
 
 ```text
 Matt Skills                  EVO Extensions
@@ -18,6 +18,7 @@ diagnosing-bugs              evo-goal
 codebase-design              evo-finish
 code-review                  evo-commit
                              evo-recover
+                             evo-test
                              evo-advisor
                              ask-evo
 ```
@@ -164,6 +165,8 @@ Human approves intent + execution envelope
  push only if authorized
 ```
 
+`evo-test` is intentionally **not** part of this default lifecycle. Invoke it manually when you want a broader project-native test sweep or a simulated critical user journey before release, handoff, or confidence-sensitive delivery.
+
 If accepted intent changes during execution:
 
 ```text
@@ -193,6 +196,7 @@ evo-change
 | `evo-finish` | Converge current docs/domain/ADRs/tracker after final verification and review. |
 | `evo-commit` | Create AI-readable commits and perform only explicitly authorized push behavior. |
 | `evo-recover` | Reconstruct work from repository/tracker/Git/tests rather than chat memory. |
+| `evo-test` | Manually run a broad risk-based test pass, including critical user journeys when practical, without changing the default Goal lifecycle. |
 
 ## Vendored Matt Skills
 
