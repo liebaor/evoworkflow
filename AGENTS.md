@@ -10,8 +10,10 @@ EVOworkflow 2.0 is a thin extension layer over unmodified Matt Pocock engineerin
 - EVO 2.0 has no central runtime, CLI state machine, `.evo/state.yml`, phase database, or duplicated tracker progress.
 - The configured issue tracker owns Spec/Ticket progress and blocking relationships.
 - Repository source/contracts/current docs own current behavior; `CONTEXT.md` owns domain vocabulary; ADRs own durable rationale; Git/PR history owns chronology; tests/runtime/CI own mechanical evidence.
-- `docs/agents/repository.md` in a consumer repository is a map of authorities, structure, commands and reference implementations, not a copied encyclopedia.
+- `docs/agents/repository.md` in a consumer repository is a map of authorities, structure, commands, reusable capabilities and representative implementations, not a copied encyclopedia.
 - Reference Before Edit: a non-mechanical implementation must identify the nearest existing pattern and classify the change as REUSE, EXTEND, or NEW.
+- Capability Before Creation: before adding a shared utility/component/base abstraction/framework-like mechanism, prove the repository/framework does not already have an adequate owner.
+- Spec and ticket planning must pass repository-conformance gates before `evo-goal`: `evo-spec-review` then `evo-plan-review`.
 - Human owns product meaning, material decisions, risk acceptance, and external authorization. Agents may continuously transition through implementation mechanics inside an approved Execution Envelope.
 - Commit describes state; it does not create acceptance or completion.
 
@@ -33,7 +35,7 @@ Vendored Matt Skills keep their upstream content and metadata exactly; do not re
 
 ## EVO-owned Skill set
 
-`ask-evo`, `evo-init`, `evo-advisor`, `evo-implement`, `evo-change`, `evo-verify`, `evo-review`, `evo-goal`, `evo-finish`, `evo-commit`, `evo-recover`.
+`ask-evo`, `evo-init`, `evo-advisor`, `evo-spec-review`, `evo-plan-review`, `evo-implement`, `evo-change`, `evo-verify`, `evo-review`, `evo-goal`, `evo-finish`, `evo-commit`, `evo-recover`.
 
 Do not reintroduce EVO copies of upstream `tdd`, bug diagnosis, research, grilling, Spec, ticketing, or setup methods unless a genuinely different lifecycle requires a new and clearly differentiated name.
 
