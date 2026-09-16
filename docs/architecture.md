@@ -30,10 +30,12 @@ The vendored snapshot is externally owned upstream code. EVO distributes it unch
 
 EVO owns integration problems that matter for long-running projects:
 
-- semantic repository onboarding and repository conformance;
-- changed-intent propagation;
+- semantic repository onboarding and reusable-capability discovery;
+- Spec/ticket repository-conformance gates around upstream planning methods;
+- repository-conformant implementation with Reference Before Edit and Capability Before Creation;
+- changed-intent propagation with selective gate/evidence invalidation;
 - acceptance-to-evidence verification;
-- pre-delivery review of worktree changes;
+- pre-delivery review of worktree changes and duplicate/parallel capability detection;
 - continuous ticket-frontier execution;
 - current-truth convergence after delivery;
 - cross-session recovery;
@@ -51,12 +53,32 @@ EVO vendored Matt tree SHA
 
 If contents, file modes, helper docs, scripts, or metadata drift, CI fails. Intentional upstream updates replace the snapshot and advance the pin; they are not mixed into ordinary EVO feature edits.
 
+## Planning conformance boundary
+
+EVO does not fork Matt planning methods. Instead it wraps them:
+
+```text
+to-spec (Matt)
+        ↓
+evo-spec-review
+        ↓
+to-tickets (Matt)
+        ↓
+evo-plan-review
+        ↓
+execution
+```
+
+The canonical Spec/tickets remain the owners. EVO review gates may update those owners when repository evidence makes an intent-preserving correction unambiguous. They never create a parallel planning database.
+
+`evo-spec-review` operates at architecture/framework-capability granularity. `evo-plan-review` operates at executable ticket granularity and is the hard gate before `evo-goal`.
+
 ## Execution Envelope
 
-A Goal may continuously execute mechanical transitions only after intent and boundaries are sufficiently clear. The envelope identifies at least:
+A Goal may continuously execute mechanical transitions only after intent, repository fit and boundaries are sufficiently clear. The envelope identifies at least:
 
 - source Spec / parent task;
-- tracker scope/frontier;
+- conformance-reviewed tracker scope/frontier;
 - commit policy;
 - push policy (`none`, `final-only`, or `per-ticket`);
 - human-stop conditions.
@@ -65,7 +87,7 @@ The envelope belongs on the canonical tracker source (or the local tracker docum
 
 ## Repository conformance
 
-Implementation shape follows this precedence:
+Planning and implementation shape follow this precedence:
 
 ```text
 Human-approved intent (WHAT)
@@ -74,8 +96,19 @@ Documented repository rules (HOW constraints)
         ↓
 Representative existing implementation (SHAPE)
         ↓
+Existing repository/framework capability (REUSE OWNER)
+        ↓
+Framework official convention
+        ↓
 Matt/general engineering heuristics (FALLBACK)
+        ↓
+New abstraction (LAST OPTION)
 ```
+
+Two standing rules enforce this:
+
+- **Reference Before Edit** — inspect the nearest representative implementation before non-mechanical edits.
+- **Capability Before Creation** — inspect/search existing repository/framework capability owners before adding reusable infrastructure or parallel abstractions.
 
 If documented rules and real code disagree materially, surface the inconsistency instead of silently choosing whichever is convenient.
 
