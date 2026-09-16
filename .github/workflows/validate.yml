@@ -26,11 +26,11 @@ jobs:
         run: |
           set -euo pipefail
           skills=(
-            ask-evo evo-init evo-advisor evo-implement evo-change evo-verify
-            evo-review evo-goal evo-finish evo-commit evo-recover
+            ask-evo evo-init evo-advisor evo-spec-review evo-plan-review evo-implement
+            evo-change evo-verify evo-review evo-goal evo-finish evo-commit evo-recover
           )
           count=$(find skills -mindepth 1 -maxdepth 1 -type d \( -name 'evo-*' -o -name 'ask-evo' \) | wc -l | tr -d ' ')
-          test "$count" = "11"
+          test "$count" = "13"
           for skill in "${skills[@]}"; do
             test -f "skills/$skill/SKILL.md"
             test -f "skills/$skill/agents/openai.yaml"
@@ -77,7 +77,7 @@ jobs:
 
           test "${#expected[@]}" = "25"
           total_dirs=$(find skills -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-          test "$total_dirs" = "36"
+          test "$total_dirs" = "38"
 
           for entry in "${expected[@]}"; do
             skill=${entry%%:*}
@@ -105,14 +105,21 @@ jobs:
         run: |
           set -euo pipefail
           grep -Fq 'Reference Before Edit' skills/evo-init/SKILL.md
-          grep -Fq 'REUSE' skills/evo-implement/SKILL.md
+          grep -Fq 'Capability Before Creation' skills/evo-init/SKILL.md
+          grep -Fq 'Repository Fit' skills/evo-spec-review/SKILL.md
+          grep -Fq 'Capability Before Creation' skills/evo-plan-review/SKILL.md
+          grep -Fq 'evo-goal` must not begin' skills/evo-plan-review/SKILL.md
+          grep -Fq 'Capability Before Creation' skills/evo-implement/SKILL.md
           grep -Fq 'RETAIN | REVISE | REMOVE | ADD' skills/evo-change/SKILL.md
           grep -Fq 'UNVERIFIED' skills/evo-verify/SKILL.md
-          grep -Fq 'Repository Conformance' skills/evo-review/SKILL.md
+          grep -Fq 'parallel response' skills/evo-review/SKILL.md
+          grep -Fq 'evo-spec-review' skills/evo-goal/SKILL.md
+          grep -Fq 'evo-plan-review' skills/evo-goal/SKILL.md
           grep -Fq 'Tracker owns progress' skills/evo-goal/SKILL.md
           grep -Fq 'Default is **no push**' skills/evo-commit/SKILL.md
           grep -Fq 'Execution Envelope' docs/architecture.md
           grep -Fq 'One Fact → One Owner' docs/knowledge-model.md
+          grep -Fq 'Planning Conforms Before Execution' README.md
 
       - name: Ensure no central runtime or EVO state database
         run: |
