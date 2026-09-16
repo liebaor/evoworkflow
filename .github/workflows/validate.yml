@@ -47,9 +47,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq '.evo/project.md' docs/knowledge-model.md
-          grep -Fq '.evo/references.md' docs/knowledge-model.md
-          grep -Fq '.evo/capabilities.md' docs/knowledge-model.md
+          grep -Fq '.evo/' docs/knowledge-model.md
+          grep -Fq 'project.md' docs/knowledge-model.md
+          grep -Fq 'references.md' docs/knowledge-model.md
+          grep -Fq 'capabilities.md' docs/knowledge-model.md
+          grep -Fq 'current.md' docs/knowledge-model.md
+          grep -Fq 'changes/' docs/knowledge-model.md
+          grep -Fq 'learnings/' docs/knowledge-model.md
           grep -Fq 'Authoritative' docs/knowledge-model.md
           grep -Fq 'Representative' docs/knowledge-model.md
           grep -Fq 'Observed' docs/knowledge-model.md
