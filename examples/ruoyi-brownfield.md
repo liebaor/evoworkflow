@@ -1,44 +1,79 @@
-# RuoYi Brownfield adoption example
+# RuoYi Brownfield example — EVOworkflow 2.0
 
-## 1. Setup
+Scenario: add Supplier Management to an existing RuoYi-derived system without creating a parallel architecture.
 
-Install EVO Skills, then run `evo-setup`.
-
-If the repository contains existing `docs/adr/`, RFCs or a domain `CONTEXT.md`, Setup migrates the engineering-memory artifacts into:
+## Adopt
 
 ```text
-.evo/decisions/
-.evo/specs/
-.evo/context.md
+setup-matt-pocock-skills
+→ evo-init
 ```
 
-and repairs references. It does not keep a permanent map back to the old knowledge layout.
+`evo-init` should inspect the actual checkout and produce `docs/agents/repository.md` with references for concerns such as:
 
-API/deployment/user docs remain in the project's normal docs tree.
+- controller/service/mapper flow;
+- permission annotations and menu/button permission naming;
+- DataScope or equivalent data-permission behavior;
+- pagination/response conventions;
+- transaction/error conventions;
+- Vue API/table/form layout;
+- representative backend/frontend tests;
+- build/test/typecheck commands.
 
-## 2. Init
+It should point to real files rather than copying their bodies.
 
-Run `evo-init`. The Agent reads the actual RuoYi repository, Maven/Node metadata, representative modules, tests, CI and Git. When static metadata is insufficient it can use project tools such as:
+## Plan
 
-```bash
-mvn help:effective-pom
-mvn dependency:tree
-```
-
-Findings go into `.evo/project.md` and `.evo/context.md` as Confirmed / Inferred / Unknown. Unknowns only block when relevant to the current task.
-
-## 3. Feature
-
-For a meeting-room feature:
+Use upstream Matt methods:
 
 ```text
-evo-grill-with-docs
-→ evo-spec (.evo/specs/meeting-room.md)
-→ evo-plan (.evo/plans/meeting-room.md)
+grill-with-docs
+→ to-spec
+→ to-tickets
 ```
 
-Then either implement slices one by one or run `evo-goal` to execute the prepared plan continuously. TDD drives stable behavior seams; Verify proves acceptance through RuoYi's actual tests/API/UI paths.
+Each ticket is a vertical, independently verifiable behavior with blocking edges.
 
-## 4. Delivery
+## Execute one ticket
 
-After Full Verify + Review, `evo-finish` converges current truth and Decisions, then `evo-commit` records an outcome-oriented Git history. Push occurs only when authorized.
+```text
+evo-implement
+```
+
+Before editing, the Skill should state for each important concern:
+
+```text
+Permission: EXTEND → <existing reference>
+Pagination: REUSE → <existing reference>
+Supplier module structure: EXTEND → <existing CRUD reference>
+```
+
+A new permission/data-scope mechanism without a repository-based reason is not acceptable.
+
+Then:
+
+```text
+evo-verify
+→ evo-review
+→ evo-commit
+```
+
+## Execute continuously
+
+After the Spec/tickets and delivery policy are approved:
+
+```text
+evo-goal
+```
+
+The Goal consumes the ready tracker frontier and continues through ordinary code/test/review failures. It stops if the work now requires a new product rule, breaking compatibility, material architecture, destructive migration, security/privacy choice, paid service, or unavailable protected credential.
+
+## Requirement changes halfway through
+
+If Supplier deletion changes from hard-delete to disable-only:
+
+```text
+evo-change
+```
+
+The change should update the canonical Spec/tickets, preserve unaffected finished CRUD work, invalidate deletion-specific evidence, and create/supersede an ADR only if the choice meets the project's ADR threshold. Then recompute the frontier and resume the Goal.

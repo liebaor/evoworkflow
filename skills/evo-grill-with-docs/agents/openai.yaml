@@ -1,5 +1,0 @@
-interface:
-  display_name: "EVO Grill"
-  short_description: "Resolve material decisions and shared language"
-policy:
-  allow_implicit_invocation: false

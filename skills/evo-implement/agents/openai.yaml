@@ -1,5 +1,5 @@
 interface:
   display_name: "EVO Implement"
-  short_description: "Implement one bounded slice"
+  short_description: "Implement one ticket using existing repository structure"
 policy:
   allow_implicit_invocation: false

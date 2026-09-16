@@ -1,78 +1,72 @@
 ---
 name: evo-goal
-description: Continuously execute a prepared multi-slice plan to completion in one repository: implement, TDD when appropriate, test, diagnose failures, verify, review, finish and create authorized checkpoint commits. Use when the user wants EVO to complete all prepared small tasks rather than drive them one by one.
+description: Continuously execute a prepared tracker-backed ticket graph inside an approved Execution Envelope: implement, verify, review, commit, close and advance until completion or a true semantic/risk stop.
+compatibility: "Codex, Claude Code, OpenCode; tracker protocol + Git; optional Matt tdd/diagnosing-bugs"
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: "false"
 ---
 
 # EVO Goal
 
 ## Purpose
-Provide controlled continuous execution without a separate workflow runtime.
 
-The orchestration boundary is explicit: **one repository, one active goal, one writer**. EVO Goal is not a fleet scheduler or multi-repository runtime.
+Delegate execution, not ambiguity. Complete ready work continuously without a central state runtime or repeated human approval for ordinary engineering transitions.
 
 ## Preconditions
-- `.evo/` is initialized;
-- owning Spec and `.evo/plans/<change>.md` exist and material human decisions are settled;
-- one checkout has one writer;
-- no other ACTIVE goal exists.
 
-## Start / resume
-Create or update `.evo/goal.md`:
+- Matt setup has configured the issue tracker/domain layout.
+- `evo-init` has established current repository guidance.
+- A canonical Spec/parent task and ticket graph exist with acceptance and blocking edges sufficient to execute.
+- Material product/architecture/security/data choices needed to begin are settled.
+- One checkout has one active writer.
 
-```markdown
-# Goal
-Status: ACTIVE
+## Execution Envelope
 
-## Objective
-...
+Before starting, resolve and, when cross-session continuation matters, persist on the canonical parent task/local tracker document:
 
-## Source
-Spec: .evo/specs/...
-Plan: .evo/plans/...
+- source Spec / parent task;
+- scope/ticket graph;
+- commit policy: normally `per-ticket`;
+- push policy: `none` (default), `final-only`, or `per-ticket`;
+- target branch/remote when push is authorized;
+- human-stop conditions or special constraints.
 
-## Execution policy
-- tdd: when-appropriate
-- checkpoint-commit: after-verified-slice
-- push: false
+Tracker owns progress. Do not mirror ticket checkboxes/status in `.evo/goal.md` or `.evo/state.yml`.
 
-## Progress
-- [ ] S1 ...
-- [ ] S2 ...
+## Loop
 
-## Current
-S1
+While the tracker frontier contains ready work:
 
-## Last verified
-...
-```
+1. Select one open, unblocked ticket; claim it when the tracker supports claims/assignees.
+2. Record the current Git base so the delivery diff is bounded.
+3. Apply `evo-implement` to the ticket.
+4. Apply `evo-verify`.
+5. On ordinary FAIL (tests/build/lint/code behavior), diagnose and fix rather than stopping for the human. Use upstream `diagnosing-bugs` for nontrivial root-cause work when installed, then re-verify. Stop only after repeated failure has no new hypothesis/evidence path.
+6. Apply `evo-review` to the full intended pre-commit diff. Resolve blocking findings, then re-run invalidated evidence/review as needed.
+7. Apply `evo-commit` with the envelope's commit/push policy. A Goal invocation pre-authorizes ordinary commits inside the agreed scope; push follows only the explicit envelope policy.
+8. Update/close the ticket with verification/commit facts using the configured tracker protocol.
+9. Recompute the frontier from the tracker; do not trust cached progress.
 
-Resume from repository evidence, not chat memory.
+If a ticket becomes invalid because accepted intent changed, route to `evo-change`, update canonical owners/frontier, then resume when meaning is settled.
 
-## Execution loop
-For the next uncompleted slice:
-1. Re-read the slice + governing Spec/Decisions and relevant source.
-2. Apply `evo-implement`; apply `evo-tdd` where a stable behavior seam exists.
-3. Run focused project feedback throughout.
-4. Apply `evo-verify` to slice acceptance.
-5. On ordinary FAIL: diagnose/fix, using `evo-bug` when root cause is non-trivial; re-verify. Do not stop merely because code/tests failed.
-6. For high-risk or structurally significant slices, perform a focused `evo-review`; otherwise defer full independent review to the end.
-7. Update `.evo/goal.md` Progress/Current/Last verified.
-8. If execution policy allows checkpoint commits, apply `evo-commit` in commit-only mode.
-9. Continue to the next ready slice.
+## Human stop
 
-## Stop for human authority
-Stop before proceeding when work requires an unapproved product direction, paid/external service, material privacy/security exposure, destructive/irreversible data change, compatibility break, major architecture boundary, missing protected credentials/production authorization, or contradictory Spec that cannot be resolved from repository evidence.
+Stop for unresolved/new product direction, breaking compatibility, material architecture boundary, security/privacy exposure, destructive/irreversible data action, new paid/external service, missing protected credential/production authorization, ambiguous target branch/remote, or exhausted diagnosis.
 
-Repeated failures also stop when no new diagnostic hypothesis/evidence path remains; summarize attempts and ask for help instead of looping.
+Do **not** stop merely for compilation errors, failing tests, lint/type errors, ordinary bugs or review findings.
 
-## Final loop
-After all slices:
-1. Full `evo-verify` across Spec acceptance and real consumer paths.
-2. Independent `evo-review` where possible.
-3. Resolve findings and repeat evidence as needed.
-4. `evo-finish` to converge current truth and mark Goal COMPLETE.
-5. `evo-commit` final delivery.
-6. Push only when `.evo/goal.md` explicitly says `push: true` or the user explicitly requests it.
+## Finalization
+
+When no in-scope tickets remain:
+
+1. run full `evo-verify` against parent acceptance and real consumer paths;
+2. run final `evo-review` across the complete goal diff/history;
+3. resolve blocking findings and re-prove affected acceptance;
+4. apply `evo-finish`;
+5. apply final `evo-commit` if Finish changed current-truth artifacts;
+6. push only if the envelope explicitly authorizes it.
 
 ## Output
-On completion report objective, slices completed, final evidence, review outcome, commits created, push status and accepted limitations.
+
+Report completed tickets, verification/review status, commits, tracker state, push status and any accepted/unverified limitations.

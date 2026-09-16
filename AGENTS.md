@@ -1,55 +1,46 @@
 # EVOworkflow repository instructions
 
-EVOworkflow is a repository-centered AI software engineering workflow built from Skills plus a fixed project knowledge convention.
+EVOworkflow 2.0 is a thin extension layer over unmodified Matt Pocock engineering Skills carried in this repository as a vendored read-only upstream.
 
-## Core model
+## Architectural invariants
 
-- Human: product direction, material trade-offs, authorization, final acceptance.
-- Agent + EVO Skills: semantic understanding, engineering reasoning, implementation, diagnosis, review and orchestration.
-- `.evo/`: canonical AI engineering knowledge workspace.
-- Project-native tests/build/lint/runtime/CI: deterministic evidence.
-- Git: chronology and delivery history.
-- Harness: execution environment, sandbox, tools, subagents and long-running execution.
+- Matt Skills are vendored upstream dependencies. Their source trees are pinned to Matt's upstream commit and protected by CI tree-SHA checks.
+- Never edit, rename, shadow, or copy-and-patch Matt Skills under their original IDs.
+- A behavioral difference from Matt must live in an `evo-*` Skill or EVO documentation/evals.
+- EVO 2.0 has no central runtime, CLI state machine, `.evo/state.yml`, phase database, or duplicated tracker progress.
+- The configured issue tracker owns Spec/Ticket progress and blocking relationships.
+- Repository source/contracts/current docs own current behavior; `CONTEXT.md` owns domain vocabulary; ADRs own durable rationale; Git/PR history owns chronology; tests/runtime/CI own mechanical evidence.
+- `docs/agents/repository.md` in a consumer repository is a map of authorities, structure, commands and reference implementations, not a copied encyclopedia.
+- Reference Before Edit: a non-mechanical implementation must identify the nearest existing pattern and classify the change as REUSE, EXTEND, or NEW.
+- Human owns product meaning, material decisions, risk acceptance, and external authorization. Agents may continuously transition through implementation mechanics inside an approved Execution Envelope.
+- Commit describes state; it does not create acceptance or completion.
 
-## Fixed project convention
+## Cross-harness contract
 
-Every EVO-enabled project uses:
+Portable EVO behavior belongs in `SKILL.md`. Do not embed one harness's tool-call syntax in EVO workflow bodies.
 
-```text
-.evo/
-├── project.md
-├── context.md
-├── goal.md
-├── decisions/
-├── specs/
-├── plans/
-└── research/
-```
+Every EVO Skill must:
 
-Do not introduce alternate locations or per-project mappings for EVO-owned knowledge. Brownfield adoption migrates existing ADRs/decisions, working specs/RFCs, implementation plans, research notes and domain context into this convention and updates references.
+- use lowercase kebab-case `name` matching the directory;
+- provide a useful `description` and `compatibility` field;
+- retain `disable-model-invocation: true` for Claude Code user-invoked behavior;
+- set `metadata.opencode/autoinvoke: "false"` for OpenCode;
+- include `agents/openai.yaml` with `policy.allow_implicit_invocation: false` for Codex;
+- refer to Matt Skills by logical Skill ID, not by slash-command/tool syntax;
+- fail clearly with `MATT_SKILL_REQUIRED: <id>` when a required upstream capability is unavailable rather than silently reimplementing it.
 
-Project/product documentation such as API docs, deployment guides and user documentation stays in the project's normal documentation tree. `.evo/` owns AI engineering memory and work artifacts, not all documentation.
+Vendored Matt Skills keep their upstream content and metadata exactly; do not retrofit EVO harness metadata into them.
 
-## Engineering principles
+## EVO-owned Skill set
 
-- Repository > Chat.
-- Evidence > Claim.
-- Existing Pattern > Reinvent.
-- One Fact → One Owner.
-- Change > Rewrite.
-- Minimum Necessary Process.
-- Human Authority > Agent Autonomy.
-- Convention Over Discovery for EVO knowledge locations.
-- Unknown is blocking only when different answers materially change the current task or risk.
+`ask-evo`, `evo-init`, `evo-advisor`, `evo-implement`, `evo-change`, `evo-verify`, `evo-review`, `evo-goal`, `evo-finish`, `evo-commit`, `evo-recover`.
 
-## Skill maintenance
+Do not reintroduce EVO copies of upstream `tdd`, bug diagnosis, research, grilling, Spec, ticketing, or setup methods unless a genuinely different lifecycle requires a new and clearly differentiated name.
 
-Every user-facing Skill must state: Use when, Do not use when, Read first, Workflow, Stop/escalate, Output and Final checks.
+## Upstream updates
 
-The canonical set is documented in README and `docs/skill-contract.md`. Any Skill add/remove/rename/boundary change must update `ask-evo`, README, workflow docs, evals and CI in the same change.
+Matt updates are snapshot replacements, not normal edits. Follow `UPSTREAM.md`: replace from a chosen upstream commit, update expected tree SHAs, run compatibility evals, and adapt only EVO-owned files when behavior changed.
 
-`evo-goal` is orchestration, not a runtime: one repository, one active goal, one writer. It may repeatedly apply implementation/TDD/verification/bug/review/commit contracts, but material decisions still stop for a human.
+## Change discipline
 
-`evo-commit` describes verified state; it does not create evidence. Push requires explicit user authorization or an explicit push policy in `.evo/goal.md`. Never force-push by default.
-
-Before completing an EVOworkflow repository change, confirm the Skill set, Router, metadata, docs and validation workflow agree.
+When changing this repository, keep README, UPSTREAM policy, architecture/workflow/knowledge docs, Skill contract/evals, `ask-evo`, metadata, examples, and CI aligned in the same change. Prefer behavioral evals over adding more process text.

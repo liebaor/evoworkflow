@@ -1,55 +1,60 @@
 # EVO Skill Contract
 
-Every EVO Skill is a reusable engineering capability, not a prose principle sheet.
+EVO 2.0 Skills are integration contracts around an unmodified Matt upstream. Matt's formal Skills are vendored in the same distribution repository for reproducibility, but remain upstream-owned and tree-SHA protected.
 
-## Required sections
+## Portable Skill shape
 
-A Skill should make these boundaries explicit:
+Every EVO Skill must:
 
-1. **Purpose** — one responsibility.
-2. **Use when** — positive triggers.
-3. **Do not use when** — neighboring responsibilities it must not absorb.
-4. **Read first / Preconditions** — repository evidence needed before action.
-5. **Workflow** — repeatable steps.
-6. **Stop / Escalate** — conditions that leave the Skill's authority.
-7. **Repository writes** — which `.evo/` or project surfaces it may change.
-8. **Output** — what the next human/Agent can consume.
-9. **Final checks** — conditions before handoff.
+1. use a lowercase kebab-case directory/`name`;
+2. include a clear trigger-oriented `description`;
+3. include `compatibility` without claiming one harness-specific API;
+4. keep portable behavior in `SKILL.md`;
+5. place Codex policy in `agents/openai.yaml`;
+6. expose OpenCode invocation policy through `metadata.opencode/autoinvoke`;
+7. preserve Claude Code user-invocation policy through `disable-model-invocation`;
+8. refer to upstream capabilities by Skill ID rather than `/command` or tool-call syntax.
 
-## Canonical workspace
+These EVO metadata rules do **not** apply retroactively to vendored Matt Skills. Matt directories preserve their pinned upstream contents exactly.
 
-Skills must use these locations directly:
+## Upstream capability dependency
 
-```text
-.evo/project.md
-.evo/context.md
-.evo/goal.md
-.evo/decisions/
-.evo/specs/
-.evo/plans/
-.evo/research/
-```
+When an EVO Skill needs a Matt capability:
 
-Do not add configuration for alternative EVO knowledge paths. If the project has not adopted the convention, route to `evo-setup`.
+- use the harness's native installed-Skill mechanism when available;
+- expect the combined EVOworkflow distribution to contain the pinned Matt source, but do not assume every Skill was selected/loaded by the active harness;
+- do not modify, shadow, or paste a private EVO version of the upstream Skill;
+- if the capability is required but unavailable in the current session, report `MATT_SKILL_REQUIRED: <skill-id>` and the missing purpose;
+- if the capability is optional, continue only with the narrower EVO behavior and state what was not applied.
 
-## Role boundaries
+## Upstream integrity contract
 
-- `evo-advisor` advises; it does not implement.
-- `evo-grill-with-docs` resolves material decisions; facts are investigated by the Agent.
-- `evo-research` resolves external uncertainty; repository-internal facts should be read locally.
-- `evo-spec` synthesizes settled intent; it does not interview through unresolved product choices.
-- `evo-plan` creates fresh-Agent-executable slices.
-- `evo-implement` builds one slice and escalates changed intent rather than silently changing it.
-- `evo-tdd` drives implementation by behavioral tests; `evo-verify` proves acceptance after implementation.
-- `evo-review` is read-only by default.
-- `evo-finish` converges repository current truth.
-- `evo-goal` orchestrates repeated execution across a prepared plan.
-- `evo-commit` records Git history and pushes only with authorization.
+Vendored Matt directories are not ordinary editable project files. CI compares their Git tree SHAs to the pinned upstream snapshot. Any content, helper-file, metadata, or file-mode drift is a validation failure.
 
-## Goal rule
+An intentional Matt upgrade must replace the upstream snapshot, update the pinned tree SHAs and commit reference, then run compatibility evals. Compatibility adaptations belong in EVO-owned files.
 
-Goal may call/apply other Skill contracts, but it cannot waive their safety boundaries. Material decisions remain human authority. A worker does not treat its own self-report as final acceptance; use direct evidence and, when the harness allows, a fresh review context.
+## Repository-conformance contract
 
-## Router synchronization
+Before non-mechanical implementation, `evo-implement` must:
 
-Any change to the Skill set or flow must update `ask-evo`, README, workflow docs, eval scenarios and CI.
+- read the repository guide and relevant authorities;
+- inspect the real affected consumer path;
+- identify the nearest representative implementation;
+- classify the approach `REUSE`, `EXTEND`, or `NEW`;
+- treat unexplained `NEW` architecture as an escalation, not a default.
+
+## Evidence contract
+
+Acceptance claims have one of three statuses:
+
+- `PASS`: direct evidence was actually executed/observed and supports the claim;
+- `FAIL`: direct evidence contradicts the claim;
+- `UNVERIFIED`: required direct evidence was unavailable or not run.
+
+Static source inspection is not runtime proof. Green build/lint is evidence only for the rules it actually checks.
+
+## Git contract
+
+Commit is downstream of implementation/evidence/review. It may record a deliberate WIP checkpoint if explicitly requested, but its message must not upgrade unverified work into completed work.
+
+Default is **no push**. A Goal may persist explicit `final-only` or `per-ticket` push authorization. Force-push/history rewrite/protected/default-branch delivery/merge/tag/release/deploy require separate authorization.

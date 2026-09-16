@@ -1,30 +1,45 @@
 ---
 name: evo-recover
-description: Reconstruct active EVO work for a fresh or interrupted Agent/session from the canonical .evo workspace plus Git and current repository evidence. Use when work already exists but conversational context is lost. Do not use for first-time adoption.
+description: Reconstruct interrupted or fresh-session work from repository instructions, tracker state, Git and evidence without depending on chat memory or an EVO state database.
+compatibility: "Codex, Claude Code, OpenCode; tracker + Git aware"
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: "false"
 ---
 
 # EVO Recover
 
+## Purpose
+
+Restore the real current engineering situation after context loss or agent/harness switching.
+
 ## Read order
-1. `AGENTS.md` and `.evo/project.md`.
-2. `.evo/context.md`.
-3. `.evo/goal.md` if present; follow its Spec/Plan links.
-4. relevant `.evo/decisions/` and research.
-5. Git branch/status/recent commits/diff.
-6. source/tests around the current slice and available CI results.
+
+1. Existing standing agent instructions.
+2. `docs/agents/repository.md`, issue-tracker/domain configuration and linked authorities.
+3. Active/recent parent Spec/task and its Execution Envelope when present.
+4. Open/closed ticket graph, dependencies, claims and verification/commit comments.
+5. Relevant `CONTEXT.md`/ADRs.
+6. Git branch/status/diff/recent commits and references to tracker work.
+7. Current source/tests plus available CI/runtime results.
 
 ## Reconstruct
-Determine objective/non-goals, current/last Goal status, completed vs pending slices, last verified evidence, relevant decisions/patterns, changed files, likely next seam and material blockers.
 
-Repository evidence outranks stale chat summaries. Do not treat a checked progress box as proof without corresponding Git/evidence.
+Determine:
+
+- current objective/non-goals;
+- canonical artifacts and tracker source;
+- completed work supported by commits/evidence;
+- open ready frontier and blocked work;
+- uncommitted/staged changes and likely owning ticket;
+- last trustworthy verification/review facts;
+- material blockers/unknowns;
+- whether repository guidance is stale or contradicted.
+
+Tracker status alone is not proof of behavior; a checked/closed item without corresponding evidence/commits should be reported as such.
 
 ## Output
-Produce a compact handoff:
-- objective;
-- active canonical artifacts;
-- what is actually completed/verified;
-- what is pending;
-- blockers/unknowns;
-- exactly one next EVO Skill.
 
-Do not begin implementation unless explicitly asked.
+Produce a compact handoff: Objective; Canonical sources; Completed/Verified; Worktree state; Ready frontier; Blockers/Unknowns; Execution policy; exactly one next Matt/EVO Skill.
+
+Do not start implementation unless explicitly requested.

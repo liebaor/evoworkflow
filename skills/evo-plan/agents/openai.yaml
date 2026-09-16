@@ -1,5 +1,0 @@
-interface:
-  display_name: "EVO Plan"
-  short_description: "Split work into fresh-Agent vertical slices"
-policy:
-  allow_implicit_invocation: false

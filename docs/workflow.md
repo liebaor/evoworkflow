@@ -1,75 +1,97 @@
-# EVOworkflow Working Model
+# EVOworkflow 2.0 Workflow
 
-## Adoption
+## First adoption
 
 ```text
-install skills
-→ evo-setup
-→ evo-init
-→ ask-evo
+install Matt Skills + EVO Skills
+        ↓
+setup-matt-pocock-skills
+        ↓
+evo-init
+        ↓
+ask-evo
 ```
 
-`evo-setup` establishes the fixed workspace and migrates Brownfield engineering memory. `evo-init` then learns the actual codebase and fills project/context knowledge.
+Matt setup owns issue-tracker and domain-document configuration. EVO Init owns semantic understanding of how this repository should actually be extended.
 
-## Standard feature route
+## Planning
+
+Use upstream methods directly:
 
 ```text
-advisor / grill / research as needed
-→ spec
-→ plan
-→ implement (+ tdd where appropriate)
-→ verify
-→ review
-→ finish
-→ commit [→ push when authorized]
+grill-with-docs / domain-modeling / research / wayfinder
+        ↓
+to-spec
+        ↓
+to-tickets
 ```
 
-## Long-running route
+EVO does not maintain parallel `evo-spec`, `evo-plan`, `evo-research`, or `evo-grill-with-docs` copies.
 
-After Spec and Plan are ready:
+## One bounded delivery
 
 ```text
+ticket / bounded task
+        ↓
+evo-implement
+        ↓
+evo-verify
+        ↓
+evo-review
+        ↓
+evo-commit
+```
+
+`evo-implement` may apply upstream `tdd` where appropriate. A difficult observed failure should use upstream `diagnosing-bugs` when available.
+
+## Continuous Goal
+
+```text
+approved Spec + ticket graph + Execution Envelope
+        ↓
 evo-goal
-  loop each slice:
-    implement
-    tdd when appropriate
-    focused verify
-    fix or bug loop on failure
-    checkpoint commit when policy allows
-  then:
-    full verify
-    independent review
-    finish
-    final commit
-    optional push
+        │
+        ├─ choose ready frontier ticket
+        ├─ snapshot delivery base
+        ├─ evo-implement
+        ├─ evo-verify
+        ├─ diagnose/fix/reverify ordinary failures
+        ├─ evo-review
+        ├─ evo-commit
+        ├─ close/update ticket
+        └─ recompute frontier
+        ↓
+full evo-verify
+        ↓
+final evo-review
+        ↓
+evo-finish
+        ↓
+final evo-commit
+        ↓
+push only if pre-authorized
 ```
 
-Goal does not stop for ordinary coding/test failures when the Agent can gather new evidence and continue. It stops for material human decisions, missing authorization/credentials, destructive irreversible actions, contradictory intent, or repeated failure without a new diagnostic path.
+Normal build/test/lint/review failures are execution work, not reasons to interrupt the human. Stop when meaning or risk changes, credentials/production authority are missing, destructive action is required, or repeated diagnosis has no new evidence path.
 
-## TDD
+## Requirement change
 
-TDD is an implementation method, not final acceptance proof:
+```text
+accepted intent changes
+        ↓
+evo-change
+        ↓
+RETAIN / REVISE / REMOVE / ADD
+        ↓
+update canonical Spec / tickets / ADR / docs
+        ↓
+invalidate only affected evidence
+        ↓
+recompute frontier
+        ↓
+resume implementation or Goal
+```
 
-1. choose a public behavior seam;
-2. write one focused test;
-3. run it and confirm the failure is specifically the missing target behavior;
-4. write the minimum implementation to make it green;
-5. run the focused test plus nearby regressions;
-6. refactor only while green and without changing behavior;
-7. repeat one vertical slice at a time.
+## Recovery
 
-Avoid bulk test-first horizontal slicing and implementation-coupled assertions.
-
-## Review and finish
-
-Review asks three independent questions:
-
-- **Intent** — did we build the requested outcome?
-- **Engineering** — does it fit this repository safely and maintainably?
-- **Evidence** — do the executed checks support the claims?
-
-Finish then converges current docs, `.evo/context.md`, durable decisions, working specs/plans and goal progress so the next Agent reads a coherent repository.
-
-## Delivery
-
-Commit is the delivery-history step. It reads the diff plus verified context and writes an AI-readable message. Push is explicit, never assumed.
+A fresh session reconstructs from standing instructions, repository guide, domain/ADR config, tracker source and comments, Git status/log/diff, tests/CI and current code. Chat history is optional context, never the authority.

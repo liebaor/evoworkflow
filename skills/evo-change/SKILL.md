@@ -1,33 +1,50 @@
 ---
 name: evo-change
-description: Reconcile changed accepted intent by updating the canonical Working Spec/Plan/Decisions while preserving unaffected implementation and evidence. Use when requirements or direction change after work has started.
+description: Propagate changed accepted intent through the real Spec/tickets/ADRs/docs/tests while preserving unaffected implementation and evidence; no parallel EVO change database.
+compatibility: "Codex, Claude Code, OpenCode; tracker-aware"
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: "false"
 ---
 
 # EVO Change
 
+## Purpose
+
+Make requirement evolution explicit without rewriting unrelated work or creating a second source of truth.
+
 ## Read first
-`.evo/project.md`, `.evo/context.md`, active Spec/Plan/Goal, relevant Decisions, current implementation/tests.
+
+Read the canonical old Spec/parent task, current ticket graph and comments, relevant domain/ADRs, current implementation/tests/docs, Git history/status and any prior verification notes.
 
 ## Classify
-- Clarification: wording changes, accepted outcome unchanged.
-- Living revision: unfinished scope/behavior/acceptance changes.
-- Evidence-driven refinement: observed fact resolves an unknown.
-- Stable reversal: a shipped durable Decision is reversed.
-- Independent decision: new revisitable problem with its own trade-offs.
+
+Classify the change as one or more of:
+
+- clarification — wording changes but accepted outcome does not;
+- living revision — unfinished behavior/scope/acceptance changes;
+- evidence-driven refinement — a new fact resolves an earlier unknown;
+- stable reversal — a previously shipped durable decision is reversed;
+- independent decision — a new material trade-off has appeared.
 
 ## Delta
-For Outcome, Non-goals, Acceptance, rationale, code/contracts, tests/evidence, current docs, migration/compatibility and Decision ownership, mark each item **retain / revise / remove / add**.
 
-## Write
-- unfinished intent → revise the same `.evo/specs/<change>.md`;
-- plan impact → revise `.evo/plans/<change>.md`;
-- stable reversal → create a new cross-linked `.evo/decisions/` record instead of rewriting history;
-- update `.evo/goal.md` progress/current slice if a Goal is active.
+For outcome, non-goals, acceptance, tickets/blockers, code/contracts, tests/evidence, docs, data/migration/compatibility and decision rationale, mark:
 
-Preserve unaffected implementation/evidence. Rerun only evidence invalidated by the delta.
+`RETAIN | REVISE | REMOVE | ADD`
 
-## Human stop
-Ask before accepting new product direction, paid/external service, privacy/security exposure, compatibility loss, destructive data change or major architecture boundary.
+## Apply to canonical owners
+
+- Revise the existing unfinished Spec/parent task instead of creating `final-v2` copies.
+- Preserve unaffected closed tickets; update/reopen only tickets whose delivered acceptance is invalidated; add/remove work where required and record why.
+- Update blocking edges/frontier through the configured tracker protocol.
+- Update `CONTEXT.md` only when domain language/facts changed.
+- For a durable reversal, create/supersede ADRs according to the repository's ADR convention rather than rewriting history.
+- Keep unaffected implementation and evidence valid; only affected acceptance claims require new proof.
+- Do not create `.evo/delta`, `.evo/state`, or a duplicate progress ledger.
+
+If the user's new instruction is explicit enough to authorize the changed intent, do not require a ceremonial second approval. Stop only when a material choice remains ambiguous or crosses a new product/security/privacy/data/compatibility/architecture boundary.
 
 ## Output
-Provide a concise delta table and state which artifacts/evidence remain valid.
+
+Provide a concise Delta table, canonical artifacts/tickets changed, evidence invalidated/preserved, and the new ready frontier or next Skill.
