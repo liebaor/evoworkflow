@@ -1,5 +1,5 @@
 interface:
   display_name: "EVO Advisor"
-  short_description: "Give repository-grounded senior engineering guidance"
+  short_description: "Give repository-aware engineering guidance"
 policy:
   allow_implicit_invocation: false

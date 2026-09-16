@@ -1,5 +1,5 @@
 interface:
   display_name: "EVO Change"
-  short_description: "Propagate changed intent through canonical project owners"
+  short_description: "Analyze change impact and invalidation"
 policy:
   allow_implicit_invocation: false

@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Refresh"
+  short_description: "Refresh stale repository knowledge"
+policy:
+  allow_implicit_invocation: false

@@ -1,94 +1,142 @@
-# EVO Skill Contract
+# Skill Contract
 
-EVO 2.0 Skills are integration contracts around an unmodified Matt upstream. Matt's formal Skills are vendored in the same distribution repository for reproducibility, but remain upstream-owned and tree-SHA protected.
+All EVO Skills follow this behavioral contract.
 
-## Portable Skill shape
+## Common structure
 
-Every EVO Skill must:
+Each `SKILL.md` should define:
 
-1. use a lowercase kebab-case directory/`name`;
-2. include a clear trigger-oriented `description`;
-3. include `compatibility` without claiming one harness-specific API;
-4. keep portable behavior in `SKILL.md`;
-5. place Codex policy in `agents/openai.yaml`;
-6. expose OpenCode invocation policy through `metadata.opencode/autoinvoke`;
-7. preserve Claude Code user-invocation policy through `disable-model-invocation`;
-8. refer to upstream capabilities by Skill ID rather than `/command` or tool-call syntax.
+- Purpose
+- When to use
+- When not to use
+- Read first
+- Process
+- Decision rules
+- Writes
+- Stop conditions
+- Output
 
-These EVO metadata rules do **not** apply retroactively to vendored Matt Skills. Matt directories preserve their pinned upstream contents exactly.
+## Shared rules
 
-## Upstream capability dependency
+### Repository evidence first
 
-When an EVO Skill needs a Matt capability:
+Do not treat chat memory or EVO summaries as stronger than current repository evidence.
 
-- use the harness's native installed-Skill mechanism when available;
-- expect the combined EVOworkflow distribution to contain the pinned Matt source, but do not assume every Skill was selected/loaded by the active harness;
-- do not modify, shadow, or paste a private EVO version of the upstream Skill;
-- if the capability is required but unavailable in the current session, report `MATT_SKILL_REQUIRED: <skill-id>` and the missing purpose;
-- if the capability is optional, continue only with the narrower EVO behavior and state what was not applied.
+### Minimum necessary context
 
-## Upstream integrity contract
+Read only the EVO/project knowledge relevant to the current job. Use progressive disclosure instead of loading the entire knowledge layer.
 
-Vendored Matt directories are not ordinary editable project files. CI compares their Git tree SHAs to the pinned upstream snapshot. Any content, helper-file, metadata, or file-mode drift is a validation failure.
+### Reference Before Edit
 
-An intentional Matt upgrade must replace the upstream snapshot, update the pinned tree SHAs and commit reference, then run compatibility evals. Compatibility adaptations belong in EVO-owned files.
+When a Skill influences implementation/planning context, identify the nearest representative implementation for the affected concern before recommending a new pattern.
 
-## Repository-conformance contract
+### Capability Before Creation
 
-The consumer repository's `docs/agents/repository.md` is the compact conformance map. It should identify authorities, module boundaries, representative implementations, operating paths and reusable repository/framework capabilities.
+Before encouraging a new shared abstraction or infrastructure capability, check `capabilities.md`, repository source, and framework-native ownership.
 
-Two standing rules apply:
+### Confidence discipline
 
-- **Reference Before Edit** — a non-mechanical implementation identifies the nearest existing pattern and classifies the approach `REUSE`, `EXTEND`, or `NEW`.
-- **Capability Before Creation** — before creating a shared helper/utility/component/base abstraction/framework-like mechanism, confirm that the repository/framework does not already provide an adequate owner.
+Do not upgrade a weak observation into a repository rule. Use Authoritative / Representative / Observed evidence strengths.
 
-Repository-specific framework usage outranks generic framework tutorials. A justified `NEW` abstraction is possible, but it is the last option rather than the default.
+### Freshness discipline
 
-## Planning-conformance contract
+If relevant EVO knowledge was observed against an older commit and its evidence surface changed, treat it as potentially stale until checked.
 
-Matt `to-spec` and `to-tickets` remain unchanged upstream methods.
+### One Fact → One Owner
 
-EVO inserts:
+Update the canonical owner and link to it. Avoid parallel summaries that drift independently.
 
-```text
-to-spec
-→ evo-spec-review
-→ to-tickets
-→ evo-plan-review
-→ execution
-```
+### Promote, Don't Accumulate
 
-`evo-spec-review` checks architecture/framework fit at Spec granularity. It must not turn the Spec into brittle file-by-file instructions.
+Do not store every task detail or debugging note. Promote only stable project-specific facts that future agents are likely to reuse.
 
-`evo-plan-review` is the execution gate. Every executable planned ticket should have enough Repository Fit information to identify its module/boundary, representative pattern, reusable capabilities, `REUSE/EXTEND/NEW` strategy and repository-native verification approach.
+## Skill responsibilities
 
-Neither Skill creates a second review database. When a correction is unambiguous and product intent is unchanged, update the canonical Spec/ticket directly. Material unresolved architecture/security/data/compatibility decisions block execution rather than being silently normalized.
+### evo-init
 
-A later `evo-change` invalidates only the conformance assumptions affected by the delta; rerun only the stale gate(s).
+Owns initial repository archaeology and creation of the Repository Engineering Contract.
 
-## Implementation contract
+Writes/refreshes primarily:
 
-Before non-mechanical implementation, `evo-implement` must:
+- `.evo/project.md`
+- `.evo/references.md`
+- `.evo/capabilities.md`
+- initial `.evo/current.md`
+- Repository Engineering Context block in the standing agent instruction file
 
-- read the repository guide and relevant authorities;
-- inspect the real affected consumer path;
-- identify the nearest representative implementation;
-- inspect the existing capability owner before creating a reusable mechanism;
-- classify the approach `REUSE`, `EXTEND`, or `NEW`;
-- treat unexplained `NEW` architecture as an escalation, not a default.
+It does not implement product features.
 
-## Evidence contract
+### evo-refresh
 
-Acceptance claims have one of three statuses:
+Owns freshness analysis after repository evolution.
 
-- `PASS`: direct evidence was actually executed/observed and supports the claim;
-- `FAIL`: direct evidence contradicts the claim;
-- `UNVERIFIED`: required direct evidence was unavailable or not run.
+It compares observation points against current Git changes, rescans affected evidence surfaces, and preserves unaffected knowledge.
 
-Static source inspection is not runtime proof. Green build/lint is evidence only for the rules it actually checks.
+### evo-change
 
-## Git contract
+Owns semantic change impact for accepted intent changes.
 
-Commit is downstream of implementation/evidence/review. It may record a deliberate WIP checkpoint if explicitly requested, but its message must not upgrade unverified work into completed work.
+It records delta, affected/unaffected areas, preserved work, invalidated assumptions/evidence, and required follow-up. It does not replace the project's normal spec/planning/ticket workflow.
 
-Default is **no push**. A Goal may persist explicit `final-only` or `per-ticket` push authorization. Force-push/history rewrite/protected/default-branch delivery/merge/tag/release/deploy require separate authorization.
+### evo-learn
+
+Owns promotion of durable project-specific lessons.
+
+It may create a learning record or update a stronger owner. It must refuse low-value accumulation.
+
+### evo-recover
+
+Owns repository-based session/model continuity.
+
+It reconstructs current state from standing instructions, `.evo/current.md`, active changes, Git/worktree/history and relevant verification evidence. It should update `current.md` only with evidence-backed current state.
+
+### evo-advisor
+
+Is read-only. It provides repository-aware senior engineering guidance for architecture/design questions, module ownership, reuse-vs-extension decisions, tradeoffs, risks and adaptation of current external technical practice to the repository.
+
+It should:
+
+- establish current repository facts before giving generic advice;
+- use relevant capabilities and representative references;
+- distinguish repository facts, external current facts and recommendations;
+- prefer REUSE, then EXTEND, then NEW when each can satisfy the accepted intent safely;
+- use authoritative current external sources when fast-changing technical facts materially affect the answer;
+- avoid persisting consultation output automatically.
+
+It does not replace specification, planning, implementation, testing, debugging or review.
+
+### ask-evo
+
+Is read-only. It routes to exactly one EVO Skill above, `evo-advisor` when repository-aware engineering judgment is the primary need, or returns that no EVO action is needed and normal engineering work should continue.
+
+## Writes and authority
+
+EVO files are engineering context, not replacements for:
+
+- source/tests;
+- issue trackers;
+- product specs;
+- release/deployment systems;
+- Git history;
+- runtime/CI evidence.
+
+When a Skill discovers a conflict with a stronger authority, report it and update/downgrade the EVO knowledge rather than masking the conflict.
+
+## Stop conditions
+
+A Skill should stop and expose uncertainty when:
+
+- required repository files are inaccessible;
+- conflicting current authorities make safe synthesis impossible;
+- evidence is too weak to classify a durable fact;
+- a requested change requires product/architecture/security intent that has not been accepted;
+- the Skill would need to invent unsupported current state.
+
+## Output style
+
+Outputs should be compact and operational. Summarize:
+
+- what was confirmed;
+- what changed in EVO knowledge, when the Skill writes knowledge;
+- important uncertainty or staleness;
+- the recommendation or next useful engineering action.

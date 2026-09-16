@@ -1,5 +1,0 @@
-interface:
-  display_name: "EVO Commit"
-  short_description: "Create structured commits and authorized pushes"
-policy:
-  allow_implicit_invocation: false

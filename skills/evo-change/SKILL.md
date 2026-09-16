@@ -1,7 +1,7 @@
 ---
 name: evo-change
-description: Propagate changed accepted intent through the real Spec/tickets/ADRs/docs/tests while preserving unaffected implementation and evidence; invalidate and rerun only the repository-conformance gates affected by the change.
-compatibility: "Codex, Claude Code, OpenCode; tracker-aware"
+description: Analyze an accepted intent change as a semantic delta, map its impact, preserve unaffected work, and selectively invalidate stale project knowledge, assumptions and evidence.
+compatibility: "Codex, Claude Code, OpenCode; Git repository with EVO knowledge"
 disable-model-invocation: true
 metadata:
   opencode/autoinvoke: "false"
@@ -11,49 +11,70 @@ metadata:
 
 ## Purpose
 
-Make requirement evolution explicit without rewriting unrelated work or creating a second source of truth.
+Keep project evolution coherent when accepted intent changes after work has already begun.
+
+This Skill does not replace the project's normal specification or planning workflow. It produces the change context those workflows need.
+
+## When to use
+
+Use when previously accepted product/domain/architecture behavior changes materially.
+
+Do not use for implementation-only refactors that preserve accepted behavior unless they invalidate durable project knowledge.
 
 ## Read first
 
-Read the canonical old Spec/parent task, current ticket graph and comments, current Repository Fit sections, `docs/agents/repository.md`, relevant domain/ADRs, current implementation/tests/docs, Git history/status and any prior verification notes.
+Read:
 
-## Classify
+- the previous accepted intent from its canonical owner;
+- the new accepted intent from the user/current authority;
+- relevant `.evo/project.md`, `.evo/current.md`, references/capabilities;
+- active change/spec/tickets when they exist;
+- current source/tests and Git state in affected areas.
 
-Classify the change as one or more of:
+## Process
 
-- clarification — wording changes but accepted outcome does not;
-- living revision — unfinished behavior/scope/acceptance changes;
-- evidence-driven refinement — a new fact resolves an earlier unknown;
-- stable reversal — a previously shipped durable decision is reversed;
-- independent decision — a new material trade-off has appeared.
+1. State the previous intent and new intent precisely.
+2. Derive the semantic delta; separate behavioral change from wording change.
+3. Trace impact through relevant domains: data/schema, API/contracts, backend/domain, frontend/client, permissions/security, integrations, tests/evidence, documentation/decisions, active work.
+4. Classify each relevant area as `AFFECTED`, `UNAFFECTED`, or `UNCERTAIN` with evidence.
+5. Identify existing work/knowledge/evidence that remains valid.
+6. Identify assumptions, tests, evidence, plans or knowledge made stale by the delta.
+7. Record selective invalidation and required follow-up.
+8. Update `.evo/current.md` so future agents know the active change and uncertainty.
 
-## Delta
+## Decision rules
 
-For outcome, non-goals, acceptance, repository/framework fit, tickets/blockers, code/contracts, tests/evidence, docs, data/migration/compatibility and decision rationale, mark:
+### Selective Invalidation
 
-`RETAIN | REVISE | REMOVE | ADD`
+Invalidate only artifacts whose assumptions actually changed. Preserve unrelated work and evidence.
 
-## Apply to canonical owners
+### Canonical intent ownership
 
-- Revise the existing unfinished Spec/parent task instead of creating `final-v2` copies.
-- Preserve unaffected closed tickets; update/reopen only tickets whose delivered acceptance is invalidated; add/remove work where required and record why.
-- Update blocking edges/frontier through the configured tracker protocol.
-- Update `CONTEXT.md` only when domain language/facts changed.
-- For a durable reversal, create/supersede ADRs according to the repository's ADR convention rather than rewriting history.
-- Keep unaffected implementation and evidence valid; only affected acceptance claims require new proof.
-- Preserve still-valid Repository Fit decisions; invalidate only the Spec/ticket conformance assumptions touched by the delta.
-- Do not create `.evo/delta`, `.evo/state`, or a duplicate progress ledger.
+Do not create a parallel replacement for an existing canonical product/spec owner. Record the delta and link to/update the canonical owner where the workflow allows.
 
-## Conformance invalidation
+### Uncertainty is explicit
 
-After applying the delta, determine which gates became stale:
+Use `UNCERTAIN` when impact cannot be proven. Do not silently widen the blast radius just to be safe, and do not silently declare an area unaffected without evidence.
 
-- Rerun `evo-spec-review` when the change affects architecture direction, module responsibility, framework capability choice, compatibility/migration, test seam or introduces/removes a material abstraction.
-- Rerun `evo-plan-review` for tickets whose module fit, representative pattern, reuse capability, `REUSE/EXTEND/NEW` strategy, verification pattern or blocking graph changed.
-- Do not rerun unaffected gates merely for ceremony.
+## Writes
 
-If the user's new instruction is explicit enough to authorize the changed intent, do not require a ceremonial second approval. Stop only when a material choice remains ambiguous or crosses a new product/security/privacy/data/compatibility/architecture boundary.
+Create/update a material record under `.evo/changes/` containing:
+
+- previous intent;
+- new intent;
+- semantic delta;
+- affected / unaffected / uncertain areas;
+- preserved work;
+- invalidated assumptions/knowledge/evidence;
+- follow-up required;
+- references and observation point.
+
+Update `.evo/current.md` and directly affected durable knowledge only when the new intent makes the previous knowledge false.
+
+## Stop conditions
+
+Stop if the new intent is not actually accepted/clear enough to compare, or if the change requires unresolved product/architecture/security decisions.
 
 ## Output
 
-Provide a concise Delta table, canonical artifacts/tickets changed, conformance gates invalidated/preserved, evidence invalidated/preserved, and the new ready frontier or next Skill.
+Summarize the semantic delta, blast radius, preserved work, invalidated items, uncertainties, and the next normal engineering action (for example revise spec/plan/tickets, implement, or verify).

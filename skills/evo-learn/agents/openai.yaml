@@ -1,0 +1,5 @@
+interface:
+  display_name: "EVO Learn"
+  short_description: "Promote durable project learning"
+policy:
+  allow_implicit_invocation: false
