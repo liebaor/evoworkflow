@@ -1,6 +1,6 @@
 ---
 name: evo-goal
-description: Continuously execute a prepared tracker-backed ticket graph inside an approved Execution Envelope after repository-conformance gates: implement, verify, review, commit, close and advance until completion or a true semantic/risk stop.
+description: "Continuously execute a prepared tracker-backed ticket graph inside an approved Execution Envelope after repository-conformance gates: implement, verify, review, commit, close and advance until completion or a true semantic/risk stop."
 compatibility: "Codex, Claude Code, OpenCode; tracker protocol + Git; optional Matt tdd/diagnosing-bugs"
 disable-model-invocation: true
 metadata:
