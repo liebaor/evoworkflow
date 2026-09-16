@@ -1,176 +1,179 @@
-# EVOworkflow 1.0
+# EVOworkflow 2.0
 
-> **让 AI 像一个长期参与项目的工程团队成员，而不是只会在一次聊天里写代码。**
+> A compatibility-first extension layer for long-running AI software engineering, built **on top of** Matt Pocock's engineering Skills without modifying them.
 
-EVOworkflow 是一套 **Repository-centered、Skill-driven** 的 AI 软件工程工作流。它给项目一个固定的 `.evo/` 工程知识空间，再用一组专职 Skills 完成项目理解、需求澄清、技术指导、方案研究、规格、计划、TDD、实现、Bug、验证、Review、连续执行和 Git 交付。
-
-```text
-.evo/       负责长期工程记忆
-Skills      负责工程方法
-Project Tools / Tests / CI 负责证明
-Git         负责历史
-Human       负责决策
-Harness     负责执行
-```
-
-当前版本：**1.0.0**
-
-## 固定的 EVO 工作区
-
-所有采用 EVO 的项目统一使用：
+EVOworkflow 2.0 deliberately stops trying to own the whole software-engineering workflow. Matt's mature methods are carried here as a pinned, **vendored read-only upstream**; EVO adds the pieces needed for long-lived projects: semantic repository onboarding, repository-conformant implementation, requirement evolution, acceptance evidence, continuous goal execution, knowledge convergence, recovery, and controlled Git delivery.
 
 ```text
-PROJECT/
-├── AGENTS.md
-├── .evo/
-│   ├── project.md
-│   ├── context.md
-│   ├── goal.md
-│   ├── decisions/
-│   ├── specs/
-│   ├── plans/
-│   └── research/
-├── .agents/skills/
-├── src/
-├── tests/
-└── ...
+Matt Skills                  EVO Extensions
+───────────                  ──────────────
+domain-modeling              evo-init
+grill-with-docs              evo-implement
+research                     evo-change
+to-spec                      evo-verify
+to-tickets                   evo-review
+wayfinder                    evo-goal
+tdd                          evo-finish
+diagnosing-bugs              evo-commit
+codebase-design              evo-recover
+code-review                  evo-advisor
+                             ask-evo
 ```
 
-知识位置不再由每个 Agent 每次重新发现：
+## Core boundary
 
-- `.evo/project.md`：项目地图、技术栈、模块、build/test/run、关键入口。
-- `.evo/context.md`：领域语言和稳定业务事实。
-- `.evo/decisions/`：长期技术、架构与工程决策。
-- `.evo/specs/`：尚未完成的需求/设计规格。
-- `.evo/plans/`：可执行的 bounded slices。
-- `.evo/research/`：带日期与来源的外部研究。
-- `.evo/goal.md`：当前或最近一次连续执行目标。
+**Matt is upstream. EVO is an extension, not a fork.**
 
-Brownfield 项目也采用同一目录：已有 ADR/Decision、Working Spec/RFC、Plan、Research、Context 会由 `evo-setup` 迁移到 `.evo/`，不保留第二套知识位置。API 文档、用户文档、部署说明等正式产品/项目文档仍留在原项目文档体系。
+- Matt's formal Engineering + Productivity Skills are vendored here unchanged for reproducible, one-source installation.
+- Do not edit, rename, or shadow Matt Skills. CI protects every vendored Matt Skill with its upstream Git tree SHA.
+- If EVO needs different behavior, create or change an `evo-*` Skill.
+- Matt owns its engineering methods; EVO owns the integration contracts around them.
+- Upstream progress/task state remains in the configured issue tracker rather than a second `.evo/` state database.
+- Repository truth stays in the repository: source, tests, current docs, `CONTEXT.md`, ADRs, tracker history, Git, and CI.
 
-## 安装
+See [`UPSTREAM.md`](UPSTREAM.md) for the pinned Matt commit, vendored scope, exact-integrity policy, and upgrade procedure.
 
-```bash
+## Installation
+
+Use EVOworkflow as the single Skill source for this combined bundle:
+
+```sh
 npx skills@latest add liebaor/evoworkflow
 ```
 
-推荐 repository/project scope。
+The repository contains both the pinned Matt Skills and EVO's `evo-*` extensions. Do **not** also install `mattpocock/skills` into the same target, because that would duplicate Matt Skill IDs.
 
-安装后第一次使用：
+Then, in a repository:
 
 ```text
-evo-setup
+setup-matt-pocock-skills
 → evo-init
 → ask-evo
 ```
 
-以后不知道下一步时，只要使用 `ask-evo`。
+`setup-matt-pocock-skills` is still Matt's original setup authority for issue-tracker and domain-document conventions. `evo-init` adds semantic repository understanding and writes a repository guide; it does not replace or modify Matt setup.
 
-## 18 个 Skills
+## The v2 development contract
 
-### 入口与指导
+### 1. Understand the repository before editing
 
-- `ask-evo`：读取 Repository，推荐唯一下一步。
-- `evo-advisor`：以资深开发工程师 / 软件架构师视角给出技术指导，不直接改代码。
+`evo-init` performs semantic repository archaeology. It identifies documented authorities, build/test/run commands, module boundaries, real consumer paths, reusable capabilities, representative implementations, test patterns, and known inconsistencies.
 
-### 项目基础
-
-- `evo-setup`：建立固定 `.evo/` Convention，并迁移 Brownfield 工程知识。
-- `evo-init`：理解代码库并填充 `project.md` / `context.md`。
-- `evo-recover`：新 Session / 新 Agent 恢复当前工作上下文。
-
-### 思考与设计
-
-- `evo-grill-with-docs`：事实 Agent 查，材料决策问人，持续完善 context/decision。
-- `evo-research`：从最新高可信 Primary Sources 调研外部方案。
-- `evo-spec`：把已澄清的非机械变化综合成 Working Spec。
-- `evo-plan`：拆成 fresh Agent 可独立实施和验证的 vertical slices。
-- `evo-change`：处理中途需求和方向变化。
-
-### 执行、质量与交付
-
-- `evo-implement`：实施一个 bounded slice。
-- `evo-tdd`：按有效 RED → 最小 GREEN → 安全 REFACTOR 推进。
-- `evo-bug`：复现、根因、最小修复、Regression。
-- `evo-verify`：逐条 Acceptance 给出 PASS / FAIL / UNVERIFIED。
-- `evo-review`：按 Intent / Engineering / Evidence 三轴独立复核。
-- `evo-finish`：让实现、当前文档、Decision 和工程知识收敛。
-- `evo-goal`：一个目标连续完成所有 slices，并持续测试、修复、验证和检查点提交。
-- `evo-commit`：生成 AI-readable Git 历史，并在明确授权时 push。
-
-## 常见主流程
+It writes a compact map at:
 
 ```text
-evo-setup          # 每个项目一次
-  ↓
-evo-init           # 建立项目认知
-  ↓
-evo-grill-with-docs / evo-advisor / evo-research
-  ↓
-evo-spec
-  ↓
-evo-plan
-  ↓
-单步：evo-implement → evo-tdd → evo-verify
-或
-连续：evo-goal
-  ↓
-evo-review
-  ↓
-evo-finish
-  ↓
-evo-commit [→ push]
+docs/agents/repository.md
 ```
 
-流程按风险裁剪。小机械修改不需要强行 Spec/Plan；高风险权限、隐私、不可逆数据、兼容性、外部成本和重大架构变化必须保留显式人类决策。
+The guide links to authorities and references rather than copying them.
 
-## Goal：连续完成一个目标
+### 2. Reference Before Edit
 
-`evo-goal` 使用 `.evo/goal.md` 作为人和 Agent 都可读的执行记录。它循环：
+For non-mechanical code changes, EVO requires a nearest existing implementation to be identified before editing. Every change should be classified as:
 
 ```text
-next slice
-→ implement
-→ TDD when appropriate
-→ focused verify
-→ fix / bug loop on failure
-→ checkpoint commit when configured
-→ next slice
+REUSE | EXTEND | NEW
 ```
 
-全部 slices 完成后再进行 Full Verify → Review → Finish → Final Commit。普通代码/测试问题由 Agent 自己解决；产品方向、不可逆数据、安全/隐私、重大兼容性和新增外部成本等材料决策必须停下来找人。
+`NEW` requires an explicit reason why the existing structure cannot be extended; material new architecture routes to design/decision work rather than being invented silently.
 
-## TDD 与 Verify 的区别
+### 3. Human owns meaning; Agent owns execution
 
-- `evo-tdd`：**怎么开发**，要求 RED 的失败原因确实是目标行为尚不存在，而不是环境、语法或 fixture 错误。
-- `evo-verify`：**怎么证明已经满足 Acceptance**，使用真实项目工具和运行路径。
+The human owns product intent, material architecture/security/data decisions, risk acceptance, and external authorization. Inside an approved **Execution Envelope**, `evo-goal` can continuously execute ready tickets without asking the human to approve every mechanical transition.
 
-因此不另设 `evo-test`：测试设计归 TDD，完成证明归 Verify。
+### 4. Tracker owns progress
 
-## Git 历史也要让 AI 看得懂
+EVO 2.0 has no `.evo/state.yml`, phase database, or duplicated Slice progress. Specs, tickets, blocking edges, claims, and completion live in the configured tracker. Git records history; tests/CI provide mechanical evidence.
 
-`evo-commit` 推荐：
+### 5. Commit describes state
+
+`evo-commit` records an already-understood engineering checkpoint. A successful commit does not prove correctness. Push is default-off and may be pre-authorized by a Goal policy as `final-only` or `per-ticket`; force-push, protected/default-branch writes, history rewrites, merges, releases, and deploys always require separate explicit authorization.
+
+## Standard workflow
 
 ```text
-feat(meeting-room): reject conflicting bookings
-
-Implements:
-- S3 permission and conflict path
-- AC-4 conflict rejection
-
-Verified:
-- MeetingRoomServiceTest
-- booking API integration test
-
-Context:
-- .evo/specs/meeting-room.md
-- .evo/plans/meeting-room.md
+setup-matt-pocock-skills
+        ↓
+     evo-init
+        ↓
+grill-with-docs / domain-modeling / research
+        ↓
+      to-spec
+        ↓
+     to-tickets
+        ↓
+Human approves intent + execution envelope
+        ↓
+      evo-goal
+        │
+        ├─ evo-implement
+        ├─ tdd when appropriate
+        ├─ evo-verify
+        ├─ evo-review
+        ├─ diagnosing-bugs when needed
+        ├─ evo-commit
+        └─ next tracker frontier
+        ↓
+ full evo-verify
+        ↓
+  final evo-review
+        ↓
+    evo-finish
+        ↓
+    evo-commit
+        ↓
+ push only if authorized
 ```
 
-Commit 成功不等于功能完成。Push 默认不自动发生，除非用户明确要求，或当前 Goal 明确授权。
+If accepted intent changes during execution:
 
-## 核心原则
+```text
+evo-change
+→ update canonical spec/tickets/ADRs/docs
+→ preserve unaffected work/evidence
+→ recompute tracker frontier
+→ resume evo-goal
+```
 
-> **知识存哪里由 Convention 决定；知识内容由 Agent 基于 Repository 推理；可机械判断的事实由真实工具证明；重大取舍由人决定。**
+## EVO-owned Skills
 
-更多内容见：`docs/architecture.md`、`docs/knowledge-model.md`、`docs/workflow.md`、`docs/skill-contract.md`。
+| Skill | Responsibility |
+|---|---|
+| `ask-evo` | Route to exactly one best next Matt or EVO capability. |
+| `evo-init` | Learn how this repository is actually built and how code is expected to fit. |
+| `evo-advisor` | Give repository-grounded senior engineering guidance and route to upstream design capabilities where appropriate. |
+| `evo-implement` | Implement one bounded ticket while conforming to existing structure; no Git delivery. |
+| `evo-change` | Propagate changed accepted intent through canonical owners without rewriting unaffected work. |
+| `evo-verify` | Map acceptance claims to executed PASS / FAIL / UNVERIFIED evidence. |
+| `evo-review` | Review worktree/committed changes for repository conformance, intent, and evidence before delivery. |
+| `evo-goal` | Continuously consume the ready ticket frontier inside an approved execution envelope. |
+| `evo-finish` | Converge current docs/domain/ADRs/tracker after final verification and review. |
+| `evo-commit` | Create AI-readable commits and perform only explicitly authorized push behavior. |
+| `evo-recover` | Reconstruct work from repository/tracker/Git/tests rather than chat memory. |
+
+## Vendored Matt Skills
+
+EVOworkflow currently vendors the 25 formal Matt Engineering + Productivity Skills from pinned upstream commit `959a8e9f1edc3adbe2f7e3054bb6fbefa6696260`. Their source trees are immutable within normal EVO development and verified in CI. `UPSTREAM.md` is the source of truth for the imported set and upgrade process.
+
+## Harness compatibility
+
+EVO-owned Skills use portable `SKILL.md` semantics and avoid harness-specific tool syntax. Harness-specific discovery/invocation controls live in metadata:
+
+- Codex: `agents/openai.yaml`.
+- OpenCode: `metadata.opencode/autoinvoke` in `SKILL.md`.
+- Claude Code: `disable-model-invocation` in `SKILL.md`.
+
+Named Matt capabilities are **logical Skill dependencies**. EVO says “apply `tdd`” rather than assuming `/tdd`, `skill({id: ...})`, or another specific API. The vendored Matt files themselves remain byte-for-byte upstream and therefore keep Matt's own metadata choices. See [`docs/compatibility.md`](docs/compatibility.md).
+
+## Principles
+
+- Repository > Chat
+- Evidence > Claim
+- Existing Pattern > Reinvent
+- Reference Before Edit
+- One Fact → One Owner
+- Change > Rewrite
+- Human Owns Meaning; Agent Owns Execution
+- Tracker Owns Progress
+- Commit Describes State
+- Minimum Necessary Process

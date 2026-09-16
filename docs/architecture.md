@@ -1,59 +1,84 @@
-# EVOworkflow Architecture
+# EVOworkflow 2.0 Architecture
 
-## Position
+## Positioning
 
-EVOworkflow is a Skill-driven engineering method with a fixed repository knowledge convention.
-
-It deliberately separates four kinds of authority:
-
-- **Human authority** — product direction, material trade-offs and authorization.
-- **Semantic authority** — Agent reasoning over repository evidence.
-- **Deterministic authority** — project-native tests/build/lint/runtime/CI.
-- **Historical authority** — Git chronology and delivery history.
-
-## Fixed knowledge workspace
-
-Every EVO-enabled repository uses `.evo/`:
+EVOworkflow is an extension layer, not a behavioral fork of Matt Pocock's Skills and not an Agent runtime. Matt's formal Skills are vendored into this repository as a pinned, read-only upstream snapshot so users can install one combined bundle without turning those files into EVO-owned code.
 
 ```text
-.evo/
-├── project.md
-├── context.md
-├── goal.md
-├── decisions/
-├── specs/
-├── plans/
-└── research/
+Human
+  │ owns intent, material decisions, risk, external authorization
+  ▼
+Vendored Matt engineering methods + EVO extension contracts
+  │
+  ├── Repository / CONTEXT / ADR / current docs
+  ├── Issue tracker (specs, tickets, dependencies, progress)
+  ├── Source / tests / runtime / CI
+  └── Git / PR history
 ```
 
-This is an engineering knowledge workspace, not a runtime database. Files are human-readable Markdown. No hidden workflow state, phase lock, fingerprint or generic gate is required.
+There is intentionally no `.evo/` state database.
 
-### Ownership
+## Responsibility split
 
-- `project.md`: project map and operational navigation.
-- `context.md`: domain language and durable business facts.
-- `decisions/`: stable rationale and revisitable engineering decisions.
-- `specs/`: unfinished intended behavior/design.
-- `plans/`: executable slice decomposition.
-- `research/`: dated external evidence and implications.
-- `goal.md`: current or most recent long-running goal record.
+### Matt vendored upstream
 
-Formal product/project docs stay where the project normally exposes them; `.evo/` does not replace API manuals, deployment guides or user docs.
+Provides mature reusable methods such as domain modeling, grilling, research, Spec synthesis, tracer-bullet ticketing, TDD, diagnosis, codebase design, wayfinding, code review, and supporting productivity Skills.
 
-## Convention over discovery
+The vendored snapshot is externally owned upstream code. EVO distributes it unchanged, pins its exact source trees in CI, and consumes the capabilities by Skill ID. Normal EVO development never edits those trees.
 
-Knowledge location is intentionally deterministic. Brownfield adoption migrates EVO-owned engineering knowledge into `.evo/` and updates references rather than teaching every future Agent a repository-specific mapping.
+### EVO extensions
 
-Content remains semantic: the Agent must still read source, tests, docs, Git and runtime evidence to decide what is true.
+EVO owns integration problems that matter for long-running projects:
 
-## Orchestration boundary
+- semantic repository onboarding and repository conformance;
+- changed-intent propagation;
+- acceptance-to-evidence verification;
+- pre-delivery review of worktree changes;
+- continuous ticket-frontier execution;
+- current-truth convergence after delivery;
+- cross-session recovery;
+- structured commit and authorized push policy.
 
-`evo-goal` is a Skill-level loop for one repository, one active goal and one writer. It does not schedule fleets of agents or implement a runtime. Harness-level orchestration remains a harness responsibility.
+## Upstream integrity boundary
 
-## Verification boundary
+Each vendored Matt Skill directory has an expected Git tree SHA derived from pinned upstream commit `959a8e9f1edc3adbe2f7e3054bb6fbefa6696260`.
 
-EVO defines evidence discipline; host-project tools generate evidence. A green build proves buildability. A unit test proves the behavior at its seam. A browser/runtime check proves only the path exercised. Unavailable boundaries remain UNVERIFIED.
+```text
+Matt upstream tree SHA
+        =
+EVO vendored Matt tree SHA
+```
 
-## Delivery boundary
+If contents, file modes, helper docs, scripts, or metadata drift, CI fails. Intentional upstream updates replace the snapshot and advance the pin; they are not mixed into ordinary EVO feature edits.
 
-`evo-finish` converges current truth. `evo-commit` records delivery history. Commit and push never substitute for verification or review.
+## Execution Envelope
+
+A Goal may continuously execute mechanical transitions only after intent and boundaries are sufficiently clear. The envelope identifies at least:
+
+- source Spec / parent task;
+- tracker scope/frontier;
+- commit policy;
+- push policy (`none`, `final-only`, or `per-ticket`);
+- human-stop conditions.
+
+The envelope belongs on the canonical tracker source (or the local tracker document), not in a second progress database.
+
+## Repository conformance
+
+Implementation shape follows this precedence:
+
+```text
+Human-approved intent (WHAT)
+        ↓
+Documented repository rules (HOW constraints)
+        ↓
+Representative existing implementation (SHAPE)
+        ↓
+Matt/general engineering heuristics (FALLBACK)
+```
+
+If documented rules and real code disagree materially, surface the inconsistency instead of silently choosing whichever is convenient.
+
+## No hidden orchestration runtime
+
+`evo-goal` is a Skill-level orchestrator. It derives progress from the tracker, Git and evidence. It does not own locks, phase state, fingerprints, adapters, or a duplicate Slice ledger.

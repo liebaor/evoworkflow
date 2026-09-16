@@ -1,5 +1,0 @@
-interface:
-  display_name: "EVO Research"
-  short_description: "Research current external facts from primary sources"
-policy:
-  allow_implicit_invocation: true

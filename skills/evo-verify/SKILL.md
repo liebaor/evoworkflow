@@ -1,31 +1,49 @@
 ---
 name: evo-verify
-description: Verify accepted outcomes using project-native tests, builds, runtime paths and direct observations. Use after implementation or bug repair. Report PASS, FAIL or UNVERIFIED per acceptance claim; do not silently fix code.
+description: Prove each acceptance claim with direct project-native evidence and report PASS, FAIL or UNVERIFIED without silently fixing implementation.
+compatibility: "Codex, Claude Code, OpenCode; project-native tests/runtime/CI"
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: "false"
 ---
 
 # EVO Verify
 
+## Purpose
+
+Answer whether the requested behavior is actually supported by evidence, independently of whether the implementation looks plausible.
+
 ## Read first
-`.evo/project.md`, owning Spec/Plan acceptance, relevant Decisions, implementation diff and available project commands/environments.
+
+Read the owning Spec/ticket acceptance criteria, relevant repository verification commands, implementation diff and available environment/runtime paths.
 
 ## Evidence map
-For each acceptance claim identify:
-1. observable behavior/absence;
-2. failure surface;
-3. direct evidence that can falsify it;
-4. exact command/inspection/runtime path.
 
-Match evidence to risk: local logic → focused unit tests; composition → integration tests; persistence/recovery → replay/resume; user-visible behavior → real app/browser/API path; external service → real E2E when available; deletion → negative search plus registration/export/docs/tests checks.
+For every acceptance criterion identify:
+
+1. observable behavior or required absence;
+2. likely failure surface;
+3. direct evidence that could falsify/support it;
+4. exact test/build/runtime/inspection path to execute.
+
+Match evidence to risk. Prefer focused tests for local logic, integration for composition/persistence, real API/browser/application paths for user-visible behavior, and genuine external E2E only when that boundary is available.
 
 ## Status
-- **PASS** — direct evidence was executed/observed and supports the claim.
+
+- **PASS** — direct evidence was actually executed/observed and supports the claim.
 - **FAIL** — direct evidence contradicts the claim.
-- **UNVERIFIED** — required evidence could not be obtained.
+- **UNVERIFIED** — required direct evidence is unavailable or was not run.
 
-Static inspection proves source shape, not runtime behavior. Build/lint success proves only the encoded rule.
+Static source inspection proves source shape, not runtime behavior. Build/lint success proves only the rules those tools check.
 
-## Output
-Use a table: Acceptance | Evidence | Status | Scope/Notes. Include commands actually run and skipped boundaries.
+## Persistence
+
+When operating under a tracker-backed Goal or when durable evidence is useful, record a concise verification summary on the owning ticket using the configured tracker protocol. Do not create a separate EVO evidence database.
 
 ## Boundary
-Do not repair implementation inside Verify. FAIL routes to Implement/Bug; changed intent routes to Change. Verified work routes to `evo-review`.
+
+Do not repair code inside Verify. FAIL routes back to `evo-implement` or upstream `diagnosing-bugs`; changed intent routes to `evo-change`.
+
+## Output
+
+Return `Acceptance | Evidence | Status | Scope/Notes`, list commands/paths actually executed, and identify skipped/unavailable boundaries.

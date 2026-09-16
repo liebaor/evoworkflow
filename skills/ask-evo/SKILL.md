@@ -1,40 +1,44 @@
 ---
 name: ask-evo
-description: Route repository work to the single best next EVO Skill. Use when the user asks what to do next, how to continue, where work stands, or which EVO workflow applies. Read-only.
+description: Route the current software-engineering situation to exactly one best next Matt or EVO Skill without doing the work itself.
+compatibility: "Codex, Claude Code, OpenCode; Matt engineering Skills recommended"
+disable-model-invocation: true
+metadata:
+  opencode/autoinvoke: "false"
 ---
 
 # Ask EVO
 
 ## Purpose
-Reconstruct the current situation from repository evidence and recommend exactly one next Skill.
+
+Act as a read-only router over unmodified Matt engineering Skills plus EVO extensions. Recommend exactly one next Skill/capability.
 
 ## Read first
-1. Check whether `.evo/project.md` and the canonical `.evo/` directories exist.
-2. If they exist, read `.evo/project.md`, `.evo/context.md`, `.evo/goal.md` when present, relevant Spec/Plan/Decisions, Git status/diff/history and current tests/CI evidence.
+
+Read the repository's standing instructions, `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, `docs/agents/repository.md` when present, relevant tracker state, Git status, and the user's current intent. Do not create missing project artifacts merely to route.
 
 ## Routing
-- Canonical `.evo/` workspace missing/incomplete → `evo-setup`.
-- Workspace exists but project structure/build/test/patterns are not yet understood → `evo-init`.
-- User wants senior engineering/architecture guidance → `evo-advisor`.
-- Material product/architecture decisions are unclear → `evo-grill-with-docs`.
-- Current external technology facts are needed → `evo-research`.
-- Settled non-trivial intent needs a Working Spec → `evo-spec`.
-- Spec/intent exists but lacks fresh-Agent executable slices → `evo-plan`.
-- User wants the prepared plan completed continuously → `evo-goal`.
-- One bounded slice is ready → `evo-implement`.
-- User explicitly wants test-first development or implementation should be driven by a behavioral seam → `evo-tdd`.
-- Accepted intent changed → `evo-change`.
-- An observed failure needs diagnosis/root cause → `evo-bug`.
-- Acceptance claims need direct proof → `evo-verify`.
-- Verified work needs independent Intent/Engineering/Evidence review → `evo-review`.
-- Verified/reviewed work needs repository knowledge convergence → `evo-finish`.
-- Work is ready for Git history or explicitly requested push → `evo-commit`.
-- Existing work lost its current-session context → `evo-recover`.
 
-Small mechanical edits may go directly to implementation/focused checks when no durable behavior, contract, architecture, format, test strategy or rationale changes.
+- Matt setup/config missing → `setup-matt-pocock-skills`.
+- Repository engineering structure/patterns are not understood or guide is materially stale → `evo-init`.
+- User wants repository-grounded senior engineering/architecture guidance → `evo-advisor`.
+- Product/domain meaning is unclear → `grill-with-docs` or, when specifically domain language/modeling, `domain-modeling`.
+- Current external facts are needed → `research`.
+- Settled intent needs a Spec → `to-spec`.
+- Spec/plan needs agent-sized vertical work with blockers → `to-tickets`.
+- Work is too large/uncertain for one session and decisions must be mapped first → `wayfinder`.
+- One bounded ticket should be implemented under EVO delivery semantics → `evo-implement`.
+- Accepted intent changed → `evo-change`.
+- A difficult observed bug/performance regression needs diagnosis → `diagnosing-bugs`.
+- Acceptance claims need direct proof → `evo-verify`.
+- Worktree/branch changes need pre-delivery conformance review → `evo-review`.
+- A prepared ticket graph should be completed continuously → `evo-goal`.
+- Final verified/reviewed work needs current-truth convergence → `evo-finish`.
+- A coherent checkpoint needs commit or an explicitly authorized push → `evo-commit`.
+- A fresh/interrupted session must reconstruct current work → `evo-recover`.
+
+If the best route is a Matt Skill that is not installed, report `MATT_SKILL_REQUIRED: <id>` rather than substituting an EVO imitation.
 
 ## Output
-Report current objective, verified facts, active `.evo/` owners, material unknowns, observed progress, blockers and exactly one next Skill with reason.
 
-## Final checks
-Do not edit files, implement work or invoke the destination workflow inside this Skill.
+Return: `Next: <skill-id>` plus 1–3 sentences grounded in current repository/tracker evidence. Do not execute the next Skill.

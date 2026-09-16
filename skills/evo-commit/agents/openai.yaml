@@ -1,5 +1,5 @@
 interface:
   display_name: "EVO Commit"
-  short_description: "Create AI-readable commits and authorized pushes"
+  short_description: "Create structured commits and authorized pushes"
 policy:
   allow_implicit_invocation: false
