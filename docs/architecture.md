@@ -2,9 +2,9 @@
 
 ## Product boundary
 
-EVOworkflow maintains durable repository engineering context across tasks, sessions and models.
+EVOworkflow maintains durable repository engineering context across tasks, sessions and models, and provides repository-aware engineering guidance from that context.
 
-It provides project evolution context to planning/coding/debugging/review workflows instead of replacing those workflows.
+It provides project evolution context and advisory input to planning/coding/debugging/review workflows instead of replacing those workflows.
 
 ## Four layers
 
@@ -13,7 +13,7 @@ Repository Truth
   source / tests / runtime / Git / CI
         ↓
 EVO Skills
-  init / refresh / change / learn / recover / ask
+  init / refresh / change / learn / recover / advisor / ask
         ↓
 EVO Knowledge
   .evo/project.md
@@ -30,6 +30,8 @@ Standing Agent Instructions
 Engineering Consumers
   planning / specification / ticketing / coding / debugging / review agents
 ```
+
+`evo-advisor` reads across these layers but is read-only by default: it interprets repository truth and EVO indexes to provide engineering judgment without becoming a second planning or implementation workflow.
 
 ## Repository Engineering Contract
 
@@ -60,10 +62,10 @@ When sources disagree, use this reasoning order:
 3. authoritative repository instructions and current architecture/docs;
 4. representative current production patterns;
 5. EVO summaries and indexes;
-6. general framework convention;
+6. current authoritative external technology facts when relevant;
 7. generic engineering preference.
 
-EVO summaries accelerate discovery but do not override contradictory source evidence.
+EVO summaries accelerate discovery but do not override contradictory source evidence. External best practice informs recommendations but does not automatically override valid project constraints.
 
 ## Knowledge confidence
 
@@ -113,6 +115,20 @@ A promoted learning may remain in `.evo/learnings/` or update a stronger owner s
 
 `evo-recover` reconstructs engineering state from the repository instead of requiring a previous conversation handoff. It uses standing instructions, `.evo/current.md`, active changes, relevant durable knowledge, Git state, recent history, tests/CI and working tree evidence.
 
+## Advisory guidance
+
+`evo-advisor` provides repository-aware senior engineering guidance for questions whose primary need is judgment rather than workflow execution.
+
+It uses progressive disclosure to combine:
+
+- current repository facts and constraints;
+- representative implementations;
+- reusable capabilities;
+- current work/change context when relevant;
+- authoritative external technical sources when the question depends on fast-changing framework/library/platform facts.
+
+It distinguishes **repository fact**, **external current fact**, and **recommendation**. It prefers REUSE, then EXTEND, then NEW when each can satisfy accepted intent safely. Advice is not automatically persisted; accepted durable project-specific conclusions should be recorded through the canonical repository owner.
+
 ## Non-goals
 
 EVOworkflow is not:
@@ -123,4 +139,5 @@ EVOworkflow is not:
 - a chat-memory system;
 - a framework tutorial database;
 - an encyclopedia of every source file;
-- a runtime state machine that must mediate every coding action.
+- a runtime state machine that must mediate every coding action;
+- an autonomous architecture authority that silently turns advice into accepted decisions.
