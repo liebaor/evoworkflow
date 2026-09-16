@@ -90,9 +90,24 @@ Owns repository-based session/model continuity.
 
 It reconstructs current state from standing instructions, `.evo/current.md`, active changes, Git/worktree/history and relevant verification evidence. It should update `current.md` only with evidence-backed current state.
 
+### evo-advisor
+
+Is read-only. It provides repository-aware senior engineering guidance for architecture/design questions, module ownership, reuse-vs-extension decisions, tradeoffs, risks and adaptation of current external technical practice to the repository.
+
+It should:
+
+- establish current repository facts before giving generic advice;
+- use relevant capabilities and representative references;
+- distinguish repository facts, external current facts and recommendations;
+- prefer REUSE, then EXTEND, then NEW when each can satisfy the accepted intent safely;
+- use authoritative current external sources when fast-changing technical facts materially affect the answer;
+- avoid persisting consultation output automatically.
+
+It does not replace specification, planning, implementation, testing, debugging or review.
+
 ### ask-evo
 
-Is read-only. It routes to exactly one of the EVO Skills above, or returns that no EVO action is needed and normal engineering work should continue.
+Is read-only. It routes to exactly one EVO Skill above, `evo-advisor` when repository-aware engineering judgment is the primary need, or returns that no EVO action is needed and normal engineering work should continue.
 
 ## Writes and authority
 
@@ -122,6 +137,6 @@ A Skill should stop and expose uncertainty when:
 Outputs should be compact and operational. Summarize:
 
 - what was confirmed;
-- what changed in EVO knowledge;
+- what changed in EVO knowledge, when the Skill writes knowledge;
 - important uncertainty or staleness;
-- the next useful engineering action.
+- the recommendation or next useful engineering action.
