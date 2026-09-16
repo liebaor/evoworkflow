@@ -2,18 +2,19 @@
 
 EVOworkflow is a repository-centered project evolution layer for long-running AI-assisted software development.
 
-It keeps durable engineering context in the repository so coding agents can understand how the project works, reuse what already exists, detect stale knowledge, propagate requirement changes, retain project-specific learning, and recover work across sessions and models.
+It keeps durable engineering context in the repository so coding agents can understand how the project works, reuse what already exists, detect stale knowledge, propagate requirement changes, retain project-specific learning, recover work across sessions and models, and provide repository-aware engineering guidance.
 
 ## What EVO owns
 
-EVO focuses on six capabilities:
+EVO focuses on seven capabilities:
 
 1. **Repository Intelligence** — understand architecture, module boundaries, commands, representative implementations, and reusable capabilities.
 2. **Knowledge Freshness** — detect when stored project knowledge may have become stale and refresh only affected areas.
 3. **Change Propagation** — model semantic deltas, impact, affected/unaffected areas, and selective invalidation.
 4. **Engineering Learning** — promote durable project-specific lessons from bugs, reviews, incidents, and implementation discoveries.
 5. **Repository Continuity** — reconstruct current engineering state from repository evidence rather than chat memory.
-6. **Routing** — decide when EVO intervention is useful and when normal engineering work should continue.
+6. **Engineering Advisory** — provide repository-aware senior engineering guidance for design, ownership, reuse, tradeoffs, risks, and current external technical practice when needed.
+7. **Routing** — decide when EVO intervention/advice is useful and when normal engineering work should continue.
 
 EVO does not prescribe how every feature must be specified, planned, implemented, tested, or reviewed. Those workflows consume EVO context through the repository's standing agent instructions.
 
@@ -46,7 +47,8 @@ Repository source / tests / Git / CI
 | `evo-change` | Analyze accepted intent changes and selectively invalidate affected knowledge/work. |
 | `evo-learn` | Promote durable project-specific engineering learning without creating a knowledge dump. |
 | `evo-recover` | Reconstruct current work and reliable context from repository evidence. |
-| `ask-evo` | Route to the single most useful EVO action, or say that normal engineering work should continue. |
+| `evo-advisor` | Provide repository-aware senior engineering guidance, options, tradeoffs, risks and recommendations. |
+| `ask-evo` | Route to the single most useful EVO action/advisory capability, or say that normal engineering work should continue. |
 
 ## Repository Engineering Contract
 
@@ -78,6 +80,7 @@ The contract is intentionally index-like rather than encyclopedic. It should hel
 - **One Fact → One Owner** — each durable fact has one canonical owner; other artifacts reference it.
 - **Promote, Don't Accumulate** — only stable, project-specific, future-useful learning becomes durable knowledge.
 - **Progressive Disclosure** — agents read the small entry map first and deeper knowledge only when relevant.
+- **Repository Facts Before Generic Advice** — advisory guidance starts from current project evidence, then adds external best practice only when it materially helps.
 
 ## Typical lifecycle
 
@@ -91,8 +94,26 @@ Repository changes ───────→ evo-refresh
 Accepted intent changes ──→ evo-change
 Durable engineering lesson → evo-learn
 New session / lost context → evo-recover
+Engineering design question → evo-advisor
 Unsure what is needed ─────→ ask-evo
 ```
+
+## Advisor model
+
+`evo-advisor` is a read-only Repository-aware Senior Engineering Advisor.
+
+Use it for questions such as:
+
+- Where should this behavior live in the current architecture?
+- Which existing capability/reference should we reuse?
+- Should this be REUSE, EXTEND, or NEW?
+- What are the tradeoffs between two approaches in this repository?
+- What risks should be considered before specification/planning?
+- How should current framework/library guidance be adapted to the project's existing architecture?
+
+When changing external facts matter, the advisor may consult current authoritative sources. It keeps three things separate: **repository fact**, **external current fact**, and **recommendation**. External research is not automatically persisted into `.evo/`; only accepted, durable, project-specific conclusions belong in repository knowledge.
+
+`ask-evo` remains the router: **what should happen next?** `evo-advisor` answers: **what engineering approach makes sense here, and why?**
 
 ## Installation
 
@@ -111,4 +132,4 @@ Then run `evo-init` in the target repository. It establishes `.evo/` and adds a 
 
 ## Success criterion
 
-A fresh agent with no chat history should be able to enter a mature repository, read standing instructions plus relevant EVO knowledge, understand the established engineering shape, identify reusable capabilities and references, detect uncertainty, and continue work without reconstructing the project from scratch.
+A fresh agent with no chat history should be able to enter a mature repository, read standing instructions plus relevant EVO knowledge, understand the established engineering shape, identify reusable capabilities and references, detect uncertainty, continue work without reconstructing the project from scratch, and provide useful repository-specific engineering guidance without falling back to generic advice.
