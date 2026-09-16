@@ -1,117 +1,126 @@
-# EVOworkflow 2.0 Architecture
+# Architecture
 
-## Positioning
+## Product boundary
 
-EVOworkflow is an extension layer, not a behavioral fork of Matt Pocock's Skills and not an Agent runtime. Matt's formal Skills are vendored into this repository as a pinned, read-only upstream snapshot so users can install one combined bundle without turning those files into EVO-owned code.
+EVOworkflow maintains durable repository engineering context across tasks, sessions and models.
 
-```text
-Human
-  │ owns intent, material decisions, risk, external authorization
-  ▼
-Vendored Matt engineering methods + EVO extension contracts
-  │
-  ├── Repository / CONTEXT / ADR / current docs
-  ├── Issue tracker (specs, tickets, dependencies, progress)
-  ├── Source / tests / runtime / CI
-  └── Git / PR history
-```
+It provides project evolution context to planning/coding/debugging/review workflows instead of replacing those workflows.
 
-There is intentionally no `.evo/` state database.
-
-## Responsibility split
-
-### Matt vendored upstream
-
-Provides mature reusable methods such as domain modeling, grilling, research, Spec synthesis, tracer-bullet ticketing, TDD, diagnosis, codebase design, wayfinding, code review, and supporting productivity Skills.
-
-The vendored snapshot is externally owned upstream code. EVO distributes it unchanged, pins its exact source trees in CI, and consumes the capabilities by Skill ID. Normal EVO development never edits those trees.
-
-### EVO extensions
-
-EVO owns integration problems that matter for long-running projects:
-
-- semantic repository onboarding and reusable-capability discovery;
-- Spec/ticket repository-conformance gates around upstream planning methods;
-- repository-conformant implementation with Reference Before Edit and Capability Before Creation;
-- changed-intent propagation with selective gate/evidence invalidation;
-- acceptance-to-evidence verification;
-- pre-delivery review of worktree changes and duplicate/parallel capability detection;
-- continuous ticket-frontier execution;
-- current-truth convergence after delivery;
-- cross-session recovery;
-- structured commit and authorized push policy.
-
-## Upstream integrity boundary
-
-Each vendored Matt Skill directory has an expected Git tree SHA derived from pinned upstream commit `959a8e9f1edc3adbe2f7e3054bb6fbefa6696260`.
+## Four layers
 
 ```text
-Matt upstream tree SHA
-        =
-EVO vendored Matt tree SHA
+Repository Truth
+  source / tests / runtime / Git / CI
+        ↓
+EVO Skills
+  init / refresh / change / learn / recover / ask
+        ↓
+EVO Knowledge
+  .evo/project.md
+  .evo/current.md
+  .evo/references.md
+  .evo/capabilities.md
+  .evo/decisions/
+  .evo/changes/
+  .evo/learnings/
+        ↓
+Standing Agent Instructions
+  AGENTS.md / equivalent existing instruction file
+        ↓
+Engineering Consumers
+  planning / specification / ticketing / coding / debugging / review agents
 ```
 
-If contents, file modes, helper docs, scripts, or metadata drift, CI fails. Intentional upstream updates replace the snapshot and advance the pin; they are not mixed into ordinary EVO feature edits.
+## Repository Engineering Contract
 
-## Planning conformance boundary
+The Repository Engineering Contract is the compact set of durable facts a future agent needs in order to work conformantly:
 
-EVO does not fork Matt planning methods. Instead it wraps them:
+- architecture and module boundaries;
+- build/run/test commands;
+- engineering conventions and constraints;
+- representative implementations by concern;
+- reusable project/framework capabilities;
+- current engineering state;
+- durable decisions, accepted changes and promoted learnings.
+
+It is an index into repository truth, not a copy of it.
+
+## Consumption bridge
+
+`evo-init` ensures the consumer repository's standing agent instruction file contains a small Repository Engineering Context section. That section tells any compatible engineering workflow when and how to consult `.evo/`.
+
+The bridge should remain small and stable. Deep project knowledge stays in `.evo/` and is loaded progressively when relevant.
+
+## Precedence
+
+When sources disagree, use this reasoning order:
+
+1. explicit current human-approved intent;
+2. current executable/source contracts and runtime/test evidence;
+3. authoritative repository instructions and current architecture/docs;
+4. representative current production patterns;
+5. EVO summaries and indexes;
+6. general framework convention;
+7. generic engineering preference.
+
+EVO summaries accelerate discovery but do not override contradictory source evidence.
+
+## Knowledge confidence
+
+EVO uses three evidence strengths:
+
+- **Authoritative** — explicitly required by repository instructions, current architecture/docs/contracts, or an accepted decision.
+- **Representative** — strongly supported by current, repeated, production usage and preferably tests.
+- **Observed** — seen in limited evidence; useful as a lead but not safe to treat as a repository rule.
+
+Observed facts must not silently become normative conventions.
+
+## Freshness
+
+Durable repository knowledge records an observation point, normally a Git commit plus relevant references.
+
+A newer HEAD does not automatically make all knowledge stale. `evo-refresh` compares changes since the observation point, identifies knowledge whose evidence surface changed, and refreshes only affected areas.
+
+## Change propagation
+
+Accepted intent changes are handled by semantic delta rather than full regeneration:
 
 ```text
-to-spec (Matt)
-        ↓
-evo-spec-review
-        ↓
-to-tickets (Matt)
-        ↓
-evo-plan-review
-        ↓
-execution
+previous intent
+    ↓
+new intent
+    ↓
+semantic delta
+    ↓
+impact analysis
+    ↓
+affected / unaffected
+    ↓
+selective invalidation
+    ↓
+normal engineering workflow continues with updated context
 ```
 
-The canonical Spec/tickets remain the owners. EVO review gates may update those owners when repository evidence makes an intent-preserving correction unambiguous. They never create a parallel planning database.
+Invalidation may apply to project knowledge, current implementation assumptions, tests/evidence, tickets/specifications, or decisions. Unaffected work remains valid.
 
-`evo-spec-review` operates at architecture/framework-capability granularity. `evo-plan-review` operates at executable ticket granularity and is the hard gate before `evo-goal`.
+## Learning loop
 
-## Execution Envelope
+Bugs, reviews, incidents and implementation work can reveal project-specific knowledge. `evo-learn` promotes only lessons that are stable, project-specific, likely to help future agents, and not already owned elsewhere.
 
-A Goal may continuously execute mechanical transitions only after intent, repository fit and boundaries are sufficiently clear. The envelope identifies at least:
+A promoted learning may remain in `.evo/learnings/` or update a stronger owner such as `capabilities.md`, `references.md`, `project.md`, or a decision.
 
-- source Spec / parent task;
-- conformance-reviewed tracker scope/frontier;
-- commit policy;
-- push policy (`none`, `final-only`, or `per-ticket`);
-- human-stop conditions.
+## Recovery
 
-The envelope belongs on the canonical tracker source (or the local tracker document), not in a second progress database.
+`evo-recover` reconstructs engineering state from the repository instead of requiring a previous conversation handoff. It uses standing instructions, `.evo/current.md`, active changes, relevant durable knowledge, Git state, recent history, tests/CI and working tree evidence.
 
-## Repository conformance
+## Non-goals
 
-Planning and implementation shape follow this precedence:
+EVOworkflow is not:
 
-```text
-Human-approved intent (WHAT)
-        ↓
-Documented repository rules (HOW constraints)
-        ↓
-Representative existing implementation (SHAPE)
-        ↓
-Existing repository/framework capability (REUSE OWNER)
-        ↓
-Framework official convention
-        ↓
-Matt/general engineering heuristics (FALLBACK)
-        ↓
-New abstraction (LAST OPTION)
-```
-
-Two standing rules enforce this:
-
-- **Reference Before Edit** — inspect the nearest representative implementation before non-mechanical edits.
-- **Capability Before Creation** — inspect/search existing repository/framework capability owners before adding reusable infrastructure or parallel abstractions.
-
-If documented rules and real code disagree materially, surface the inconsistency instead of silently choosing whichever is convenient.
-
-## No hidden orchestration runtime
-
-`evo-goal` is a Skill-level orchestrator. It derives progress from the tracker, Git and evidence. It does not own locks, phase state, fingerprints, adapters, or a duplicate Slice ledger.
+- a replacement issue tracker;
+- a required specification format;
+- a complete software development methodology;
+- a chat-memory system;
+- a framework tutorial database;
+- an encyclopedia of every source file;
+- a runtime state machine that must mediate every coding action.

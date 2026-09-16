@@ -1,49 +1,66 @@
 # EVOworkflow repository instructions
 
-EVOworkflow 2.0 is a thin extension layer over unmodified Matt Pocock engineering Skills carried in this repository as a vendored read-only upstream.
+EVOworkflow is a repository-centered project evolution layer for long-running AI-assisted software development.
+
+## Product boundary
+
+EVO owns durable repository understanding and project evolution context. It does not own every specification, planning, implementation, testing, debugging, or review workflow.
+
+The core capabilities are:
+
+- `evo-init` — repository intelligence and initial Engineering Contract.
+- `evo-refresh` — knowledge freshness and targeted refresh.
+- `evo-change` — semantic change impact and selective invalidation.
+- `evo-learn` — durable project-specific engineering learning.
+- `evo-recover` — repository-based continuity across sessions/models.
+- `ask-evo` — read-only routing to one EVO action or normal engineering work.
 
 ## Architectural invariants
 
-- Matt Skills are vendored upstream dependencies. Their source trees are pinned to Matt's upstream commit and protected by CI tree-SHA checks.
-- Never edit, rename, shadow, or copy-and-patch Matt Skills under their original IDs.
-- A behavioral difference from Matt must live in an `evo-*` Skill or EVO documentation/evals.
-- EVO 2.0 has no central runtime, CLI state machine, `.evo/state.yml`, phase database, or duplicated tracker progress.
-- The configured issue tracker owns Spec/Ticket progress and blocking relationships.
-- Repository source/contracts/current docs own current behavior; `CONTEXT.md` owns domain vocabulary; ADRs own durable rationale; Git/PR history owns chronology; tests/runtime/CI own mechanical evidence.
-- `docs/agents/repository.md` in a consumer repository is a map of authorities, structure, commands, reusable capabilities and representative implementations, not a copied encyclopedia.
-- Reference Before Edit: a non-mechanical implementation must identify the nearest existing pattern and classify the change as REUSE, EXTEND, or NEW.
-- Capability Before Creation: before adding a shared utility/component/base abstraction/framework-like mechanism, prove the repository/framework does not already have an adequate owner.
-- Spec and ticket planning must pass repository-conformance gates before `evo-goal`: `evo-spec-review` then `evo-plan-review`.
-- `evo-test` is intentionally manual/on-demand and must not be inserted into the default Goal lifecycle.
-- Human owns product meaning, material decisions, risk acceptance, and external authorization. Agents may continuously transition through implementation mechanics inside an approved Execution Envelope.
-- Commit describes state; it does not create acceptance or completion.
+- Repository source, tests, runtime behavior, Git and CI are stronger evidence than generated summaries.
+- `.evo/` is a durable knowledge layer, not a second issue tracker, workflow database, or source-of-truth replacement.
+- `AGENTS.md` (or the repository's existing standing agent instruction file) is the consumption bridge into `.evo/` knowledge.
+- EVO knowledge must be compact, link-oriented and progressively disclosed.
+- Reference Before Edit: identify the nearest representative implementation before non-trivial changes.
+- Capability Before Creation: search project/framework capabilities before creating shared infrastructure or abstractions.
+- Change > Rewrite: model accepted intent changes as semantic delta and impact.
+- Selective Invalidation: invalidate only affected knowledge, work and evidence.
+- One Fact → One Owner: each durable fact has a canonical owner.
+- Knowledge promotion requires stability, project-specific value and likely future reuse.
+- Knowledge entries carry observation evidence sufficient to judge freshness.
+
+## Knowledge contract
+
+Consumer repositories use:
+
+```text
+.evo/
+├── project.md       # architecture, boundaries, commands, conventions, constraints
+├── current.md       # compact current engineering state
+├── references.md    # concern -> representative implementation index
+├── capabilities.md  # concern -> existing reusable capability index
+├── decisions/       # durable project decisions when the project needs them
+├── changes/         # accepted intent deltas and impact records
+└── learnings/       # promoted project-specific engineering lessons
+```
+
+Detailed ownership and lifecycle rules live in `docs/knowledge-model.md`.
 
 ## Cross-harness contract
 
-Portable EVO behavior belongs in `SKILL.md`. Do not embed one harness's tool-call syntax in EVO workflow bodies.
+Portable EVO behavior belongs in `SKILL.md`; do not hard-code one agent harness's tool syntax into workflow instructions.
 
 Every EVO Skill must:
 
-- use lowercase kebab-case `name` matching the directory;
-- provide a useful `description` and `compatibility` field;
-- retain `disable-model-invocation: true` for Claude Code user-invoked behavior;
-- set `metadata.opencode/autoinvoke: "false"` for OpenCode;
-- include `agents/openai.yaml` with `policy.allow_implicit_invocation: false` for Codex;
-- refer to Matt Skills by logical Skill ID, not by slash-command/tool syntax;
-- fail clearly with `MATT_SKILL_REQUIRED: <id>` when a required upstream capability is unavailable rather than silently reimplementing it.
-
-Vendored Matt Skills keep their upstream content and metadata exactly; do not retrofit EVO harness metadata into them.
-
-## EVO-owned Skill set
-
-`ask-evo`, `evo-init`, `evo-advisor`, `evo-spec-review`, `evo-plan-review`, `evo-implement`, `evo-change`, `evo-verify`, `evo-review`, `evo-goal`, `evo-finish`, `evo-commit`, `evo-recover`, `evo-test`.
-
-Do not reintroduce EVO copies of upstream `tdd`, bug diagnosis, research, grilling, Spec, ticketing, or setup methods unless a genuinely different lifecycle requires a new and clearly differentiated name.
-
-## Upstream updates
-
-Matt updates are snapshot replacements, not normal edits. Follow `UPSTREAM.md`: replace from a chosen upstream commit, update expected tree SHAs, run compatibility evals, and adapt only EVO-owned files when behavior changed.
+- use lowercase kebab-case `name` matching its directory;
+- provide `description` and `compatibility` frontmatter;
+- retain `disable-model-invocation: true`;
+- set `metadata.opencode/autoinvoke: "false"`;
+- include `agents/openai.yaml` with `policy.allow_implicit_invocation: false`;
+- read the minimum relevant repository/EVO context needed for its job;
+- prefer evidence and links over copied source bodies;
+- state uncertainty instead of silently converting weak observations into rules.
 
 ## Change discipline
 
-When changing this repository, keep README, UPSTREAM policy, architecture/workflow/knowledge docs, Skill contract/evals, `ask-evo`, metadata, examples, and CI aligned in the same change. Prefer behavioral evals over adding more process text.
+When changing EVOworkflow itself, keep README, architecture, knowledge model, Skill contract, Skills, examples and CI aligned. Prefer scenario/eval coverage over adding more prose-only process.

@@ -1,7 +1,7 @@
 ---
 name: ask-evo
-description: Route the current software-engineering situation to exactly one best next Matt or EVO Skill without doing the work itself.
-compatibility: "Codex, Claude Code, OpenCode; Matt engineering Skills recommended"
+description: Inspect repository/EVO state and route to exactly one useful EVO action, or explicitly say that normal engineering work should continue without EVO intervention.
+compatibility: "Codex, Claude Code, OpenCode; Git repository"
 disable-model-invocation: true
 metadata:
   opencode/autoinvoke: "false"
@@ -11,36 +11,43 @@ metadata:
 
 ## Purpose
 
-Act as a read-only router over unmodified Matt engineering Skills plus EVO extensions. Recommend exactly one next Skill/capability.
+Provide a read-only routing decision. Do not perform the routed work.
 
 ## Read first
 
-Read the repository's standing instructions, `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, `docs/agents/repository.md` when present, relevant tracker state including Repository Fit sections, Git status, and the user's current intent. Do not create missing project artifacts merely to route.
+Read standing repository instructions, `.evo/` existence/state when present, current Git status/HEAD, active change/current context and the user's intent. Read only enough evidence to distinguish the routing cases below.
 
 ## Routing
 
-- Matt setup/config missing → `setup-matt-pocock-skills`.
-- Repository engineering structure/patterns/capabilities are not understood or guide is materially stale → `evo-init`.
-- User wants repository-grounded senior engineering/architecture guidance → `evo-advisor`.
-- Product/domain meaning is unclear → `grill-with-docs` or, when specifically domain language/modeling, `domain-modeling`.
-- Current external facts are needed → `research`.
-- Settled intent needs a Spec → `to-spec`.
-- A canonical Spec exists but has not passed Repository Fit review after the latest material change → `evo-spec-review`.
-- A reviewed Spec needs agent-sized vertical work with blockers → `to-tickets`.
-- A ticket graph exists but has not passed Repository Fit review after the latest material Spec/architecture/capability change → `evo-plan-review`.
-- Work is too large/uncertain for one session and decisions must be mapped first → `wayfinder`.
-- One bounded reviewed ticket should be implemented under EVO delivery semantics → `evo-implement`.
-- Accepted intent changed → `evo-change`.
-- A difficult observed bug/performance regression needs diagnosis → `diagnosing-bugs`.
-- Acceptance claims need direct proof → `evo-verify`.
-- Worktree/branch changes need pre-delivery conformance review → `evo-review`.
-- A conformance-reviewed ticket graph should be completed continuously → `evo-goal`.
-- Final verified/reviewed work needs current-truth convergence → `evo-finish`.
-- A coherent checkpoint needs commit or an explicitly authorized push → `evo-commit`.
-- A fresh/interrupted session must reconstruct current work → `evo-recover`.
+Choose exactly one:
 
-If the best route is a Matt Skill that is not installed, report `MATT_SKILL_REQUIRED: <id>` rather than substituting an EVO imitation.
+- Repository Engineering Contract missing or materially incomplete → `evo-init`.
+- Relevant EVO knowledge may be stale because its evidence surface changed → `evo-refresh`.
+- Previously accepted intent changed materially → `evo-change`.
+- A stable project-specific engineering lesson has emerged and should be considered for durable promotion → `evo-learn`.
+- A fresh/interrupted session needs repository-based continuity → `evo-recover`.
+- None of the above → `NORMAL_ENGINEERING_WORKFLOW`.
+
+Normal engineering work includes specification, planning, ticketing, implementation, testing, debugging and review when no EVO-specific evolution/memory action is needed.
+
+## Decision rules
+
+- Do not route to EVO merely because coding work exists.
+- Do not route to `evo-refresh` solely because HEAD changed; require plausible impact on stored knowledge evidence.
+- Do not route to `evo-change` for a pure implementation refactor with unchanged accepted behavior.
+- Do not route to `evo-learn` for generic programming knowledge or one-off task notes.
+- Prefer `evo-recover` when the main problem is “what is the current state?” rather than stale durable knowledge.
+
+## Writes
+
+None.
 
 ## Output
 
-Return: `Next: <skill-id>` plus 1–3 sentences grounded in current repository/tracker evidence. Do not execute the next Skill.
+Return exactly one primary decision:
+
+```text
+Next: <evo-skill-id | NORMAL_ENGINEERING_WORKFLOW>
+```
+
+Then give 1–3 sentences grounded in repository/current-state evidence explaining why.

@@ -1,5 +1,0 @@
-interface:
-  display_name: "EVO Verify"
-  short_description: "Prove acceptance with direct evidence"
-policy:
-  allow_implicit_invocation: false

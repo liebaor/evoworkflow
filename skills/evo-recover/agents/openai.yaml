@@ -1,5 +1,5 @@
 interface:
   display_name: "EVO Recover"
-  short_description: "Recover work from repository, tracker, Git and evidence"
+  short_description: "Recover project state from repository evidence"
 policy:
   allow_implicit_invocation: false

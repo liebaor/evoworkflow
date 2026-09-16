@@ -1,7 +1,7 @@
 ---
 name: evo-init
-description: Semantically learn an existing repository's authorities, architecture, commands, reusable capabilities and representative implementation patterns so later EVO development conforms to the project instead of inventing a parallel structure.
-compatibility: "Codex, Claude Code, OpenCode; Git repository; integrates with Matt setup"
+description: Build a durable Repository Engineering Contract by semantically learning an existing repository's architecture, commands, representative implementations, reusable capabilities, conventions, constraints and current observation point.
+compatibility: "Codex, Claude Code, OpenCode; Git repository"
 disable-model-invocation: true
 metadata:
   opencode/autoinvoke: "false"
@@ -11,61 +11,185 @@ metadata:
 
 ## Purpose
 
-Make the repository legible to a fresh Agent and establish how future code should fit the existing system. This is semantic repository archaeology, not framework detection alone.
+Make a repository legible to future agents without relying on chat history. Create a compact, evidence-backed Repository Engineering Contract that normal planning, coding, debugging and review workflows can consume through standing repository instructions.
 
-## Preconditions
+This is semantic repository archaeology, not framework detection or file inventory generation.
 
-Matt's repository setup should already define issue-tracker and domain-doc conventions. If `docs/agents/issue-tracker.md` / domain configuration is missing and `setup-matt-pocock-skills` is unavailable, report `MATT_SKILL_REQUIRED: setup-matt-pocock-skills`.
+## When to use
+
+Use when:
+
+- EVO knowledge does not yet exist;
+- a repository is being onboarded for long-running AI-assisted development;
+- existing EVO knowledge is so incomplete that targeted refresh is not sufficient.
+
+For ordinary incremental repository changes after a valid initialization, use `evo-refresh`.
+
+## When not to use
+
+Do not use this Skill to:
+
+- implement a feature;
+- generate a product spec or ticket plan;
+- perform ordinary debugging;
+- copy the repository into documentation;
+- convert generic framework documentation into project rules.
 
 ## Read first
 
-Inspect standing instructions (`AGENTS.md`, `CLAUDE.md` when present), README/current docs, architecture/coding/contributing standards, manifests/locks, CI, formatter/linter/type/test configuration, application entry points, representative source, tests, migrations/contracts, framework/platform conventions present in the codebase, and recent Git history.
+Inspect the repository's existing standing instructions (`AGENTS.md`, `CLAUDE.md` or equivalent), README/current architecture/contributing docs, manifests/locks, build and CI configuration, formatter/linter/type/test configuration, application entry points, source roots, tests, migrations/contracts and recent Git history.
 
-## Archaeology layers
+Treat existing authoritative repository instructions as constraints. Preserve unrelated user-authored instructions when adding EVO integration.
 
-1. **Explicit authorities** — identify where architecture, coding rules, domain language, API/data rules and operations are actually documented.
-2. **Architecture** — trace real module boundaries, dependency direction and at least one representative end-to-end consumer path.
-3. **Operating paths** — confirm build, test, typecheck/lint, run and relevant observation commands from repository evidence.
-4. **Existing patterns** — find representative implementations for concerns future changes are likely to touch: API/controller, service/domain, persistence, permissions/auth, transactions/errors, frontend state/forms/tables, migrations and tests as applicable.
-5. **Reusable capabilities** — identify existing framework-native classes, helpers, utilities, shared modules, components, annotations, middleware, data/access abstractions and extension points that should be reused or extended rather than rebuilt.
-6. **Conflicts/unknowns** — surface meaningful disagreement between docs and dominant code, multiple incompatible patterns, or missing evidence.
+## Process
 
-Prefer a widely used, current and tested pattern over an isolated example. A documented repository rule overrides generic taste; when a documented rule and dominant current implementation materially conflict, record the conflict rather than pretending one is canonical.
+### 1. Establish the repository surface
 
-## Write
+Identify:
 
-Create or refresh `docs/agents/repository.md` as a compact map with:
+- applications and entry points;
+- source/test/migration/config roots;
+- manifests and dependency/build systems;
+- CI and quality gates;
+- relevant documentation authorities;
+- monorepo/module boundaries when present;
+- current Git commit and working-tree state.
 
-- Authorities
-- Build / Test / Run
-- Architecture / Module Boundaries
-- Representative Consumer Paths
-- Existing Patterns (`Concern | Reference | Why this is representative`)
-- Reusable Capabilities (`Concern | Existing capability | Typical use | Reference`)
-- Development Contract
-- Known Inconsistencies / Unknowns
-- Observation commit/date for traceability
+Do not write a flat file inventory.
 
-The Reusable Capabilities map should cover the repository/framework concerns most likely to be reinvented: standard responses, pagination, auth/permission, audit/logging, validation, persistence helpers, transactions/errors, caching, file/Excel/import-export, dictionaries/status handling, frontend request/state/table/form components, migrations and test helpers when they exist.
+### 2. Reconstruct architecture from real paths
 
-Link to source/authorities; do not copy large documents or source bodies. Do not create `.evo/` state.
+Trace at least one representative end-to-end path appropriate to the project, for example:
 
-Ensure the repository's existing agent-instruction root points readers to `docs/agents/repository.md`; preserve surrounding user instructions.
+```text
+UI -> client/API -> controller/handler -> service/domain -> persistence -> data store
+```
 
-## Development Contract
+Adapt to the actual repository shape. Confirm module boundaries, dependency direction and external-system/data boundaries from source evidence rather than directory names alone.
 
-The Development Contract must include both rules:
+### 3. Mine representative implementations
 
-**Reference Before Edit** — non-mechanical implementation identifies the nearest existing reference before editing and classifies its approach `REUSE`, `EXTEND`, or `NEW`.
+Find current implementations that future work should inspect first for relevant concerns such as:
 
-**Capability Before Creation** — before creating a shared class/helper/utility/component/middleware/base abstraction or framework-like mechanism, search the repository and framework capability map for an existing owner. Reuse or extend that owner unless a new abstraction is explicitly justified.
+- CRUD or common request flow;
+- complex business/service logic;
+- persistence/migrations;
+- permissions/authentication;
+- transactions/error handling;
+- frontend request/state/forms/tables;
+- tests and fixtures.
 
-For framework-based brownfield projects, repository-specific usage wins over generic framework tutorials. Framework-native capability wins over a parallel custom abstraction unless an accepted architectural decision says otherwise.
+Prefer current, widely used and tested examples. Record why an implementation is representative.
 
-## Stop
+Classify evidence strength as:
 
-Do not start feature implementation. Stop if the repository cannot be safely interpreted because entry points/authorities materially conflict or required files are inaccessible.
+- `Authoritative` — explicitly required by a current authority;
+- `Representative` — strongly supported by repeated/current production usage;
+- `Observed` — limited evidence; useful as a lead, not a rule.
+
+### 4. Mine reusable capabilities
+
+Search source and framework usage for existing capabilities likely to be reinvented, including when applicable:
+
+- response envelopes;
+- pagination;
+- authentication/authorization;
+- audit/logging;
+- validation;
+- persistence helpers;
+- transactions/errors;
+- caching;
+- file/import/export/Excel;
+- dictionaries/status handling;
+- frontend request/state/form/table components;
+- migrations and test helpers.
+
+The goal is to answer “what already exists and who owns it?” before a future agent creates parallel infrastructure.
+
+### 5. Extract commands, conventions and constraints
+
+Confirm build/run/test/lint/typecheck/format commands from executable repository evidence. Record material conventions and constraints only when evidence supports them.
+
+Surface meaningful conflicts between docs and current code instead of silently choosing one.
+
+### 6. Synthesize `.evo/`
+
+Create or refresh:
+
+- `.evo/project.md`
+- `.evo/references.md`
+- `.evo/capabilities.md`
+- `.evo/current.md` (minimal initial state)
+- `.evo/decisions/`
+- `.evo/changes/`
+- `.evo/learnings/`
+
+Follow `docs/knowledge-model.md` semantics when this Skill is used inside EVOworkflow itself; in consumer repositories, apply the same contract.
+
+Knowledge must be link-oriented and compact. Reference paths/symbols/docs; do not paste large source bodies.
+
+Each durable map records the current observation commit/date and evidence references sufficient for later freshness checks.
+
+### 7. Install the consumption bridge
+
+Ensure the repository's existing standing agent instruction file contains one concise `## Repository Engineering Context` section. Preserve surrounding instructions.
+
+The section must tell agents that for non-trivial planning, ticketing, implementation, debugging and review they should:
+
+- read `.evo/project.md` for architecture/boundaries/conventions;
+- inspect `.evo/current.md` when current work state matters;
+- search `.evo/capabilities.md` before creating shared infrastructure;
+- search `.evo/references.md` for representative implementations;
+- verify important facts against source when relevant EVO evidence may be stale.
+
+Do not copy the full knowledge base into the standing instruction file.
+
+### 8. Consistency check
+
+Before finishing, verify:
+
+- important claims link to evidence;
+- confidence is not overstated;
+- representative references still exist;
+- capabilities have real owners;
+- project/current/reference/capability files do not duplicate the same fact unnecessarily;
+- the standing agent instruction bridge points to the actual `.evo/` paths.
+
+## Decision rules
+
+### Reference Before Edit
+
+Future non-trivial implementation should identify the nearest representative implementation before editing and prefer `REUSE` or `EXTEND` over `NEW` when adequate owners exist.
+
+### Capability Before Creation
+
+Before creating shared helpers, wrappers, base classes, middleware, components or framework-like mechanisms, future agents should search `capabilities.md` and current source for an existing owner.
+
+### Source > Summary
+
+If EVO knowledge conflicts with current source/tests/runtime evidence, current evidence wins and the knowledge should be refreshed or downgraded.
+
+## Writes
+
+Writes only repository knowledge/instruction integration needed for initialization. Do not implement product functionality.
+
+## Stop conditions
+
+Stop and report uncertainty if:
+
+- relevant repository areas are inaccessible;
+- current authorities materially conflict and source evidence cannot resolve them;
+- architecture cannot be safely reconstructed from available evidence.
+
+Do not fabricate a clean architecture when the repository is inconsistent.
 
 ## Output
 
-Summarize confirmed authorities, representative patterns, reusable framework/project capabilities, meaningful unknowns, and whether the repository is ready for conformant planning and implementation.
+Summarize:
+
+- confirmed architecture and authorities;
+- key representative references;
+- key reusable capabilities;
+- important constraints/conflicts/unknowns;
+- observation commit;
+- whether the Repository Engineering Contract is ready for normal engineering workflows.

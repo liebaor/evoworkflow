@@ -1,5 +1,0 @@
-interface:
-  display_name: "EVO Review"
-  short_description: "Review worktree changes for conformance, intent and evidence"
-policy:
-  allow_implicit_invocation: false

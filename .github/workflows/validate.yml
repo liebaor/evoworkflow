@@ -1,4 +1,4 @@
-name: Validate EVOworkflow v2
+name: Validate EVOworkflow
 
 on:
   push:
@@ -12,26 +12,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate version and positioning
-        run: |
-          set -euo pipefail
-          test "$(cat VERSION)" = "2.0.0"
-          grep -q '^# EVOworkflow 2.0' README.md
-          grep -Fq 'Matt is upstream. EVO is an extension, not a fork.' README.md
-          grep -Fq '959a8e9f1edc3adbe2f7e3054bb6fbefa6696260' UPSTREAM.md
-          grep -Fq 'vendored read-only upstream' UPSTREAM.md
-
-      - name: Validate EVO-owned Skill set
+      - name: Validate product contract
         shell: bash
         run: |
           set -euo pipefail
-          skills=(
-            ask-evo evo-init evo-advisor evo-spec-review evo-plan-review evo-implement
-            evo-change evo-verify evo-review evo-goal evo-finish evo-commit evo-recover evo-test
-          )
-          count=$(find skills -mindepth 1 -maxdepth 1 -type d \( -name 'evo-*' -o -name 'ask-evo' \) | wc -l | tr -d ' ')
-          test "$count" = "14"
-          for skill in "${skills[@]}"; do
+          test "$(cat VERSION)" = "3.0.0"
+          grep -Fq 'project evolution layer' README.md
+          grep -Fq 'Repository Engineering Contract' README.md
+          grep -Fq 'Selective Invalidation' README.md
+          grep -Fq 'AGENTS.md' README.md
+
+      - name: Validate core Skill set
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=(ask-evo evo-init evo-refresh evo-change evo-learn evo-recover)
+          mapfile -t actual < <(find skills -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+          printf '%s\n' "${expected[@]}" | sort > /tmp/expected
+          printf '%s\n' "${actual[@]}" > /tmp/actual
+          diff -u /tmp/expected /tmp/actual
+
+          for skill in "${expected[@]}"; do
             test -f "skills/$skill/SKILL.md"
             test -f "skills/$skill/agents/openai.yaml"
             grep -q "^name: $skill$" "skills/$skill/SKILL.md"
@@ -40,93 +41,46 @@ jobs:
             grep -q '^disable-model-invocation: true$' "skills/$skill/SKILL.md"
             grep -Fq 'opencode/autoinvoke: "false"' "skills/$skill/SKILL.md"
             grep -Fq 'allow_implicit_invocation: false' "skills/$skill/agents/openai.yaml"
-            grep -Fq "$skill" README.md
           done
 
-      - name: Validate vendored Matt upstream tree SHAs
+      - name: Validate knowledge contract
         shell: bash
         run: |
           set -euo pipefail
-          expected=(
-            'ask-matt:85f3ba59f22c16de988e36b781ae46d0d9098f94'
-            'code-review:d8e341cee7980127dddda05159bedf25dc853615'
-            'codebase-design:344e3efc88ee60663b2e989555c2efdb548fbd42'
-            'diagnosing-bugs:99bd56983e42bc752c52da67f1112e4121781cd1'
-            'domain-modeling:388c9822641805ca2dcd5038e68a1d5282437ee5'
-            'grill-with-docs:eedaf2562c83155115e9c649fa3ecaac2e10e81d'
-            'implement:f07d230f645fc9ac390cf13a450bbff12ad791a3'
-            'improve-codebase-architecture:3d35cd438f4067b03c8b3792e038960e4ac11526'
-            'prototype:e41d92e171f074a2b6887d8f6faca4a15c83d1ca'
-            'research:0a6796c5667e95ed2301ba7381c123b4acb2ae1a'
-            'resolving-merge-conflicts:77f0d7de3143abbf03e55a63522d30bff31ae908'
-            'setup-matt-pocock-skills:ec07f82df54064d01aa1648670e81da41e2cbdc2'
-            'tdd:79288be15c67b849f22b6572056601090fd20913'
-            'to-spec:136b9651747cfccbfbb7c50a6b0dfb757e7547d2'
-            'to-tickets:b32c94e5a51c24ee9c41fcb7fe9ea9fff9af6369'
-            'triage:95fa21bf236993cd9af25bd3670476c17fdb95a4'
-            'wayfinder:8ec0462658381bd1606d3f9db14ffc67df6a2a43'
-            'wizard:0a163daf092c6f361158ca9627e81f2cb5230574'
-            'grill-me:3df14e2d3a89459bf300614be9247e3ce74798f8'
-            'grilling:f0732035b8b1b60ae39454e4191caef32fa91903'
-            'handoff:2242e8f05424b8c2ae94194a90d97b88d16108ec'
-            'teach:2ab11f2f51f3c29771edb5d4258d807a49462491'
-            'to-questionnaire:46dfbeeba12a9e52eef446676f42e7551023d9a9'
-            'wait-what:c119d66111cc1bac94cbc51322cd34ed21aa0446'
-            'writing-for-agents:ad2925850efb8973a72d2e666f7a975f9a2d4a9b'
-          )
+          grep -Fq '.evo/project.md' docs/knowledge-model.md
+          grep -Fq '.evo/references.md' docs/knowledge-model.md
+          grep -Fq '.evo/capabilities.md' docs/knowledge-model.md
+          grep -Fq 'Authoritative' docs/knowledge-model.md
+          grep -Fq 'Representative' docs/knowledge-model.md
+          grep -Fq 'Observed' docs/knowledge-model.md
+          grep -Fq 'One Fact → One Owner' docs/knowledge-model.md
+          grep -Fq 'Progressive disclosure' docs/knowledge-model.md
 
-          test "${#expected[@]}" = "25"
-          total_dirs=$(find skills -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-          test "$total_dirs" = "39"
-
-          for entry in "${expected[@]}"; do
-            skill=${entry%%:*}
-            sha=${entry#*:}
-            test -d "skills/$skill"
-            actual=$(git rev-parse "HEAD:skills/$skill")
-            if [ "$actual" != "$sha" ]; then
-              echo "Matt upstream drift: $skill expected $sha got $actual" >&2
-              exit 1
-            fi
-          done
-
-          test -f THIRD_PARTY_LICENSES/mattpocock-skills-LICENSE
-
-      - name: Ensure upstream methods are not duplicated as EVO Skills
+      - name: Validate Skill semantics
+        shell: bash
         run: |
           set -euo pipefail
-          for retired in evo-setup evo-grill-with-docs evo-research evo-spec evo-plan evo-tdd evo-bug; do
-            test ! -e "skills/$retired"
-          done
-          grep -Fq 'Do not edit, rename, or shadow Matt Skills.' README.md
-          grep -Fq 'MATT_SKILL_REQUIRED' docs/skill-contract.md
-
-      - name: Validate key v2 contracts
-        run: |
-          set -euo pipefail
+          grep -Fq 'Repository Engineering Contract' skills/evo-init/SKILL.md
           grep -Fq 'Reference Before Edit' skills/evo-init/SKILL.md
           grep -Fq 'Capability Before Creation' skills/evo-init/SKILL.md
-          grep -Fq 'Repository Fit' skills/evo-spec-review/SKILL.md
-          grep -Fq 'Capability Before Creation' skills/evo-plan-review/SKILL.md
-          grep -Fq 'evo-goal` must not begin' skills/evo-plan-review/SKILL.md
-          grep -Fq 'Capability Before Creation' skills/evo-implement/SKILL.md
-          grep -Fq 'RETAIN | REVISE | REMOVE | ADD' skills/evo-change/SKILL.md
-          grep -Fq 'UNVERIFIED' skills/evo-verify/SKILL.md
-          grep -Fq 'parallel response' skills/evo-review/SKILL.md
-          grep -Fq 'evo-spec-review' skills/evo-goal/SKILL.md
-          grep -Fq 'evo-plan-review' skills/evo-goal/SKILL.md
-          grep -Fq 'Tracker owns progress' skills/evo-goal/SKILL.md
-          grep -Fq 'Default is **no push**' skills/evo-commit/SKILL.md
-          grep -Fq 'manual only' skills/evo-test/SKILL.md
-          grep -Fq 'Critical user journey' skills/evo-test/SKILL.md
-          grep -Fq 'Execution Envelope' docs/architecture.md
-          grep -Fq 'One Fact → One Owner' docs/knowledge-model.md
-          grep -Fq 'Planning Conforms Before Execution' README.md
+          grep -Fq 'evidence surface' skills/evo-refresh/SKILL.md
+          grep -Fq 'Selective Invalidation' skills/evo-change/SKILL.md
+          grep -Fq 'Promotion test' skills/evo-learn/SKILL.md
+          grep -Fq 'chat history' skills/evo-recover/SKILL.md
+          grep -Fq 'NORMAL_ENGINEERING_WORKFLOW' skills/ask-evo/SKILL.md
 
-      - name: Ensure no central runtime or EVO state database
+      - name: Validate templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in project current references capabilities change learning; do
+            test -f "templates/$f.md"
+          done
+
+      - name: Ensure repository is workflow-only
+        shell: bash
         run: |
           set -euo pipefail
           test ! -d src
           test ! -f package.json
           test ! -d node_modules
-          test ! -d .evo
