@@ -1,6 +1,6 @@
 # EVOworkflow Skills
 
-EVOworkflow provides six repository-evolution Skills:
+EVOworkflow provides seven repository-evolution Skills:
 
 | Skill | Purpose |
 |---|---|
@@ -9,7 +9,8 @@ EVOworkflow provides six repository-evolution Skills:
 | `evo-change` | Propagate accepted intent changes with selective invalidation. |
 | `evo-learn` | Promote durable project-specific engineering learning. |
 | `evo-recover` | Recover current project state across sessions and models. |
-| `ask-evo` | Route to one EVO action or normal engineering workflow. |
+| `evo-advisor` | Give repository-aware senior engineering guidance, tradeoff analysis and recommendations. |
+| `ask-evo` | Route to one EVO action, advisory guidance, or normal engineering workflow. |
 
 Install:
 
@@ -19,4 +20,6 @@ npx skills@latest add liebaor/evoworkflow
 
 Start a consumer repository with `evo-init`.
 
-EVO Skills maintain engineering context. Specification, planning, ticketing, coding, testing, debugging and review workflows remain free to use that context through the repository's standing agent instructions.
+Use `evo-advisor` when the question is not “which workflow action comes next?” but “what engineering approach makes sense in this repository, and why?”. It reads the Repository Engineering Contract, relevant source/tests and current external technical sources when needed, but is read-only by default.
+
+EVO Skills maintain engineering context and guidance. Specification, planning, ticketing, coding, testing, debugging and review workflows remain free to use that context through the repository's standing agent instructions.
