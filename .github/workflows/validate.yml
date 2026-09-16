@@ -21,12 +21,14 @@ jobs:
           grep -Fq 'Repository Engineering Contract' README.md
           grep -Fq 'Selective Invalidation' README.md
           grep -Fq 'AGENTS.md' README.md
+          grep -Fq 'Engineering Advisory' README.md
+          grep -Fq 'evo-advisor' README.md
 
       - name: Validate core Skill set
         shell: bash
         run: |
           set -euo pipefail
-          expected=(ask-evo evo-init evo-refresh evo-change evo-learn evo-recover)
+          expected=(ask-evo evo-advisor evo-init evo-refresh evo-change evo-learn evo-recover)
           mapfile -t actual < <(find skills -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
           printf '%s\n' "${expected[@]}" | sort > /tmp/expected
           printf '%s\n' "${actual[@]}" > /tmp/actual
@@ -71,6 +73,11 @@ jobs:
           grep -Fq 'Selective Invalidation' skills/evo-change/SKILL.md
           grep -Fq 'Promotion test' skills/evo-learn/SKILL.md
           grep -Fq 'chat history' skills/evo-recover/SKILL.md
+          grep -Fq 'Repository-aware senior engineering advisor' skills/evo-advisor/SKILL.md
+          grep -Fq 'Reference Before Edit' skills/evo-advisor/SKILL.md
+          grep -Fq 'Capability Before Creation' skills/evo-advisor/SKILL.md
+          grep -Fq 'Repository fact' skills/evo-advisor/SKILL.md
+          grep -Fq 'evo-advisor' skills/ask-evo/SKILL.md
           grep -Fq 'NORMAL_ENGINEERING_WORKFLOW' skills/ask-evo/SKILL.md
 
       - name: Validate templates
