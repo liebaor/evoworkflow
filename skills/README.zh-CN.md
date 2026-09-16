@@ -42,6 +42,7 @@ npx skills@latest add liebaor/evoworkflow
 | `evo-finish` | 完成后做知识/文档/Tracker 的 Current Truth 收敛。 |
 | `evo-commit` | 结构化 Commit + 受控 Push。 |
 | `evo-recover` | 新 Session 从 Repository / Tracker / Git / CI 恢复。 |
+| `evo-test` | **手工触发**的较完整测试：复用项目现有测试方式，并在条件允许时模拟关键用户操作；不进入默认 Goal 流程。 |
 
 ## 规划与开发约束
 
@@ -62,5 +63,15 @@ EVO 的核心约束是：
 - **Planning Conforms Before Execution**：Spec 和 Tickets 在进入持续执行前必须与现有项目结构、框架能力和规范一致。
 
 对于 RuoYi 等 Brownfield 项目，优先级是“当前 Repository 的真实用法 > Framework 通用教程 > AI 自己偏好的新抽象”。
+
+## 手工完整测试
+
+需要更高信心时手工调用：
+
+```text
+evo-test
+```
+
+它不会被 `evo-goal` 自动调用，也不会为了测试强制给项目引入新的测试框架。它会按本次改动选择必要的 project-native build/unit/integration/API 测试；对用户可见功能，在已有浏览器/E2E或可交互应用能力存在时执行关键 User Journey。无法实际触达的边界必须标记 `UNVERIFIED`。
 
 所有 **EVO-owned** Skill 都按 Codex / OpenCode / Claude Code 的兼容 metadata 设计，同时避免在正文中绑定某一种 Harness 的 Skill 调用语法。Matt vendored Skill 则保持上游原始 metadata，不为了 EVO 兼容性而直接打补丁。
